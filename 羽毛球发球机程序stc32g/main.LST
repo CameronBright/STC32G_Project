@@ -1,0 +1,135 @@
+C251 COMPILER V5.60.0,  main                                                               17/07/23  21:46:26  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE main
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE main.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE IN
+                    -CDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor) DEBUG TABS(2) 
+
+stmt  level    source
+
+    1          #include "timer.h"   //定时器
+    2          #include "oled.h"   //OLED函数
+    3          #include "GPIO.h"   //GPIO
+    4          #include "pwm.h"      //pwm
+    5          #include "Encoders.h"  //旋转编码器
+    6          #include "iic.h"
+    7          #include "Uart.h"   //串口
+    8          #include "stdio.h"
+    9          #include "Meun.h"
+   10          #include "motor.h"
+   11          extern uint s_count;         //计数加加
+   12          void main()
+   13          {
+   14   1        GPIO_init();//GPIO初始化
+   15   1        OLED_Init();//oled初始化
+   16   1        OLED_ColorTurn(0);//0正常显示，1 反色显示
+   17   1        OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
+   18   1        OLED_Clear();//oled清屏
+   19   1        Timer1Init();//定时器初始化
+   20   1        UartInit();//串口初始化 
+   21   1        S1_S0=0;S1_S1=0;//串口1 选择P30 P31 
+   22   1        P54RST=1;//复位初始化
+   23   1        
+   24   1        MOTOR_AIN1 = 1;
+   25   1        MOTOR_AIN2 = 0;
+   26   1        
+   27   1        MOTOR_BIN1 = 1;
+   28   1        MOTOR_BIN2 = 0;
+   29   1        
+   30   1        while(1)
+   31   1        { 
+   32   2          //rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿    
+   33   2          //Cancel_determine();      //按键取消和确定检测函数,计时方式
+   34   2          //Memu();
+   35   2          
+   36   2      //    Uart_sendbyte('1');
+   37   2      //    Uart_String("1323\r\n");
+   38   2      //    IDL = 1;
+   39   2          
+   40   2        }
+   41   1      }
+   42          void timer1() interrupt 3       //100us加一次
+   43          {
+   44   1        Pwm_Fun();                 //pwm函数
+   45   1        if(EC11_K==0)
+   46   1        {
+   47   2          long_short=1;          //编码器按下为0   
+   48   2        }   
+   49   1        if(long_short==1)         //进入计时的条件
+   50   1        {
+   51   2          s_count++;   
+   52   2        }
+   53   1      } 
+   54          
+   55          
+   56          //  IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
+   57          //  EX0=1;  //使能中断0
+   58          //  IT1=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
+C251 COMPILER V5.60.0,  main                                                               17/07/23  21:46:26  PAGE 2   
+
+   59          //  EX1=1;  //使能中断0
+   60          
+   61          //add_loseit EC11_OLD_A;
+   62          //add_loseit EC11_UP_A;
+   63          //add_loseit EC11_DOWN_A
+   64          //add_loseit EC11_OLD_add_lose;
+   65          //void init0_Isr() interrupt 0
+   66          //{
+   67          //    IE1=0;
+   68          //    EC11_UP_A=~EC11_A&(EC11_OLD_A^EC11_A);
+   69          //    EC11_DOWN_A=EC11_A&(EC11_OLD_A^EC11_A)
+   70          //    EC11_OLD_A=EC11_A;
+   71          //    if(EC11_UP_A)
+   72          //    {
+   73          //      if(EC11_add_lose)
+   74          //      {
+   75          //        flag=1;
+   76          //          t+=0.01;
+   77          //      
+   78          //      }else{
+   79          //        t-=0.01;
+   80          //      }
+   81          //    }
+   82          //    if(EC11_DOWN_A)
+   83          //    {
+   84          //      if(EC11_add_lose==0)
+   85          //      {
+   86          //        flag=1;
+   87          //          t-=0.01;
+   88          //      
+   89          //      }else{
+   90          //        flag=1;
+   91          //          t-=0.01;
+   92          //      }
+   93          //    }
+   94          
+   95          //}
+   96          //void init1_Isr() interrupt 2
+   97          //{
+   98          //  IE0=0;
+   99          //}
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       118     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

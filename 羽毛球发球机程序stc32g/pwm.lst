@@ -1,0 +1,54 @@
+C251 COMPILER V5.60.0,  pwm                                                                17/07/23  21:48:28  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE pwm
+OBJECT MODULE PLACED IN pwm.obj
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE PWM\pwm.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE
+                    - INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor) DEBUG PRINT(.\pwm.lst) TABS(2) OBJECT(pwm.ob
+                    -j) 
+
+stmt  level    source
+
+    1          #include "pwm.h"
+    2          uchar Pwm_count=0;       //pwm计时加加
+    3          uchar Pwm_value=100;       //存储PWM的值
+    4          
+    5          void Pwm_Fun()
+    6          {
+    7   1        Pwm_count++;         //PWM调节
+    8   1        if(Pwm_count>=200){
+    9   2          Pwm_count=0;
+   10   2        }
+   11   1        if(Pwm_value<=Pwm_count){
+   12   2          PWM_PIN=0;
+   13   2          PWM_PIN1=0;
+   14   2        }
+   15   1        else{
+   16   2          PWM_PIN=1;
+   17   2          PWM_PIN1=1;
+   18   2        }
+   19   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =        43     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =         2     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        10     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

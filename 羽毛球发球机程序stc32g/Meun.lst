@@ -1,0 +1,176 @@
+C251 COMPILER V5.60.0,  Meun                                                               17/07/23  21:41:46  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Meun
+OBJECT MODULE PLACED IN Meun.obj
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE Menu\Meun.c XSMALL INTR2 WARNINGLEVEL(1) BROW
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor) DEBUG PRINT(.\Meun.lst) TABS(2) OBJECT(Meu
+                    -n.obj) 
+
+stmt  level    source
+
+    1          #include "Meun.h"
+    2          #include "oled.h"
+    3          #include "Encoders.h" 
+    4          #include "Uart.h" 
+    5          #define interface 16      //增加或减少界面
+    6          extern struct encoder spin;   //结构体声明 
+    7          extern struct value adjust;  //结构体声明
+    8          extern uchar part_count;   //区别结构体part的第几个
+    9          enum more page_table;     //枚举 
+   10          page_table=meun_1_1;      //第几页
+   11          
+   12          
+   13          const struct Location_and_Content set[interface]={     //const是常量
+   14            
+   15            {10,16,0,"转速调节",Meun_2_speed},  //回调  转速  函数
+   16            {11,16,2,"角度调节",Meun_2_angle},  //回调  角度  函数
+   17            {12,16,4,"俯仰角",Meun_2_Pitching}, //回调  俯仰角 函数
+   18            {13,16,6,"控制",Meun_2_control},    //回调  控制  函数
+   19            {14,16,0,"其他"},  
+   20            {15,16,2,"其他"},
+   21            {16,16,4,"其他"},
+   22            {17,16,6,"其他"},       
+   23            
+   24            {20,15,0,"转速:"},              //二级菜单显示内容    
+   25            {21,15,2,"功能:"},   
+   26            {22,15,0,"调左右:"},
+   27            {23,15,2,"功能:"},
+   28            {24,15,0,"俯仰角:"},
+   29            {25,15,2,"功能:"},
+   30            {26,15,0,"测试发球:"},
+   31            {27,15,2,"功能:"},    
+   32          };
+   33          
+   34          
+   35          /******************************************************************************
+   36                函数说明：主菜单
+   37                入口参数：无
+   38                返回值：  无
+   39          ******************************************************************************/
+   40          
+   41          
+   42          void Memu()//总菜单
+   43          { 
+   44   1        switch(spin.menu_mode)                 
+   45   1        {
+   46   2          case 0:
+   47   2              Main_Meun();//一级菜单
+   48   2          break;
+   49   2          case 1:
+   50   2            if(part_count == set[0].part%10)     set[0].Meun();  //回调  转速  函数
+   51   2            else if(part_count==set[1].part%10)  set[1].Meun();  //回调  角度  函数
+   52   2            else if(part_count==set[2].part%10)  set[2].Meun();  //回调  俯仰角 函数
+   53   2            else if(part_count==set[3].part%10)  set[3].Meun();  //回调  控制  函数 
+   54   2            OLED_16x16(0,spin.Page2,">");           //显示函数  
+   55   2          break;
+   56   2        }   
+   57   1      }
+C251 COMPILER V5.60.0,  Meun                                                               17/07/23  21:41:46  PAGE 2   
+
+   58          
+   59          /******************************************************************************
+   60                函数说明：一级菜单
+   61                入口参数：无
+   62                返回值：  无
+   63          ******************************************************************************/
+   64          
+   65          
+   66          void Main_Meun()                         
+   67          { 
+   68   1        if(part_count < 4&& page_table == 1)
+   69   1        {
+   70   2          page_table=meun_1_1;
+   71   2          OLED_16x16(set[0].x,set[0].y,set[0].Text);   //坐标(x,y)及显示内容
+   72   2          OLED_16x16(set[1].x,set[1].y,set[1].Text);    
+   73   2          OLED_16x16(set[2].x,set[2].y,set[2].Text);    
+   74   2          OLED_16x16(set[3].x,set[3].y,set[3].Text);
+   75   2        }
+   76   1        else if(part_count == 4&&page_table == 1)
+   77   1        {
+   78   2          OLED_Clear();
+   79   2          spin.Page=0;
+   80   2          page_table=meun_1_2;
+   81   2        } 
+   82   1        else if(part_count >= 4&& page_table == 2)  
+   83   1        {
+   84   2          OLED_16x16(set[4].x,set[4].y,set[4].Text);   
+   85   2          OLED_16x16(set[5].x,set[5].y,set[5].Text);    
+   86   2          OLED_16x16(set[6].x,set[6].y,set[6].Text);    
+   87   2          OLED_16x16(set[7].x,set[7].y,set[7].Text);
+   88   2        }
+   89   1        else if(part_count < 5&& page_table == 2)
+   90   1        {
+   91   2          OLED_Clear(); 
+   92   2          spin.Page=6;
+   93   2          page_table=meun_1_1;    
+   94   2        }
+   95   1          OLED_16x16(0,spin.Page,">");            //显示函数  
+   96   1        
+   97   1          Uart_sendbyte(spin.Page);
+   98   1      } 
+   99          
+  100          /******************************************************************************
+  101                函数说明：二级菜单
+  102                入口参数：无
+  103                返回值：  无
+  104          ******************************************************************************/
+  105          
+  106          
+  107          void Meun_2_speed()   //二级菜单转速
+  108          {
+  109   1        OLED_16x16(set[8].x,set[8].y,set[8].Text);  //坐标(x,y)及显示文本
+  110   1        OLED_ShowNum(57,0,adjust.speed_value*0.01,4); //显示数值  
+  111   1        OLED_16x16(set[9].x,set[9].y,set[9].Text);  //坐标(x,y)及显示文本 
+  112   1        OLED_ShowNum(57,2,adjust.qi_value*0.01,4);  //显示数值
+  113   1      }
+  114          
+  115          void Meun_2_angle()   //二级菜单角度
+  116          {
+  117   1        OLED_16x16(set[10].x,set[10].y,set[10].Text);
+  118   1        OLED_ShowNum(75,0,adjust.angle_value*0.01,4); 
+  119   1        OLED_16x16(set[11].x,set[11].y,set[11].Text); 
+  120   1        OLED_ShowNum(57,2,adjust.qi_value*0.01,4);  //显示数值
+  121   1      }
+  122          
+  123          void Meun_2_Pitching()   //二级菜单俯仰角
+C251 COMPILER V5.60.0,  Meun                                                               17/07/23  21:41:46  PAGE 3   
+
+  124          {
+  125   1        OLED_16x16(set[12].x,set[12].y,set[12].Text);
+  126   1        OLED_ShowNum(75,0,adjust.Pitching_value*0.01,4);  
+  127   1        OLED_16x16(set[13].x,set[13].y,set[13].Text); 
+  128   1        OLED_ShowNum(57,2,adjust.qi_value*0.01,4);  //显示数值  
+  129   1      }
+  130          
+  131          void Meun_2_control()   //二级菜单控制
+  132          {
+  133   1        OLED_16x16(set[14].x,set[14].y,set[14].Text);
+  134   1        OLED_ShowNum(88,0,adjust.control_value*0.01,4); 
+  135   1        OLED_16x16(set[15].x,set[15].y,set[15].Text);     
+  136   1        OLED_ShowNum(57,2,adjust.qi_value*0.01,4);  //显示数值  
+  137   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =      1274     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =         2     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =       225     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
