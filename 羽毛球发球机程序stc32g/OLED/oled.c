@@ -398,9 +398,8 @@ void OLED_Init(void)
 	OLED_WR_Byte(0x12,OLED_CMD); 
 	OLED_WR_Byte(0xdb,OLED_CMD); /*set vcomh*/ 
 	OLED_WR_Byte(0x40,OLED_CMD);
-	OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/	
-	OLED_WR_Byte(0x81,OLED_CMD); //微调对比度,本指令的0x81不要改动，改下面的值
-  OLED_WR_Byte(0x00,OLED_CMD); //微调对比度的值，可设置范围0x00～0xff	
+	OLED_Clear();
+	OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/
 }
 
 

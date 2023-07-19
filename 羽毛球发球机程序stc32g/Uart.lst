@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  Uart                                                               17/07/23  21:41:46  PAGE 1   
+C251 COMPILER V5.60.0,  Uart                                                               19/07/23  19:42:36  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Uart
 OBJECT MODULE PLACED IN Uart.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE Uart\Uart.c XSMALL INTR2 WARNINGLEVEL(1) BROW
-                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor) DEBUG PRINT(.\Uart.lst) TABS(2) OBJECT(Uar
-                    -t.obj) 
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG PRINT(.\Uart.lst) TABS(2) OBJE
+                    -CT(Uart.obj) 
 
 stmt  level    source
 

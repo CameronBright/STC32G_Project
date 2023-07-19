@@ -12,6 +12,7 @@ void Meun_2_angle();   //二级菜单  角度  函数
 void Meun_2_Pitching();//二级菜单  俯仰角 函数
 void Meun_2_control(); //二级菜单  控制  函数
 void Meun_2_qita();    //二级菜单
+
 struct Location_and_Content     //坐标及内容
 {
 	uchar part;  

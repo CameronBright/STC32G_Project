@@ -272,7 +272,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor</IncludePath>
+              <IncludePath>.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC</IncludePath>
             </VariousControls>
           </C251>
           <Ax51>
@@ -413,6 +413,16 @@
               <FileName>motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\motor\motor.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ADC</GroupName>
+          <Files>
+            <File>
+              <FileName>ADC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ADC\ADC.c</FilePath>
             </File>
           </Files>
         </Group>

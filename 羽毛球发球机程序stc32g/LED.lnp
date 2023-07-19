@@ -7,7 +7,8 @@
 "iic.obj",
 "pwm.obj",
 "GPIO.obj",
-"motor.obj" 
+"motor.obj",
+"ADC.obj" 
 TO "LED" 
 CASE 
 CLASSES (EDATA (0x0-0xFFF), 

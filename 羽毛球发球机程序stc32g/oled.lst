@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  oled                                                               17/07/23  21:41:46  PAGE 1   
+C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE oled
 OBJECT MODULE PLACED IN oled.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE OLED\oled.c XSMALL INTR2 WARNINGLEVEL(1) BROW
-                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor) DEBUG PRINT(.\oled.lst) TABS(2) OBJECT(ole
-                    -d.obj) 
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG PRINT(.\oled.lst) TABS(2) OBJE
+                    -CT(oled.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        OLED_WR_Byte(0x10,OLED_CMD);//关闭电荷泵
    56   1        OLED_WR_Byte(0xAE,OLED_CMD);//关闭屏幕
    57   1      }
-C251 COMPILER V5.60.0,  oled                                                               17/07/23  21:41:46  PAGE 2   
+C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 2   
 
    58          
    59          
@@ -134,7 +134,7 @@ stmt  level    source
   121          void OLED_address(uchar x,uchar y)
   122          {
   123   1        x+=2;
-C251 COMPILER V5.60.0,  oled                                                               17/07/23  21:41:46  PAGE 3   
+C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 3   
 
   124   1        OLED_WR_Byte(0xb0+y,OLED_CMD);              //设置页地址
   125   1        OLED_WR_Byte(((x&0xf0)>>4)|0x10,OLED_CMD);  //设置列地址的高4位
@@ -202,7 +202,7 @@ stmt  level    source
   187          
   188          //送指令到晶联讯字库IC
   189          void Send_Command_to_ROM(uchar dat)
-C251 COMPILER V5.60.0,  oled                                                               17/07/23  21:41:46  PAGE 4   
+C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 4   
 
   190          {
   191   1        uchar i;
@@ -270,7 +270,7 @@ stmt  level    source
   252   2          if((text[i]>=0xb0)&&(text[i]<=0xf7)&&(text[i+1]>=0xa1))
   253   2          {
   254   3            //国标简体（GB2312）汉字在晶联讯字库IC中的地址由以下公式来计算：
-C251 COMPILER V5.60.0,  oled                                                               17/07/23  21:41:46  PAGE 5   
+C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 5   
 
   255   3            //Address = ((MSB - 0xB0) * 94 + (LSB - 0xA1)+ 846)*32+ BaseAdd;BaseAdd=0
   256   3            //由于担心8位单片机有乘法溢出问题，所以分三部取地址
@@ -338,7 +338,7 @@ stmt  level    source
   318   3            fontaddr=(text[i]-0x20);
   319   3            fontaddr=(unsigned long)(fontaddr*8);
   320   3            fontaddr=(unsigned long)(fontaddr+0x3bfc0);
-C251 COMPILER V5.60.0,  oled                                                               17/07/23  21:41:46  PAGE 6   
+C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 6   
 
   321   3            
   322   3            addrHigh=(fontaddr&0xff0000)>>16;
@@ -406,7 +406,7 @@ stmt  level    source
   384   1        OLED_WR_Byte(0xA6,OLED_CMD); /*normal / reverse*/ 
   385   1        OLED_WR_Byte(0xA8,OLED_CMD); /*multiplex ratio*/ 
   386   1        OLED_WR_Byte(0x3F,OLED_CMD); /*duty = 1/64*/ 
-C251 COMPILER V5.60.0,  oled                                                               17/07/23  21:41:46  PAGE 7   
+C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 7   
 
   387   1        OLED_WR_Byte(0xad,OLED_CMD); /*set charge pump enable*/ 
   388   1        OLED_WR_Byte(0x8b,OLED_CMD); /* 0x8B 内供 VCC */ 
@@ -422,17 +422,16 @@ stmt  level    source
   398   1        OLED_WR_Byte(0x12,OLED_CMD); 
   399   1        OLED_WR_Byte(0xdb,OLED_CMD); /*set vcomh*/ 
   400   1        OLED_WR_Byte(0x40,OLED_CMD);
-  401   1        OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/ 
-  402   1        OLED_WR_Byte(0x81,OLED_CMD); //微调对比度,本指令的0x81不要改动，改下面的值
-  403   1        OLED_WR_Byte(0x00,OLED_CMD); //微调对比度的值，可设置范围0x00～0xff 
-  404   1      }
+  401   1        OLED_Clear();
+  402   1        OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/
+  403   1      }
+  404          
   405          
-  406          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      2006     ------
+  code size            =      1996     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

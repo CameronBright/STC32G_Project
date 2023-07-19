@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  timer                                                              17/07/23  21:41:46  PAGE 1   
+C251 COMPILER V5.60.0,  timer                                                              19/07/23  20:43:55  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE timer
 OBJECT MODULE PLACED IN timer.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE timer\timer.c XSMALL INTR2 WARNINGLEVEL(1) BR
-                    -OWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor) DEBUG PRINT(.\timer.lst) TABS(2) OBJECT(
-                    -timer.obj) 
+                    -OWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG PRINT(.\timer.lst) TABS(2) O
+                    -BJECT(timer.obj) 
 
 stmt  level    source
 
@@ -22,18 +22,26 @@ stmt  level    source
    11   1        ET1=1;
    12   1        EA=1;      //总中断打开
    13   1      }
+   14          
+   15          uint delay_cnt;
+   16          
+   17          void delay(uint delay) //定时器延时 12mhz
+   18          {
+   19   1        delay_cnt = delay;
+   20   1        while(delay_cnt > 0);
+   21   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =        21     ------
+  code size            =        36     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =    ------     ------
+  edata size           =         2     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------

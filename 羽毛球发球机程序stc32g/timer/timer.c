@@ -11,3 +11,11 @@ void Timer1Init()		//100微秒@12.000MHz
 	ET1=1;
 	EA=1;      //总中断打开
 }
+
+uint delay_cnt;
+
+void delay(uint delay) //定时器延时 12mhz
+{
+	delay_cnt = delay;
+	while(delay_cnt > 0);
+}

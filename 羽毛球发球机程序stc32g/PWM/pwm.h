@@ -1,11 +1,19 @@
-#ifndef __PWM_H
-#define __PWM_H
+#ifndef __PWM_H__
+#define __PWM_H__
+//头文件
+#include "stc32g.h"
 #include "main.h"
-void Pwm_Fun();
-sbit PWM_PIN=P6^3; //PWM输出引脚 
-sbit PWM_PIN1=P6^2; //PWM1输出引脚
-extern uchar Pwm_count;       //pwm计时加加
-extern uchar Pwm_value;       //存储PWM的值
+//-----
+#define PWM_PSC 			(120-1)	//120分频
+#define PWM_PERIOD 		 1000 //周期10毫秒
+//----函数声明区-----
+/*
+1.PWMA初始化设置函数
+2.更新占空比函数
+*/
+void PWMA_Config(void);				//PWMA初始化设置函数
+void Update_duty();						//更新占空比函数
+
+/******************/
+
 #endif
-
-

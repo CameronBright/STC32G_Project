@@ -8,7 +8,24 @@
 #include "stdio.h"
 #include "Meun.h"
 #include "motor.h"
+#include "ADC.h"
+
 extern uint s_count;         //计数加加
+
+extern uint duty;
+extern uint duty2;
+
+extern uint delay_cnt; //delay计数
+uint timer_delay = 0; //1us tick
+
+uchar txbuf[20]; //串口发送缓存
+
+extern uint8_t Switching_channel;
+
+uint ADCP11;
+uint ADCP00;
+uint ADCP10;
+
 void main()
 {
 	GPIO_init();//GPIO初始化
@@ -16,10 +33,15 @@ void main()
 	OLED_ColorTurn(0);//0正常显示，1 反色显示
 	OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
 	OLED_Clear();//oled清屏
+	
 	Timer1Init();//定时器初始化
 	UartInit();//串口初始化	
 	S1_S0=0;S1_S1=0;//串口1 选择P30 P31	
 	P54RST=1;//复位初始化
+	
+	PWMA_Config();
+	
+	ADC_Init();
 	
 	MOTOR_AIN1 = 1;
 	MOTOR_AIN2 = 0;
@@ -27,21 +49,37 @@ void main()
 	MOTOR_BIN1 = 1;
 	MOTOR_BIN2 = 0;
 	
+	duty = 999;
+	duty2 = 999;
+	
 	while(1)
 	{	
 		//rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿		
 		//Cancel_determine();      //按键取消和确定检测函数,计时方式
 		//Memu();
 		
+		//OLED_ShowNum();
+	
+		sprintf(txbuf,"P11:%4.3f\r\n",ADC_Read()*3.3/4096); //检测红外对管
+		Uart_String(txbuf);	
+		
+		delay(10000);
+		
+
 //		Uart_sendbyte('1');
 //		Uart_String("1323\r\n");
 //		IDL = 1;
 		
+		Update_duty();	
 	}
 }
 void timer1() interrupt 3       //100us加一次
 {
-	Pwm_Fun();                 //pwm函数
+	if(delay_cnt > 0)
+		delay_cnt--;
+	
+	if(++timer_delay > 10000)
+	//Pwm_Fun();                 //pwm函数
 	if(EC11_K==0)
 	{
 		long_short=1;          //编码器按下为0   
@@ -97,3 +135,4 @@ void timer1() interrupt 3       //100us加一次
 //{
 //	IE0=0;
 //}
+

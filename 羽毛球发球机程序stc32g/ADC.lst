@@ -1,0 +1,80 @@
+C251 COMPILER V5.60.0,  ADC                                                                19/07/23  21:08:14  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
+OBJECT MODULE PLACED IN ADC.obj
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE ADC\ADC.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE
+                    - INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG PRINT(.\ADC.lst) TABS(2) OBJECT(
+                    -ADC.obj) 
+
+stmt  level    source
+
+    1          #include "ADC.h"
+    2          
+    3          uint8_t Switching_channel = 0;
+    4          
+    5          void ADC_Init(void)   
+    6          {
+    7   1        ADCTIM = 0x3f; //设置ADC内部时序
+    8   1        ADCCFG = 0x2f; //数据右对齐  设置ADC时钟为系统时钟12/2/16
+    9   1        ADC_CONTR = 0xf0;          //使能第一个通道P1.0   
+   10   1        ADC_POWER = 1; //使能ADC模块
+   11   1      }
+   12          
+   13          unsigned int ADC_Read(void)  //ADC读
+   14          {                           //
+   15   1        unsigned int value = 0;  //ADC数值保存变量
+   16   1      
+   17   1        ADC_START = 1;         //启动AD转化
+   18   1        _nop_();              //空指令
+   19   1        _nop_();             //空指令
+   20   1        
+   21   1        while(!ADC_FLAG);   //等待ADC转换结束
+   22   1        ADC_FLAG = 0;
+   23   1        
+   24   1        value = ((ADC_RES << 8) + ADC_RESL); //计算ADC的数值
+   25   1        
+   26   1        Switching_channel++;
+   27   1        switch(Switching_channel)
+   28   1        {
+   29   2          case 1:
+   30   2            ADC_CONTR = ADC_CONTR + 0x01;          //使能第一个通道P1.1 
+   31   2          break;
+   32   2          case 2:
+   33   2            ADC_CONTR = ADC_CONTR & 0xf0 | 0x08;    //使能第一个通道P0.0  
+   34   2          break;
+   35   2          case 3:
+   36   2            ADC_CONTR = ADC_CONTR & 0xf0;   //重新回到通道P1.0
+   37   2            Switching_channel = 0;
+   38   2          break;
+   39   2        }
+   40   1        return value;
+   41   1      }
+   42          
+   43          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =        94     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =         1     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+C251 COMPILER V5.60.0,  ADC                                                                19/07/23  21:08:14  PAGE 2   
+
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =         5     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

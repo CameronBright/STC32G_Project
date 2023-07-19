@@ -114,8 +114,8 @@ void lose()
 ******************************************************************************/
 void Second_menu_value()   
 {
-	if(part_count==0&&part2_count==0&&add_lose==0){adjust.speed_value+=1; Pwm_value+=1;}
-	else if(part_count==0&&part2_count==0&&add_lose==1) {adjust.speed_value-=1;	Pwm_value-=1;}		
+	if(part_count==0&&part2_count==0&&add_lose==0){adjust.speed_value+=1; }  //Pwm_value+=1;
+	else if(part_count==0&&part2_count==0&&add_lose==1) {adjust.speed_value-=1;	}		//Pwm_value-=1;
 	else if(part_count==0&part2_count==1&&add_lose==0) adjust.qi_value+=1; 
   else if(part_count==0&&part2_count==1&&add_lose==1) adjust.qi_value-=1;
 
