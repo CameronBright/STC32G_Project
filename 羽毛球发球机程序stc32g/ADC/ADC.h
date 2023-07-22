@@ -7,7 +7,11 @@
 	
 
 void ADC_Init(void);
-unsigned int ADC_Read(void);  //ADC¶Á
+void ADC_Read(uint *channel1, uint *channel2, uint *channel3);  //ADC¶Á
+
+uint ADC_Readchannel_1(void);
+uint ADC_Readchannel_2(void);
+uint ADC_Readchannel_3(void);	
 
 
 #endif

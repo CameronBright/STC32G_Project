@@ -9,6 +9,7 @@
 #include "Meun.h"
 #include "motor.h"
 #include "ADC.h"
+#include "LineFollower.h"
 
 extern uint s_count;         //计数加加
 
@@ -20,18 +21,22 @@ uint timer_delay = 0; //1us tick
 
 uchar txbuf[20]; //串口发送缓存
 
-extern uint8_t Switching_channel;
+uchar oled_showtext[20]; //oled显示字符串
 
-uint ADCP11;
-uint ADCP00;
-uint ADCP10;
+uint ADCP1;
+uint ADCP2;
+uint ADCP3;
+
+int line_inaccuracy = 0;
+
+void Disp_refresh(void);
 
 void main()
 {
 	GPIO_init();//GPIO初始化
 	OLED_Init();//oled初始化
 	OLED_ColorTurn(0);//0正常显示，1 反色显示
-	OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
+	OLED_DisplayTurn(1);//0正常显示 1 屏幕翻转显示
 	OLED_Clear();//oled清屏
 	
 	Timer1Init();//定时器初始化
@@ -43,32 +48,37 @@ void main()
 	
 	ADC_Init();
 	
-	MOTOR_AIN1 = 1;
-	MOTOR_AIN2 = 0;
+	MOTOR_AIN1 = 0;
+	MOTOR_AIN2 = 1;
 	
-	MOTOR_BIN1 = 1;
-	MOTOR_BIN2 = 0;
+	MOTOR_BIN1 = 0;
+	MOTOR_BIN2 = 1;
 	
-	duty = 999;
-	duty2 = 999;
+	duty = 600;
+	duty2 = 600;
 	
 	while(1)
 	{	
 		//rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿		
 		//Cancel_determine();      //按键取消和确定检测函数,计时方式
 		//Memu();
+			
+		ADCP1 = ADC_Readchannel_1();  //P11		
+		ADCP2 = ADC_Readchannel_2();  //P00	
+		ADCP3 = ADC_Readchannel_3();	//P10
 		
-		//OLED_ShowNum();
-	
-		sprintf(txbuf,"P11:%4.3f\r\n",ADC_Read()*3.3/4096); //检测红外对管
-		Uart_String(txbuf);	
+		line_inaccuracy = ReadLine();
 		
-		delay(10000);
+//		if(line_inaccuracy != 0)
+//		{
+//			if(line_inaccuracy > 0)
+//				
+//		}
+		//sprintf(txbuf,"1:%04d 2:%04d 3:%04d\r\n",ADCP1,ADCP2,ADCP3);
+		//Uart_String(txbuf);
 		
-
-//		Uart_sendbyte('1');
-//		Uart_String("1323\r\n");
-//		IDL = 1;
+		Disp_refresh();
+		//delay(1000);
 		
 		Update_duty();	
 	}
@@ -89,6 +99,43 @@ void timer1() interrupt 3       //100us加一次
 		s_count++;   
 	}
 } 
+
+void Disp_refresh(void)
+{
+	sprintf(oled_showtext,"P11:");
+	OLED_16x16(0,0,oled_showtext);
+	sprintf(oled_showtext,"P00:");
+	OLED_16x16(0,2,oled_showtext);
+	sprintf(oled_showtext,"P10:");
+	OLED_16x16(0,4,oled_showtext);
+	
+	OLED_ShowNum(35,0,ADCP1,6);
+	OLED_ShowNum(35,2,ADCP2,6);
+	OLED_ShowNum(35,4,ADCP3,6);
+	
+	if(line_inaccuracy < 0)
+	{
+		line_inaccuracy = line_inaccuracy * -1;
+		sprintf(oled_showtext,"- ");
+		OLED_16x16(0,6,oled_showtext);
+		OLED_ShowNum(15,6,line_inaccuracy,6);
+	}
+	else 
+	{
+//		sprintf(oled_showtext," ");
+//		OLED_16x16(0,6,oled_showtext);
+		OLED_ShowNum(0,6,line_inaccuracy,6);
+	}
+		
+		
+	
+	
+}
+
+
+
+
+
 
 
 //	IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发

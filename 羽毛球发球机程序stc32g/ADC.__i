@@ -1,1 +1,0 @@
-"ADC\ADC.c" XSMALL INTR2 WARNINGLEVEL (1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG PRINT(.\ADC.lst) TABS (2) OBJECT(ADC.obj)

@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 1   
+C251 COMPILER V5.60.0,  oled                                                               20/07/23  19:30:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE oled
 OBJECT MODULE PLACED IN oled.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE OLED\oled.c XSMALL INTR2 WARNINGLEVEL(1) BROW
-                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG PRINT(.\oled.lst) TABS(2) OBJE
-                    -CT(oled.obj) 
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG PRINT(.\oled.ls
+                    -t) TABS(2) OBJECT(oled.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        OLED_WR_Byte(0x10,OLED_CMD);//关闭电荷泵
    56   1        OLED_WR_Byte(0xAE,OLED_CMD);//关闭屏幕
    57   1      }
-C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 2   
+C251 COMPILER V5.60.0,  oled                                                               20/07/23  19:30:23  PAGE 2   
 
    58          
    59          
@@ -134,7 +134,7 @@ stmt  level    source
   121          void OLED_address(uchar x,uchar y)
   122          {
   123   1        x+=2;
-C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 3   
+C251 COMPILER V5.60.0,  oled                                                               20/07/23  19:30:23  PAGE 3   
 
   124   1        OLED_WR_Byte(0xb0+y,OLED_CMD);              //设置页地址
   125   1        OLED_WR_Byte(((x&0xf0)>>4)|0x10,OLED_CMD);  //设置列地址的高4位
@@ -202,7 +202,7 @@ stmt  level    source
   187          
   188          //送指令到晶联讯字库IC
   189          void Send_Command_to_ROM(uchar dat)
-C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 4   
+C251 COMPILER V5.60.0,  oled                                                               20/07/23  19:30:23  PAGE 4   
 
   190          {
   191   1        uchar i;
@@ -260,173 +260,174 @@ stmt  level    source
   242          
   243          
   244          ulong fontaddr=0;
-  245          void OLED_16x16(uchar x,uchar y,uchar *text)   //16*16
-  246          {
-  247   1        uchar i=0;
-  248   1        uchar addrHigh,addrMid,addrLow;
-  249   1        uchar fontbuf[32];
-  250   1        while(text[i]>0x00)
-  251   1        {
-  252   2          if((text[i]>=0xb0)&&(text[i]<=0xf7)&&(text[i+1]>=0xa1))
-  253   2          {
-  254   3            //国标简体（GB2312）汉字在晶联讯字库IC中的地址由以下公式来计算：
-C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 5   
+  245          
+  246          void OLED_16x16(uchar x,uchar y,uchar *text)   //16*16
+  247          {
+  248   1        uchar i=0;
+  249   1        uchar addrHigh,addrMid,addrLow;
+  250   1        uchar fontbuf[32];
+  251   1        while(text[i]>0x00)
+  252   1        {
+  253   2          if((text[i]>=0xb0)&&(text[i]<=0xf7)&&(text[i+1]>=0xa1))
+  254   2          {
+C251 COMPILER V5.60.0,  oled                                                               20/07/23  19:30:23  PAGE 5   
 
-  255   3            //Address = ((MSB - 0xB0) * 94 + (LSB - 0xA1)+ 846)*32+ BaseAdd;BaseAdd=0
-  256   3            //由于担心8位单片机有乘法溢出问题，所以分三部取地址
-  257   3            fontaddr=(text[i]-0xb0)*94;
-  258   3            fontaddr+=(text[i+1]-0xa1)+846;
-  259   3            fontaddr=fontaddr*32;
-  260   3            
-  261   3            addrHigh=(fontaddr&0xff0000)>>16;   //地址的高8位,共24位
-  262   3            addrMid=(fontaddr&0xff00)>>8;       //地址的中8位,共24位
-  263   3            addrLow=(fontaddr&0xff);            //地址的低8位,共24位
-  264   3            
-  265   3            OLED_get_data_from_ROM(addrHigh,addrMid,addrLow,fontbuf,32);
-  266   3            //取32个字节的数据，存到"fontbuf[32]"
-  267   3            OLED_Display_16x16(x,y,fontbuf);
-  268   3            //显示汉字到LCD上，y为页地址，x为列地址，fontbuf[]为数据
-  269   3            x+=16;
-  270   3            i+=2;
-  271   3          }
-  272   2          else if((text[i]>=0xa1)&&(text[i]<=0xa3)&&(text[i+1]>=0xa1))
-  273   2          {
-  274   3            
-  275   3            fontaddr=(text[i]-0xa1)*94;
-  276   3            fontaddr+=(text[i+1]-0xa1);
-  277   3            fontaddr=fontaddr*32;
-  278   3            
-  279   3            addrHigh=(fontaddr&0xff0000)>>16;
-  280   3            addrMid=(fontaddr&0xff00)>>8;
-  281   3            addrLow=(fontaddr&0xff);
-  282   3            
-  283   3            OLED_get_data_from_ROM(addrHigh,addrMid,addrLow,fontbuf,32);
-  284   3            OLED_Display_16x16(x,y,fontbuf);
-  285   3            x+=16;
-  286   3            i+=2;
-  287   3          }
-  288   2          else if((text[i]>=0x20)&&(text[i]<=0x7e))
-  289   2          {
-  290   3            unsigned char fontbuf[16];
-  291   3            fontaddr=(text[i]-0x20);
-  292   3            fontaddr=(unsigned long)(fontaddr*16);
-  293   3            fontaddr=(unsigned long)(fontaddr+0x3cf80);
-  294   3            
-  295   3            addrHigh=(fontaddr&0xff0000)>>16;
-  296   3            addrMid=(fontaddr&0xff00)>>8;
-  297   3            addrLow=fontaddr&0xff;
-  298   3            
-  299   3            OLED_get_data_from_ROM(addrHigh,addrMid,addrLow,fontbuf,16);
-  300   3            OLED_Display_8x16(x,y,fontbuf);
-  301   3            x+=8;
-  302   3            i+=1;
-  303   3          }
-  304   2          else 
-  305   2            i++;
-  306   2        }
-  307   1      }
-  308          
-  309          void OLED_Display_string_5x7(uchar x,uchar y,uchar *text)   //字符串显示
-  310          {
-  311   1        uchar i=0;
-  312   1        uchar addrHigh,addrMid,addrLow;
-  313   1        while(text[i]>0x00)
-  314   1        {
-  315   2          if((text[i]>=0x20)&&(text[i]<=0x7e))
-  316   2          {
-  317   3            uchar fontbuf[8];
-  318   3            fontaddr=(text[i]-0x20);
-  319   3            fontaddr=(unsigned long)(fontaddr*8);
-  320   3            fontaddr=(unsigned long)(fontaddr+0x3bfc0);
-C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 6   
+  255   3            //国标简体（GB2312）汉字在晶联讯字库IC中的地址由以下公式来计算：
+  256   3            //Address = ((MSB - 0xB0) * 94 + (LSB - 0xA1)+ 846)*32+ BaseAdd;BaseAdd=0
+  257   3            //由于担心8位单片机有乘法溢出问题，所以分三部取地址
+  258   3            fontaddr=(text[i]-0xb0)*94;
+  259   3            fontaddr+=(text[i+1]-0xa1)+846;
+  260   3            fontaddr=fontaddr*32;
+  261   3            
+  262   3            addrHigh=(fontaddr&0xff0000)>>16;   //地址的高8位,共24位
+  263   3            addrMid=(fontaddr&0xff00)>>8;       //地址的中8位,共24位
+  264   3            addrLow=(fontaddr&0xff);            //地址的低8位,共24位
+  265   3            
+  266   3            OLED_get_data_from_ROM(addrHigh,addrMid,addrLow,fontbuf,32);
+  267   3            //取32个字节的数据，存到"fontbuf[32]"
+  268   3            OLED_Display_16x16(x,y,fontbuf);
+  269   3            //显示汉字到LCD上，y为页地址，x为列地址，fontbuf[]为数据
+  270   3            x+=16;
+  271   3            i+=2;
+  272   3          }
+  273   2          else if((text[i]>=0xa1)&&(text[i]<=0xa3)&&(text[i+1]>=0xa1))
+  274   2          {
+  275   3            
+  276   3            fontaddr=(text[i]-0xa1)*94;
+  277   3            fontaddr+=(text[i+1]-0xa1);
+  278   3            fontaddr=fontaddr*32;
+  279   3            
+  280   3            addrHigh=(fontaddr&0xff0000)>>16;
+  281   3            addrMid=(fontaddr&0xff00)>>8;
+  282   3            addrLow=(fontaddr&0xff);
+  283   3            
+  284   3            OLED_get_data_from_ROM(addrHigh,addrMid,addrLow,fontbuf,32);
+  285   3            OLED_Display_16x16(x,y,fontbuf);
+  286   3            x+=16;
+  287   3            i+=2;
+  288   3          }
+  289   2          else if((text[i]>=0x20)&&(text[i]<=0x7e))
+  290   2          {
+  291   3            unsigned char fontbuf[16];
+  292   3            fontaddr=(text[i]-0x20);
+  293   3            fontaddr=(unsigned long)(fontaddr*16);
+  294   3            fontaddr=(unsigned long)(fontaddr+0x3cf80);
+  295   3            
+  296   3            addrHigh=(fontaddr&0xff0000)>>16;
+  297   3            addrMid=(fontaddr&0xff00)>>8;
+  298   3            addrLow=fontaddr&0xff;
+  299   3            
+  300   3            OLED_get_data_from_ROM(addrHigh,addrMid,addrLow,fontbuf,16);
+  301   3            OLED_Display_8x16(x,y,fontbuf);
+  302   3            x+=8;
+  303   3            i+=1;
+  304   3          }
+  305   2          else 
+  306   2            i++;
+  307   2        }
+  308   1      }
+  309          
+  310          void OLED_Display_string_5x7(uchar x,uchar y,uchar *text)   //字符串显示
+  311          {
+  312   1        uchar i=0;
+  313   1        uchar addrHigh,addrMid,addrLow;
+  314   1        while(text[i]>0x00)
+  315   1        {
+  316   2          if((text[i]>=0x20)&&(text[i]<=0x7e))
+  317   2          {
+  318   3            uchar fontbuf[8];
+  319   3            fontaddr=(text[i]-0x20);
+  320   3            fontaddr=(unsigned long)(fontaddr*8);
+C251 COMPILER V5.60.0,  oled                                                               20/07/23  19:30:23  PAGE 6   
 
-  321   3            
-  322   3            addrHigh=(fontaddr&0xff0000)>>16;
-  323   3            addrMid=(fontaddr&0xff00)>>8;
-  324   3            addrLow=fontaddr&0xff;
-  325   3            
-  326   3            OLED_get_data_from_ROM(addrHigh,addrMid,addrLow,fontbuf,8);
-  327   3            OLED_Display_5x7(x,y,fontbuf);
-  328   3            x+=6;
-  329   3            i+=1;
-  330   3          }
-  331   2          else 
-  332   2            i++;
-  333   2        }
-  334   1      }
-  335          
-  336          //显示2个数字
-  337          //x,y :起点坐标
-  338          //num1：要显示的小数
-  339          //len :数字的位数
-  340          void OLED_ShowNum(uchar x,uchar y,float num1,uchar len)
-  341          {
-  342   1        uchar i=0;
-  343   1        ulong t=0,num=0;
-  344   1        x=x+len*8+8;//要显示的小数最低位的横坐标
-  345   1        num=num1*100;//将小数左移两位并转化为整数
-  346   1        OLED_16x16(x-24,y,".");//显示小数点
-  347   1        for(i=0;i<len;i++)
-  348   1        {
-  349   2          t=num%10;//取个位数的数值
-  350   2          num=num/10;//将整数右移一位
-  351   2          x-=8;
-  352   2          if(i==2){x-=8;}//当显示出来两个小数之后，空出小数点的位置
-  353   2          switch(t)
-  354   2          {
-  355   3            case 0 :OLED_16x16(x,y,"0");break;
-  356   3            case 1 :OLED_16x16(x,y,"1");break;
-  357   3            case 2 :OLED_16x16(x,y,"2");break;
-  358   3            case 3 :OLED_16x16(x,y,"3");break;
-  359   3            case 4 :OLED_16x16(x,y,"4");break;
-  360   3            case 5 :OLED_16x16(x,y,"5");break;
-  361   3            case 6 :OLED_16x16(x,y,"6");break;
-  362   3            case 7 :OLED_16x16(x,y,"7");break;
-  363   3            case 8 :OLED_16x16(x,y,"8");break;
-  364   3            case 9 :OLED_16x16(x,y,"9");break;
-  365   3          }
-  366   2        }
-  367   1      }
-  368          
-  369          //OLED的初始化
-  370          void OLED_Init(void)
-  371          {
-  372   1        
-  373   1        OLED_CS_Set();
-  374   1        OLED_ROM_CS_Set();
-  375   1        delay_ms(200);
-  376   1        OLED_WR_Byte(0xAE,OLED_CMD); /*display off*/ 
-  377   1        OLED_WR_Byte(0x02,OLED_CMD); /*set lower column address*/ 
-  378   1        OLED_WR_Byte(0x10,OLED_CMD); /*set higher column address*/ 
-  379   1        OLED_WR_Byte(0x40,OLED_CMD); /*set display start line*/ 
-  380   1        OLED_WR_Byte(0xB0,OLED_CMD); /*set page address*/
-  381   1        OLED_WR_Byte(0x81,OLED_CMD); /*contract control*/ 
-  382   1        OLED_WR_Byte(0xcf,OLED_CMD); /*128*/ 
-  383   1        OLED_WR_Byte(0xA1,OLED_CMD); /*set segment remap*/ 
-  384   1        OLED_WR_Byte(0xA6,OLED_CMD); /*normal / reverse*/ 
-  385   1        OLED_WR_Byte(0xA8,OLED_CMD); /*multiplex ratio*/ 
-  386   1        OLED_WR_Byte(0x3F,OLED_CMD); /*duty = 1/64*/ 
-C251 COMPILER V5.60.0,  oled                                                               19/07/23  19:42:35  PAGE 7   
+  321   3            fontaddr=(unsigned long)(fontaddr+0x3bfc0);
+  322   3            
+  323   3            addrHigh=(fontaddr&0xff0000)>>16;
+  324   3            addrMid=(fontaddr&0xff00)>>8;
+  325   3            addrLow=fontaddr&0xff;
+  326   3            
+  327   3            OLED_get_data_from_ROM(addrHigh,addrMid,addrLow,fontbuf,8);
+  328   3            OLED_Display_5x7(x,y,fontbuf);
+  329   3            x+=6;
+  330   3            i+=1;
+  331   3          }
+  332   2          else 
+  333   2            i++;
+  334   2        }
+  335   1      }
+  336          
+  337          //显示2个数字
+  338          //x,y :起点坐标
+  339          //num1：要显示的小数
+  340          //len :数字的位数
+  341          void OLED_ShowNum(uchar x,uchar y,float num1,uchar len)
+  342          {
+  343   1        uchar i=0;
+  344   1        ulong t=0,num=0;
+  345   1        x=x+len*8+8;//要显示的小数最低位的横坐标
+  346   1        num=num1*100;//将小数左移两位并转化为整数
+  347   1        OLED_16x16(x-24,y,".");//显示小数点
+  348   1        for(i=0;i<len;i++)
+  349   1        {
+  350   2          t=num%10;//取个位数的数值
+  351   2          num=num/10;//将整数右移一位
+  352   2          x-=8;
+  353   2          if(i==2){x-=8;}//当显示出来两个小数之后，空出小数点的位置
+  354   2          switch(t)
+  355   2          {
+  356   3            case 0 :OLED_16x16(x,y,"0");break;
+  357   3            case 1 :OLED_16x16(x,y,"1");break;
+  358   3            case 2 :OLED_16x16(x,y,"2");break;
+  359   3            case 3 :OLED_16x16(x,y,"3");break;
+  360   3            case 4 :OLED_16x16(x,y,"4");break;
+  361   3            case 5 :OLED_16x16(x,y,"5");break;
+  362   3            case 6 :OLED_16x16(x,y,"6");break;
+  363   3            case 7 :OLED_16x16(x,y,"7");break;
+  364   3            case 8 :OLED_16x16(x,y,"8");break;
+  365   3            case 9 :OLED_16x16(x,y,"9");break;
+  366   3          }
+  367   2        }
+  368   1      }
+  369          
+  370          //OLED的初始化
+  371          void OLED_Init(void)
+  372          {
+  373   1        
+  374   1        OLED_CS_Set();
+  375   1        OLED_ROM_CS_Set();
+  376   1        delay_ms(200);
+  377   1        OLED_WR_Byte(0xAE,OLED_CMD); /*display off*/ 
+  378   1        OLED_WR_Byte(0x02,OLED_CMD); /*set lower column address*/ 
+  379   1        OLED_WR_Byte(0x10,OLED_CMD); /*set higher column address*/ 
+  380   1        OLED_WR_Byte(0x40,OLED_CMD); /*set display start line*/ 
+  381   1        OLED_WR_Byte(0xB0,OLED_CMD); /*set page address*/
+  382   1        OLED_WR_Byte(0x81,OLED_CMD); /*contract control*/ 
+  383   1        OLED_WR_Byte(0xcf,OLED_CMD); /*128*/ 
+  384   1        OLED_WR_Byte(0xA1,OLED_CMD); /*set segment remap*/ 
+  385   1        OLED_WR_Byte(0xA6,OLED_CMD); /*normal / reverse*/ 
+  386   1        OLED_WR_Byte(0xA8,OLED_CMD); /*multiplex ratio*/ 
+C251 COMPILER V5.60.0,  oled                                                               20/07/23  19:30:23  PAGE 7   
 
-  387   1        OLED_WR_Byte(0xad,OLED_CMD); /*set charge pump enable*/ 
-  388   1        OLED_WR_Byte(0x8b,OLED_CMD); /* 0x8B 内供 VCC */ 
-  389   1        OLED_WR_Byte(0x33,OLED_CMD); /*0X30---0X33 set VPP 9V */ 
-  390   1        OLED_WR_Byte(0xC8,OLED_CMD); /*Com scan direction*/ 
-  391   1        OLED_WR_Byte(0xD3,OLED_CMD); /*set display offset*/ 
-  392   1        OLED_WR_Byte(0x00,OLED_CMD); /* 0x20 */ 
-  393   1        OLED_WR_Byte(0xD5,OLED_CMD); /*set osc division*/ 
-  394   1        OLED_WR_Byte(0x80,OLED_CMD); 
-  395   1        OLED_WR_Byte(0xD9,OLED_CMD); /*set pre-charge period*/ 
-  396   1        OLED_WR_Byte(0x1f,OLED_CMD); /*0x22*/ 
-  397   1        OLED_WR_Byte(0xDA,OLED_CMD); /*set COM pins*/ 
-  398   1        OLED_WR_Byte(0x12,OLED_CMD); 
-  399   1        OLED_WR_Byte(0xdb,OLED_CMD); /*set vcomh*/ 
-  400   1        OLED_WR_Byte(0x40,OLED_CMD);
-  401   1        OLED_Clear();
-  402   1        OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/
-  403   1      }
-  404          
+  387   1        OLED_WR_Byte(0x3F,OLED_CMD); /*duty = 1/64*/ 
+  388   1        OLED_WR_Byte(0xad,OLED_CMD); /*set charge pump enable*/ 
+  389   1        OLED_WR_Byte(0x8b,OLED_CMD); /* 0x8B 内供 VCC */ 
+  390   1        OLED_WR_Byte(0x33,OLED_CMD); /*0X30---0X33 set VPP 9V */ 
+  391   1        OLED_WR_Byte(0xC8,OLED_CMD); /*Com scan direction*/ 
+  392   1        OLED_WR_Byte(0xD3,OLED_CMD); /*set display offset*/ 
+  393   1        OLED_WR_Byte(0x00,OLED_CMD); /* 0x20 */ 
+  394   1        OLED_WR_Byte(0xD5,OLED_CMD); /*set osc division*/ 
+  395   1        OLED_WR_Byte(0x80,OLED_CMD); 
+  396   1        OLED_WR_Byte(0xD9,OLED_CMD); /*set pre-charge period*/ 
+  397   1        OLED_WR_Byte(0x1f,OLED_CMD); /*0x22*/ 
+  398   1        OLED_WR_Byte(0xDA,OLED_CMD); /*set COM pins*/ 
+  399   1        OLED_WR_Byte(0x12,OLED_CMD); 
+  400   1        OLED_WR_Byte(0xdb,OLED_CMD); /*set vcomh*/ 
+  401   1        OLED_WR_Byte(0x40,OLED_CMD);
+  402   1        OLED_Clear();
+  403   1        OLED_WR_Byte(0xAF,OLED_CMD); /*display ON*/
+  404   1      }
   405          
+  406          
 
 
 Module Information          Static   Overlayable

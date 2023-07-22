@@ -1,0 +1,15 @@
+C251 COMPILER V5.60.0,  LineFollwer                                                        20/07/23  19:30:33  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollwer
+OBJECT MODULE PLACED IN LineFollwer.obj
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE LineFollower\LineFollwer.c XSMALL INTR2 WARNI
+                    -NGLEVEL(1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG 
+                    -PRINT(.\LineFollwer.lst) TABS(2) OBJECT(LineFollwer.obj) 
+
+stmt  level    source
+
+    1          #include "LineFollower.h"
+*** ERROR C318 IN LINE 1 OF LineFollower\LineFollwer.c: can't open file 'LineFollower.h'
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  1 ERROR(S)

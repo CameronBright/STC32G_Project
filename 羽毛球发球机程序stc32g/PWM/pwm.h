@@ -4,7 +4,7 @@
 #include "stc32g.h"
 #include "main.h"
 //-----
-#define PWM_PSC 			(120-1)	//120分频
+#define PWM_PSC 			(240-1)	//120分频
 #define PWM_PERIOD 		 1000 //周期10毫秒
 //----函数声明区-----
 /*

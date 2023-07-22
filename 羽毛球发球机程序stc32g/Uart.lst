@@ -1,25 +1,25 @@
-C251 COMPILER V5.60.0,  Uart                                                               19/07/23  19:42:36  PAGE 1   
+C251 COMPILER V5.60.0,  Uart                                                               20/07/23  19:30:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Uart
 OBJECT MODULE PLACED IN Uart.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE Uart\Uart.c XSMALL INTR2 WARNINGLEVEL(1) BROW
-                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG PRINT(.\Uart.lst) TABS(2) OBJE
-                    -CT(Uart.obj) 
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG PRINT(.\Uart.ls
+                    -t) TABS(2) OBJECT(Uart.obj) 
 
 stmt  level    source
 
     1          #include "Uart.h"
-    2          void UartInit(void)   //9600bps@12.000MHz
+    2          void UartInit(void)   //9600bps@24.000MHz
     3          {
     4   1        SCON = 0x50;    //8位数据,可变波特率
     5   1        AUXR |= 0x01;   //串口1选择定时器2为波特率发生器
-    6   1        AUXR &= 0xFB;   //定时器时钟12T模式
-    7   1        T2L = 0xE6;   //设置定时初始值
-    8   1        T2H = 0xFF;   //设置定时初始值
+    6   1        AUXR |= 0x04;   //定时器时钟1T模式
+    7   1        T2L = 0x8F;     //设置定时初始值
+    8   1        T2H = 0xFD;     //设置定时初始值
     9   1        AUXR |= 0x10;   //定时器2开始计时
-   10   1        ES=1;
-   11   1        EA=1;
+   10   1        ES = 1;
+   11   1        EA = 1;
    12   1      }
    13          
    14          void Uart_sendbyte(uchar byte)  //串口发送单个字节

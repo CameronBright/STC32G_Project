@@ -1,10 +1,10 @@
-C251 COMPILER V5.60.0,  main                                                               19/07/23  21:16:02  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               20/07/23  20:58:09  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
 OBJECT MODULE PLACED IN main.OBJ
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE main.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE IN
-                    -CDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG TABS(2) 
+                    -CDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG TABS(2) 
 
 stmt  level    source
 
@@ -19,149 +19,198 @@ stmt  level    source
     9          #include "Meun.h"
    10          #include "motor.h"
    11          #include "ADC.h"
-   12          
-   13          extern uint s_count;         //计数加加
-   14          
-   15          extern uint duty;
-   16          extern uint duty2;
-   17          
-   18          extern uint delay_cnt; //delay计数
-   19          uint timer_delay = 0; //1us tick
-   20          
-   21          uchar txbuf[20]; //串口发送缓存
-   22          
-   23          extern uint8_t Switching_channel;
-   24          
-   25          uint ADCP11;
-   26          uint ADCP00;
-   27          uint ADCP10;
-   28          
-   29          void main()
-   30          {
-   31   1        GPIO_init();//GPIO初始化
-   32   1        OLED_Init();//oled初始化
-   33   1        OLED_ColorTurn(0);//0正常显示，1 反色显示
-   34   1        OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
-   35   1        OLED_Clear();//oled清屏
-   36   1        
-   37   1        Timer1Init();//定时器初始化
-   38   1        UartInit();//串口初始化 
-   39   1        S1_S0=0;S1_S1=0;//串口1 选择P30 P31 
-   40   1        P54RST=1;//复位初始化
+   12          #include "LineFollower.h"
+   13          
+   14          extern uint s_count;         //计数加加
+   15          
+   16          extern uint duty;
+   17          extern uint duty2;
+   18          
+   19          extern uint delay_cnt; //delay计数
+   20          uint timer_delay = 0; //1us tick
+   21          
+   22          uchar txbuf[20]; //串口发送缓存
+   23          
+   24          uchar oled_showtext[20]; //oled显示字符串
+   25          
+   26          uint ADCP1;
+   27          uint ADCP2;
+   28          uint ADCP3;
+   29          
+   30          int line_inaccuracy = 0;
+   31          
+   32          void Disp_refresh(void);
+   33          
+   34          void main()
+   35          {
+   36   1        GPIO_init();//GPIO初始化
+   37   1        OLED_Init();//oled初始化
+   38   1        OLED_ColorTurn(0);//0正常显示，1 反色显示
+   39   1        OLED_DisplayTurn(1);//0正常显示 1 屏幕翻转显示
+   40   1        OLED_Clear();//oled清屏
    41   1        
-   42   1        PWMA_Config();
-   43   1        
-   44   1        ADC_Init();
-   45   1        
-   46   1        MOTOR_AIN1 = 1;
-   47   1        MOTOR_AIN2 = 0;
+   42   1        Timer1Init();//定时器初始化
+   43   1        UartInit();//串口初始化 
+   44   1        S1_S0=0;S1_S1=0;//串口1 选择P30 P31 
+   45   1        P54RST=1;//复位初始化
+   46   1        
+   47   1        PWMA_Config();
    48   1        
-   49   1        MOTOR_BIN1 = 1;
-   50   1        MOTOR_BIN2 = 0;
-   51   1        
-   52   1        duty = 999;
-   53   1        duty2 = 999;
-   54   1        
-   55   1        while(1)
-   56   1        { 
-   57   2          //rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿    
-   58   2          //Cancel_determine();      //按键取消和确定检测函数,计时方式
-C251 COMPILER V5.60.0,  main                                                               19/07/23  21:16:02  PAGE 2   
+   49   1        ADC_Init();
+   50   1        
+   51   1        MOTOR_AIN1 = 0;
+   52   1        MOTOR_AIN2 = 1;
+   53   1        
+   54   1        MOTOR_BIN1 = 0;
+   55   1        MOTOR_BIN2 = 1;
+   56   1        
+   57   1        duty = 600;
+   58   1        duty2 = 600;
+C251 COMPILER V5.60.0,  main                                                               20/07/23  20:58:09  PAGE 2   
 
-   59   2          //Memu();
-   60   2          
-   61   2          //OLED_ShowNum();
-   62   2        
-   63   2          sprintf(txbuf,"P11:%4.3f\r\n",ADC_Read()*3.3/4096); //检测红外对管
-   64   2          Uart_String(txbuf); 
-   65   2          
-   66   2          delay(10000);
-   67   2          
-   68   2      
-   69   2      //    Uart_sendbyte('1');
-   70   2      //    Uart_String("1323\r\n");
-   71   2      //    IDL = 1;
-   72   2          
-   73   2          Update_duty();  
-   74   2        }
-   75   1      }
-   76          void timer1() interrupt 3       //100us加一次
-   77          {
-   78   1        if(delay_cnt > 0)
-   79   1          delay_cnt--;
-   80   1        
-   81   1        if(++timer_delay > 10000)
-   82   1        //Pwm_Fun();                 //pwm函数
-   83   1        if(EC11_K==0)
-   84   1        {
-   85   2          long_short=1;          //编码器按下为0   
-   86   2        }   
-   87   1        if(long_short==1)         //进入计时的条件
-   88   1        {
-   89   2          s_count++;   
-   90   2        }
-   91   1      } 
-   92          
-   93          
-   94          //  IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
-   95          //  EX0=1;  //使能中断0
-   96          //  IT1=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
-   97          //  EX1=1;  //使能中断0
-   98          
-   99          //add_loseit EC11_OLD_A;
-  100          //add_loseit EC11_UP_A;
-  101          //add_loseit EC11_DOWN_A
-  102          //add_loseit EC11_OLD_add_lose;
-  103          //void init0_Isr() interrupt 0
-  104          //{
-  105          //    IE1=0;
-  106          //    EC11_UP_A=~EC11_A&(EC11_OLD_A^EC11_A);
-  107          //    EC11_DOWN_A=EC11_A&(EC11_OLD_A^EC11_A)
-  108          //    EC11_OLD_A=EC11_A;
-  109          //    if(EC11_UP_A)
-  110          //    {
-  111          //      if(EC11_add_lose)
-  112          //      {
-  113          //        flag=1;
-  114          //          t+=0.01;
-  115          //      
-  116          //      }else{
-  117          //        t-=0.01;
-  118          //      }
-  119          //    }
-  120          //    if(EC11_DOWN_A)
-  121          //    {
-  122          //      if(EC11_add_lose==0)
-  123          //      {
-  124          //        flag=1;
-C251 COMPILER V5.60.0,  main                                                               19/07/23  21:16:02  PAGE 3   
+   59   1        
+   60   1        while(1)
+   61   1        { 
+   62   2          //rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿    
+   63   2          //Cancel_determine();      //按键取消和确定检测函数,计时方式
+   64   2          //Memu();
+   65   2            
+   66   2          ADCP1 = ADC_Readchannel_1();  //P11   
+   67   2          ADCP2 = ADC_Readchannel_2();  //P00 
+   68   2          ADCP3 = ADC_Readchannel_3();  //P10
+   69   2          
+   70   2          line_inaccuracy = ReadLine();
+   71   2          
+   72   2      //    if(line_inaccuracy != 0)
+   73   2      //    {
+   74   2      //      if(line_inaccuracy > 0)
+   75   2      //        
+   76   2      //    }
+   77   2          //sprintf(txbuf,"1:%04d 2:%04d 3:%04d\r\n",ADCP1,ADCP2,ADCP3);
+   78   2          //Uart_String(txbuf);
+   79   2          
+   80   2          Disp_refresh();
+   81   2          //delay(1000);
+   82   2          
+   83   2          Update_duty();  
+   84   2        }
+   85   1      }
+   86          void timer1() interrupt 3       //100us加一次
+   87          {
+   88   1        if(delay_cnt > 0)
+   89   1          delay_cnt--;
+   90   1        
+   91   1        if(++timer_delay > 10000)
+   92   1        //Pwm_Fun();                 //pwm函数
+   93   1        if(EC11_K==0)
+   94   1        {
+   95   2          long_short=1;          //编码器按下为0   
+   96   2        }   
+   97   1        if(long_short==1)         //进入计时的条件
+   98   1        {
+   99   2          s_count++;   
+  100   2        }
+  101   1      } 
+  102          
+  103          void Disp_refresh(void)
+  104          {
+  105   1        sprintf(oled_showtext,"P11:");
+  106   1        OLED_16x16(0,0,oled_showtext);
+  107   1        sprintf(oled_showtext,"P00:");
+  108   1        OLED_16x16(0,2,oled_showtext);
+  109   1        sprintf(oled_showtext,"P10:");
+  110   1        OLED_16x16(0,4,oled_showtext);
+  111   1        
+  112   1        OLED_ShowNum(35,0,ADCP1,6);
+  113   1        OLED_ShowNum(35,2,ADCP2,6);
+  114   1        OLED_ShowNum(35,4,ADCP3,6);
+  115   1        
+  116   1        if(line_inaccuracy < 0)
+  117   1        {
+  118   2          line_inaccuracy = line_inaccuracy * -1;
+  119   2          sprintf(oled_showtext,"- ");
+  120   2          OLED_16x16(0,6,oled_showtext);
+  121   2          OLED_ShowNum(15,6,line_inaccuracy,6);
+  122   2        }
+  123   1        else 
+  124   1        {
+C251 COMPILER V5.60.0,  main                                                               20/07/23  20:58:09  PAGE 3   
 
-  125          //          t-=0.01;
-  126          //      
-  127          //      }else{
-  128          //        flag=1;
-  129          //          t-=0.01;
-  130          //      }
-  131          //    }
-  132          
-  133          //}
-  134          //void init1_Isr() interrupt 2
-  135          //{
-  136          //  IE0=0;
-  137          //}
+  125   2      //    sprintf(oled_showtext," ");
+  126   2      //    OLED_16x16(0,6,oled_showtext);
+  127   2          OLED_ShowNum(0,6,line_inaccuracy,6);
+  128   2        }
+  129   1          
+  130   1          
+  131   1        
+  132   1        
+  133   1      }
+  134          
+  135          
+  136          
+  137          
   138          
+  139          
+  140          
+  141          //  IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
+  142          //  EX0=1;  //使能中断0
+  143          //  IT1=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
+  144          //  EX1=1;  //使能中断0
+  145          
+  146          //add_loseit EC11_OLD_A;
+  147          //add_loseit EC11_UP_A;
+  148          //add_loseit EC11_DOWN_A
+  149          //add_loseit EC11_OLD_add_lose;
+  150          //void init0_Isr() interrupt 0
+  151          //{
+  152          //    IE1=0;
+  153          //    EC11_UP_A=~EC11_A&(EC11_OLD_A^EC11_A);
+  154          //    EC11_DOWN_A=EC11_A&(EC11_OLD_A^EC11_A)
+  155          //    EC11_OLD_A=EC11_A;
+  156          //    if(EC11_UP_A)
+  157          //    {
+  158          //      if(EC11_add_lose)
+  159          //      {
+  160          //        flag=1;
+  161          //          t+=0.01;
+  162          //      
+  163          //      }else{
+  164          //        t-=0.01;
+  165          //      }
+  166          //    }
+  167          //    if(EC11_DOWN_A)
+  168          //    {
+  169          //      if(EC11_add_lose==0)
+  170          //      {
+  171          //        flag=1;
+  172          //          t-=0.01;
+  173          //      
+  174          //      }else{
+  175          //        flag=1;
+  176          //          t-=0.01;
+  177          //      }
+  178          //    }
+  179          
+  180          //}
+  181          //void init1_Isr() interrupt 2
+  182          //{
+  183          //  IE0=0;
+  184          //}
+  185          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       200     ------
+  code size            =       424     ------
   ecode size           =    ------     ------
+C251 COMPILER V5.60.0,  main                                                               20/07/23  20:58:09  PAGE 4   
+
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =        28     ------
+  edata size           =        50     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
@@ -169,7 +218,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        18     ------
+  hconst size          =        30     ------
 End of Module Information.
 
 

@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  GPIO                                                               19/07/23  19:42:36  PAGE 1   
+C251 COMPILER V5.60.0,  GPIO                                                               20/07/23  19:30:24  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE GPIO
 OBJECT MODULE PLACED IN GPIO.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE GPIO\GPIO.c XSMALL INTR2 WARNINGLEVEL(1) BROW
-                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC) DEBUG PRINT(.\GPIO.lst) TABS(2) OBJE
-                    -CT(GPIO.obj) 
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG PRINT(.\GPIO.ls
+                    -t) TABS(2) OBJECT(GPIO.obj) 
 
 stmt  level    source
 

@@ -272,7 +272,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC</IncludePath>
+              <IncludePath>.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower</IncludePath>
             </VariousControls>
           </C251>
           <Ax51>
@@ -423,6 +423,16 @@
               <FileName>ADC.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\ADC\ADC.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>LineFollower</GroupName>
+          <Files>
+            <File>
+              <FileName>LineFollower.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\LineFollower\LineFollower.c</FilePath>
             </File>
           </Files>
         </Group>

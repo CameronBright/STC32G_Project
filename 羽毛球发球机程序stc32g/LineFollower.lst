@@ -1,0 +1,60 @@
+C251 COMPILER V5.60.0,  LineFollower                                                       20/07/23  20:58:09  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollower
+OBJECT MODULE PLACED IN LineFollower.obj
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE LineFollower\LineFollower.c XSMALL INTR2 WARN
+                    -INGLEVEL(1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG
+                    - PRINT(.\LineFollower.lst) TABS(2) OBJECT(LineFollower.obj) 
+
+stmt  level    source
+
+    1          #include "LineFollower.h"
+    2          
+    3          int ReadLine(void)
+    4          {
+    5   1        uint adc1,adc2,adc3;
+    6   1        int inaccuracy;
+    7   1        
+    8   1        adc1 = ADC_Readchannel_1();
+    9   1        adc2 = ADC_Readchannel_2();
+   10   1        adc3 = ADC_Readchannel_3();
+   11   1        
+   12   1        if(adc1 == 4095 && adc2 == 4095 && adc3 == 4095)
+   13   1          inaccuracy = 0;
+   14   1        else 
+   15   1        {
+   16   2          if(adc1 < 4095 && adc2 < 4095 && adc3 < 4095)
+   17   2            inaccuracy = 0001;
+   18   2          else if(adc1 < 4095)
+   19   2            inaccuracy = (4095 - adc1) * -1;
+   20   2          else if(adc3 < 4096)
+   21   2            inaccuracy = (4096 - adc3);
+   22   2        }
+   23   1        
+   24   1        return inaccuracy;
+   25   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       118     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------          2
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

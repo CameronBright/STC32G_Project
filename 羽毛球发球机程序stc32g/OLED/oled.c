@@ -242,6 +242,7 @@ void OLED_get_data_from_ROM(uchar addrHigh,uchar addrMid,uchar addrLow,uchar *pb
 
 
 ulong fontaddr=0;
+
 void OLED_16x16(uchar x,uchar y,uchar *text)   //16*16
 {
 	uchar i=0;
