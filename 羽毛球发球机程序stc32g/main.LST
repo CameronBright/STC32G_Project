@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               20/07/23  20:58:09  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               23/07/23  20:53:45  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -20,197 +20,196 @@ stmt  level    source
    10          #include "motor.h"
    11          #include "ADC.h"
    12          #include "LineFollower.h"
-   13          
-   14          extern uint s_count;         //计数加加
-   15          
-   16          extern uint duty;
-   17          extern uint duty2;
+   13          #include "stdio.h"
+   14          
+   15          extern uint s_count;         //计数加加
+   16          uint disp_delay;
+   17          uint motor_delay;
    18          
-   19          extern uint delay_cnt; //delay计数
-   20          uint timer_delay = 0; //1us tick
+   19          extern int dutyL;
+   20          extern int dutyR;
    21          
-   22          uchar txbuf[20]; //串口发送缓存
-   23          
-   24          uchar oled_showtext[20]; //oled显示字符串
-   25          
-   26          uint ADCP1;
-   27          uint ADCP2;
-   28          uint ADCP3;
-   29          
-   30          int line_inaccuracy = 0;
+   22          extern uint delay_cnt; //delay计数
+   23          uint timer_delay = 0; //1us tick
+   24          
+   25          uchar txbuf[20]; //串口发送缓存
+   26          
+   27          uchar oled_showtext[20]; //oled显示字符串
+   28          
+   29          uchar motor_sw = 1;//电机开关
+   30          
    31          
-   32          void Disp_refresh(void);
-   33          
-   34          void main()
-   35          {
-   36   1        GPIO_init();//GPIO初始化
-   37   1        OLED_Init();//oled初始化
-   38   1        OLED_ColorTurn(0);//0正常显示，1 反色显示
-   39   1        OLED_DisplayTurn(1);//0正常显示 1 屏幕翻转显示
-   40   1        OLED_Clear();//oled清屏
-   41   1        
-   42   1        Timer1Init();//定时器初始化
-   43   1        UartInit();//串口初始化 
-   44   1        S1_S0=0;S1_S1=0;//串口1 选择P30 P31 
-   45   1        P54RST=1;//复位初始化
+   32          void Disp_refresh(void);  //数码管显示函数
+   33          void Motor_control(void); //电机控制函数
+   34          
+   35          struct pid_parameter positionPID;
+   36          char line_inaccuracy; //循迹模块偏移量
+   37          char old_position;
+   38          
+   39          void main()
+   40          {
+   41   1        GPIO_init();//GPIO初始化
+   42   1        OLED_Init();//oled初始化
+   43   1        OLED_ColorTurn(0);//0正常显示，1 反色显示
+   44   1        OLED_DisplayTurn(1);//0正常显示 1 屏幕翻转显示
+   45   1        OLED_Clear();//oled清屏
    46   1        
-   47   1        PWMA_Config();
-   48   1        
-   49   1        ADC_Init();
-   50   1        
-   51   1        MOTOR_AIN1 = 0;
-   52   1        MOTOR_AIN2 = 1;
+   47   1        Timer1Init();//定时器初始化
+   48   1        UartInit();//串口初始化 
+   49   1        S1_S0=0;S1_S1=0;//串口1 选择P30 P31 
+   50   1        P54RST=1;//复位初始化
+   51   1        
+   52   1        Motor_Init();
    53   1        
-   54   1        MOTOR_BIN1 = 0;
-   55   1        MOTOR_BIN2 = 1;
-   56   1        
-   57   1        duty = 600;
-   58   1        duty2 = 600;
-C251 COMPILER V5.60.0,  main                                                               20/07/23  20:58:09  PAGE 2   
+   54   1        positionPID.basicSpeed = 400;
+   55   1        
+   56   1        while(1)
+   57   1        { 
+   58   2          //rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿    
+C251 COMPILER V5.60.0,  main                                                               23/07/23  20:53:45  PAGE 2   
 
-   59   1        
-   60   1        while(1)
-   61   1        { 
-   62   2          //rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿    
-   63   2          //Cancel_determine();      //按键取消和确定检测函数,计时方式
-   64   2          //Memu();
-   65   2            
-   66   2          ADCP1 = ADC_Readchannel_1();  //P11   
-   67   2          ADCP2 = ADC_Readchannel_2();  //P00 
-   68   2          ADCP3 = ADC_Readchannel_3();  //P10
-   69   2          
-   70   2          line_inaccuracy = ReadLine();
-   71   2          
-   72   2      //    if(line_inaccuracy != 0)
-   73   2      //    {
-   74   2      //      if(line_inaccuracy > 0)
-   75   2      //        
-   76   2      //    }
-   77   2          //sprintf(txbuf,"1:%04d 2:%04d 3:%04d\r\n",ADCP1,ADCP2,ADCP3);
-   78   2          //Uart_String(txbuf);
-   79   2          
-   80   2          Disp_refresh();
-   81   2          //delay(1000);
-   82   2          
-   83   2          Update_duty();  
-   84   2        }
-   85   1      }
-   86          void timer1() interrupt 3       //100us加一次
-   87          {
-   88   1        if(delay_cnt > 0)
-   89   1          delay_cnt--;
-   90   1        
-   91   1        if(++timer_delay > 10000)
-   92   1        //Pwm_Fun();                 //pwm函数
-   93   1        if(EC11_K==0)
-   94   1        {
-   95   2          long_short=1;          //编码器按下为0   
-   96   2        }   
-   97   1        if(long_short==1)         //进入计时的条件
-   98   1        {
-   99   2          s_count++;   
-  100   2        }
-  101   1      } 
-  102          
-  103          void Disp_refresh(void)
-  104          {
-  105   1        sprintf(oled_showtext,"P11:");
-  106   1        OLED_16x16(0,0,oled_showtext);
-  107   1        sprintf(oled_showtext,"P00:");
-  108   1        OLED_16x16(0,2,oled_showtext);
-  109   1        sprintf(oled_showtext,"P10:");
-  110   1        OLED_16x16(0,4,oled_showtext);
-  111   1        
-  112   1        OLED_ShowNum(35,0,ADCP1,6);
-  113   1        OLED_ShowNum(35,2,ADCP2,6);
-  114   1        OLED_ShowNum(35,4,ADCP3,6);
+   59   2          //Cancel_determine();      //按键取消和确定检测函数,计时方式
+   60   2          //Memu();
+   61   2          Motor_control();
+   62   2          Disp_refresh(); 
+   63   2          
+   64   2          //sprintf(txbuf,"1:%04d 2:%04d 3:%04d\r\n",ADCP1,ADCP2,ADCP3);
+   65   2          //Uart_String(txbuf); //串口
+   66   2        }
+   67   1      }
+   68          void timer1() interrupt 3       //100us加一次
+   69          {
+   70   1        if(++disp_delay == 100) disp_delay = 0;
+   71   1        if(++motor_delay == 10) motor_delay = 0;
+   72   1        
+   73   1        if(delay_cnt > 0) //延时函数
+   74   1          delay_cnt--;
+   75   1        
+   76   1        if(++timer_delay > 10000)
+   77   1        //Pwm_Fun();                 //pwm函数
+   78   1        if(EC11_K==0)
+   79   1        {
+   80   2          long_short=1;          //编码器按下为0   
+   81   2        }   
+   82   1        if(long_short==1)         //进入计时的条件
+   83   1        {
+   84   2          s_count++;   
+   85   2        }
+   86   1      } 
+   87          
+   88          void Disp_refresh(void)
+   89          {
+   90   1        if(disp_delay) return; //10ms刷新一次屏幕
+   91   1        disp_delay = 1;
+   92   1        
+   93   1        sprintf(oled_showtext,"%1d   ",line_inaccuracy);
+   94   1        OLED_16x16(0,0,oled_showtext);
+   95   1        
+   96   1        sprintf(oled_showtext,"%3d,%3d",dutyR,dutyL);
+   97   1        OLED_16x16(0,2,oled_showtext);
+   98   1        
+   99   1        sprintf(oled_showtext,"%3d",positionPID.basicSpeed);
+  100   1        OLED_16x16(0,4,oled_showtext);
+  101   1      //  sprintf(oled_showtext,"P00:");
+  102   1      //  OLED_16x16(0,2,oled_showtext);
+  103   1      //  sprintf(oled_showtext,"P10:");
+  104   1      //  OLED_16x16(0,4,oled_showtext);
+  105   1      //  
+  106   1      //  OLED_ShowNum(35,0,ADCP1,6);
+  107   1      //  OLED_ShowNum(35,2,ADCP2,6);
+  108   1      //  OLED_ShowNum(35,4,ADCP3,6); 
+  109   1      }
+  110          
+  111          void Motor_control(void)
+  112          {
+  113   1        if(motor_delay) return;
+  114   1        motor_delay = 1;
   115   1        
-  116   1        if(line_inaccuracy < 0)
-  117   1        {
-  118   2          line_inaccuracy = line_inaccuracy * -1;
-  119   2          sprintf(oled_showtext,"- ");
-  120   2          OLED_16x16(0,6,oled_showtext);
-  121   2          OLED_ShowNum(15,6,line_inaccuracy,6);
-  122   2        }
-  123   1        else 
-  124   1        {
-C251 COMPILER V5.60.0,  main                                                               20/07/23  20:58:09  PAGE 3   
+  116   1        line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
+  117   1        
+  118   1        if(line_inaccuracy > 1 || line_inaccuracy < -1)
+  119   1        {
+  120   2          if(line_inaccuracy == -2)//传感器远离地面时
+  121   2            motor_sw = 0;
+  122   2          else if(line_inaccuracy == 2) //所有传感器都在地面但没识别到线时
+  123   2            line_inaccuracy = old_position;
+  124   2        }
+C251 COMPILER V5.60.0,  main                                                               23/07/23  20:53:45  PAGE 3   
 
-  125   2      //    sprintf(oled_showtext," ");
-  126   2      //    OLED_16x16(0,6,oled_showtext);
-  127   2          OLED_ShowNum(0,6,line_inaccuracy,6);
-  128   2        }
-  129   1          
-  130   1          
-  131   1        
+  125   1        else 
+  126   1          motor_sw = 1;
+  127   1        
+  128   1        old_position = line_inaccuracy;//记录上一次的位置
+  129   1        
+  130   1        dutyR = positionPID.basicSpeed + line_inaccuracy*600; //右偏左偏
+  131   1        dutyL = positionPID.basicSpeed - line_inaccuracy*600;
   132   1        
-  133   1      }
-  134          
-  135          
-  136          
+  133   1        Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
+  134   1        
+  135   1        Update_duty(motor_sw);//更新PWM输出
+  136   1      }
   137          
   138          
   139          
-  140          
-  141          //  IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
-  142          //  EX0=1;  //使能中断0
-  143          //  IT1=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
-  144          //  EX1=1;  //使能中断0
-  145          
-  146          //add_loseit EC11_OLD_A;
-  147          //add_loseit EC11_UP_A;
-  148          //add_loseit EC11_DOWN_A
-  149          //add_loseit EC11_OLD_add_lose;
-  150          //void init0_Isr() interrupt 0
-  151          //{
-  152          //    IE1=0;
-  153          //    EC11_UP_A=~EC11_A&(EC11_OLD_A^EC11_A);
-  154          //    EC11_DOWN_A=EC11_A&(EC11_OLD_A^EC11_A)
-  155          //    EC11_OLD_A=EC11_A;
-  156          //    if(EC11_UP_A)
-  157          //    {
-  158          //      if(EC11_add_lose)
-  159          //      {
-  160          //        flag=1;
-  161          //          t+=0.01;
-  162          //      
-  163          //      }else{
-  164          //        t-=0.01;
-  165          //      }
-  166          //    }
-  167          //    if(EC11_DOWN_A)
-  168          //    {
-  169          //      if(EC11_add_lose==0)
-  170          //      {
-  171          //        flag=1;
-  172          //          t-=0.01;
-  173          //      
-  174          //      }else{
-  175          //        flag=1;
-  176          //          t-=0.01;
-  177          //      }
-  178          //    }
-  179          
-  180          //}
-  181          //void init1_Isr() interrupt 2
-  182          //{
-  183          //  IE0=0;
-  184          //}
-  185          
+  140          //  IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
+  141          //  EX0=1;  //使能中断0
+  142          //  IT1=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
+  143          //  EX1=1;  //使能中断0
+  144          
+  145          //add_loseit EC11_OLD_A;
+  146          //add_loseit EC11_UP_A;
+  147          //add_loseit EC11_DOWN_A
+  148          //add_loseit EC11_OLD_add_lose;
+  149          //void init0_Isr() interrupt 0
+  150          //{
+  151          //    IE1=0;
+  152          //    EC11_UP_A=~EC11_A&(EC11_OLD_A^EC11_A);
+  153          //    EC11_DOWN_A=EC11_A&(EC11_OLD_A^EC11_A)
+  154          //    EC11_OLD_A=EC11_A;
+  155          //    if(EC11_UP_A)
+  156          //    {
+  157          //      if(EC11_add_lose)
+  158          //      {
+  159          //        flag=1;
+  160          //          t+=0.01;
+  161          //      
+  162          //      }else{
+  163          //        t-=0.01;
+  164          //      }
+  165          //    }
+  166          //    if(EC11_DOWN_A)
+  167          //    {
+  168          //      if(EC11_add_lose==0)
+  169          //      {
+  170          //        flag=1;
+  171          //          t-=0.01;
+  172          //      
+  173          //      }else{
+  174          //        flag=1;
+  175          //          t-=0.01;
+  176          //      }
+  177          //    }
+  178          
+  179          //}
+  180          //void init1_Isr() interrupt 2
+  181          //{
+  182          //  IE0=0;
+  183          //}
+  184          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       424     ------
+  code size            =       414     ------
   ecode size           =    ------     ------
-C251 COMPILER V5.60.0,  main                                                               20/07/23  20:58:09  PAGE 4   
-
   data size            =    ------     ------
+C251 COMPILER V5.60.0,  main                                                               23/07/23  20:53:45  PAGE 4   
+
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =        50     ------
+  edata size           =        54     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Encoders                                                           20/07/23  19:30:23  PAGE 1   
+C251 COMPILER V5.60.0,  Encoders                                                           23/07/23  20:42:25  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Encoders
@@ -66,7 +66,7 @@ stmt  level    source
    55                º¯ÊýËµÃ÷£ºarrow_Value==0//Ò³¼Ó
    56                          arrow_Value==1ÊýÖµ¼Ó
    57                Èë¿Ú²ÎÊý£ºÎÞ
-C251 COMPILER V5.60.0,  Encoders                                                           20/07/23  19:30:23  PAGE 2   
+C251 COMPILER V5.60.0,  Encoders                                                           23/07/23  20:42:25  PAGE 2   
 
    58                ·µ»ØÖµ£º  ÎÞ
    59          ******************************************************************************/
@@ -134,7 +134,7 @@ stmt  level    source
   121   1      
   122   1        else if(part_count==1&&part2_count==0&&add_lose==0) adjust.angle_value+=1;   //part_countÅÐ¶ÏÒ»¼¶²Ëµ¥µÄÎ
              -»ÖÃ  part2_countÅÐ¶Ï¶þ¼¶²Ëµ¥µÄÎ»ÖÃ  add_loseÅÐ¶Ï¼Ó»ò¼õ
-C251 COMPILER V5.60.0,  Encoders                                                           20/07/23  19:30:23  PAGE 3   
+C251 COMPILER V5.60.0,  Encoders                                                           23/07/23  20:42:25  PAGE 3   
 
   123   1        else if(part_count==1&&part2_count==0&&add_lose==1) adjust.angle_value-=1;
   124   1        else if(part_count==1&&part2_count==1&&add_lose==0) adjust.qi_value+=1; 
@@ -203,7 +203,7 @@ Module Information          Static   Overlayable
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
-C251 COMPILER V5.60.0,  Encoders                                                           20/07/23  19:30:23  PAGE 4   
+C251 COMPILER V5.60.0,  Encoders                                                           23/07/23  20:42:25  PAGE 4   
 
   far data size        =    ------     ------
   huge data size       =    ------     ------

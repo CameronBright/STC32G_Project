@@ -1,25 +1,44 @@
 #include "LineFollower.h"
+uchar read_value;
 
-int ReadLine(void)
-{
-	uint adc1,adc2,adc3;
-	int inaccuracy;
+uchar ReadLine(void) //往左边偏的时候输出1 右边偏输出-1 踩在线上输出0
+{	
+	uchar read_value = 0;
+	char return_value = 0;
 	
-	adc1 = ADC_Readchannel_1();
-	adc2 = ADC_Readchannel_2();
-	adc3 = ADC_Readchannel_3();
-	
-	if(adc1 == 4095 && adc2 == 4095 && adc3 == 4095)
-		inaccuracy = 0;
+	if(det_R == 1)
+		read_value |= 0x04; //置1
 	else 
+		read_value &= ~0x04;
+
+	if(det_C == 1)
+		read_value |= 0x02;
+	else 
+		read_value &= ~0x02;
+	
+	if(det_L == 1)
+		read_value |= 0x01;
+	else 
+		read_value &= ~0x01;
+	
+	switch(read_value)
 	{
-		if(adc1 < 4095 && adc2 < 4095 && adc3 < 4095)
-			inaccuracy = 0001;
-		else if(adc1 < 4095)
-			inaccuracy = (4095 - adc1) * -1;
-		else if(adc3 < 4096)
-			inaccuracy = (4096 - adc3);
+		case 0x02:
+			return_value = 0;
+			break;
+		case 0x01:
+			return_value = -1;
+			break;
+		case 0x04:
+			return_value = 1;
+			break;
+		case 0x00:
+			return_value = 2; //没识别到黑线时
+			break;
+		case 0x07:
+			return_value = -2;//error:离开地面时
+			break;
 	}
 	
-	return inaccuracy;
+	return return_value;
 }

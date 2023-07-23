@@ -12,7 +12,7 @@
 2.更新占空比函数
 */
 void PWMA_Config(void);				//PWMA初始化设置函数
-void Update_duty();						//更新占空比函数
+void Update_duty(uchar sw);						//更新占空比函数
 
 /******************/
 

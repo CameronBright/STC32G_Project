@@ -3,8 +3,8 @@
 
 //变量声明区
 
-uint duty = 0;
-uint duty2 = 0;
+int dutyL = 0;
+int dutyR = 0;
 
 void PWMA_Config(void)
 {
@@ -33,9 +33,20 @@ void PWMA_Config(void)
 	PWMA_CR1 = 0x01; 										// 启动PWM定时器
 }
 
-void Update_duty()										//更新占空比函数
-{
+/*
+when sw = 1,duty = duty; 
+when sw = 0, motor can't work
+*/
 
+void Update_duty(uchar sw)										//更新占空比函数
+{
+	if(!sw)
+	{
+		dutyL = 0;
+		dutyR = 0;
+	}
+		
+	
 //	if(dutyupdate1 ==1)
 //	{
 //	PWMA_CCR1H	= (u8)(duty >> 8); 
@@ -51,11 +62,11 @@ void Update_duty()										//更新占空比函数
 //	
 //	else if(dutyupdate3 == 1)
 //	{
-	PWMA_CCR1H	= (uchar)(duty >> 8);  
-	PWMA_CCR1L = duty;                //调整占空比
+	PWMA_CCR1H	= (uchar)(dutyL >> 8);  
+	PWMA_CCR1L = dutyL;                //调整占空比
 		
-	PWMA_CCR2H = (uchar)(duty2 >> 8); 
-	PWMA_CCR2L = duty2;	
+	PWMA_CCR2H = (uchar)(dutyR >> 8); 
+	PWMA_CCR2L = dutyR;	
 	
 
 		

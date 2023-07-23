@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  LineFollower                                                       20/07/23  20:58:09  PAGE 1   
+C251 COMPILER V5.60.0,  LineFollower                                                       23/07/23  20:42:26  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollower
@@ -10,44 +10,65 @@ COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE LineF
 stmt  level    source
 
     1          #include "LineFollower.h"
-    2          
-    3          int ReadLine(void)
-    4          {
-    5   1        uint adc1,adc2,adc3;
-    6   1        int inaccuracy;
-    7   1        
-    8   1        adc1 = ADC_Readchannel_1();
-    9   1        adc2 = ADC_Readchannel_2();
-   10   1        adc3 = ADC_Readchannel_3();
-   11   1        
-   12   1        if(adc1 == 4095 && adc2 == 4095 && adc3 == 4095)
-   13   1          inaccuracy = 0;
-   14   1        else 
-   15   1        {
-   16   2          if(adc1 < 4095 && adc2 < 4095 && adc3 < 4095)
-   17   2            inaccuracy = 0001;
-   18   2          else if(adc1 < 4095)
-   19   2            inaccuracy = (4095 - adc1) * -1;
-   20   2          else if(adc3 < 4096)
-   21   2            inaccuracy = (4096 - adc3);
-   22   2        }
+    2          uchar read_value;
+    3          
+    4          uchar ReadLine(void) //往左边偏的时候输出1 右边偏输出-1 踩在线上输出0
+    5          { 
+    6   1        uchar read_value = 0;
+    7   1        char return_value = 0;
+    8   1        
+    9   1        if(det_R == 1)
+   10   1          read_value |= 0x04; //置1
+   11   1        else 
+   12   1          read_value &= ~0x04;
+   13   1      
+   14   1        if(det_C == 1)
+   15   1          read_value |= 0x02;
+   16   1        else 
+   17   1          read_value &= ~0x02;
+   18   1        
+   19   1        if(det_L == 1)
+   20   1          read_value |= 0x01;
+   21   1        else 
+   22   1          read_value &= ~0x01;
    23   1        
-   24   1        return inaccuracy;
-   25   1      }
+   24   1        switch(read_value)
+   25   1        {
+   26   2          case 0x02:
+   27   2            return_value = 0;
+   28   2            break;
+   29   2          case 0x01:
+   30   2            return_value = -1;
+   31   2            break;
+   32   2          case 0x04:
+   33   2            return_value = 1;
+   34   2            break;
+   35   2          case 0x00:
+   36   2            return_value = 2; //没识别到黑线时
+   37   2            break;
+   38   2          case 0x07:
+   39   2            return_value = -2;//error:离开地面时
+   40   2            break;
+   41   2        }
+   42   1        
+   43   1        return return_value;
+   44   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       118     ------
+  code size            =        95     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =    ------          2
+  edata size           =         1     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
+C251 COMPILER V5.60.0,  LineFollower                                                       23/07/23  20:42:26  PAGE 2   
+
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------

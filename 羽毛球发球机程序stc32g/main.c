@@ -10,11 +10,14 @@
 #include "motor.h"
 #include "ADC.h"
 #include "LineFollower.h"
+#include "stdio.h"
 
 extern uint s_count;         //计数加加
+uint disp_delay;
+uint motor_delay;
 
-extern uint duty;
-extern uint duty2;
+extern int dutyL;
+extern int dutyR;
 
 extern uint delay_cnt; //delay计数
 uint timer_delay = 0; //1us tick
@@ -23,13 +26,15 @@ uchar txbuf[20]; //串口发送缓存
 
 uchar oled_showtext[20]; //oled显示字符串
 
-uint ADCP1;
-uint ADCP2;
-uint ADCP3;
+uchar motor_sw = 1;//电机开关
 
-int line_inaccuracy = 0;
 
-void Disp_refresh(void);
+void Disp_refresh(void);  //数码管显示函数
+void Motor_control(void); //电机控制函数
+
+struct pid_parameter positionPID;
+char line_inaccuracy; //循迹模块偏移量
+char old_position;
 
 void main()
 {
@@ -44,48 +49,28 @@ void main()
 	S1_S0=0;S1_S1=0;//串口1 选择P30 P31	
 	P54RST=1;//复位初始化
 	
-	PWMA_Config();
+	Motor_Init();
 	
-	ADC_Init();
-	
-	MOTOR_AIN1 = 0;
-	MOTOR_AIN2 = 1;
-	
-	MOTOR_BIN1 = 0;
-	MOTOR_BIN2 = 1;
-	
-	duty = 600;
-	duty2 = 600;
+	positionPID.basicSpeed = 400;
 	
 	while(1)
 	{	
 		//rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿		
 		//Cancel_determine();      //按键取消和确定检测函数,计时方式
 		//Memu();
-			
-		ADCP1 = ADC_Readchannel_1();  //P11		
-		ADCP2 = ADC_Readchannel_2();  //P00	
-		ADCP3 = ADC_Readchannel_3();	//P10
+		Motor_control();
+		Disp_refresh();	
 		
-		line_inaccuracy = ReadLine();
-		
-//		if(line_inaccuracy != 0)
-//		{
-//			if(line_inaccuracy > 0)
-//				
-//		}
 		//sprintf(txbuf,"1:%04d 2:%04d 3:%04d\r\n",ADCP1,ADCP2,ADCP3);
-		//Uart_String(txbuf);
-		
-		Disp_refresh();
-		//delay(1000);
-		
-		Update_duty();	
+		//Uart_String(txbuf); //串口
 	}
 }
 void timer1() interrupt 3       //100us加一次
 {
-	if(delay_cnt > 0)
+	if(++disp_delay == 100) disp_delay = 0;
+	if(++motor_delay == 10) motor_delay = 0;
+	
+	if(delay_cnt > 0) //延时函数
 		delay_cnt--;
 	
 	if(++timer_delay > 10000)
@@ -102,39 +87,54 @@ void timer1() interrupt 3       //100us加一次
 
 void Disp_refresh(void)
 {
-	sprintf(oled_showtext,"P11:");
+	if(disp_delay) return; //10ms刷新一次屏幕
+	disp_delay = 1;
+	
+	sprintf(oled_showtext,"%1d   ",line_inaccuracy);
 	OLED_16x16(0,0,oled_showtext);
-	sprintf(oled_showtext,"P00:");
+	
+	sprintf(oled_showtext,"%3d,%3d",dutyR,dutyL);
 	OLED_16x16(0,2,oled_showtext);
-	sprintf(oled_showtext,"P10:");
+	
+	sprintf(oled_showtext,"%3d",positionPID.basicSpeed);
 	OLED_16x16(0,4,oled_showtext);
+//	sprintf(oled_showtext,"P00:");
+//	OLED_16x16(0,2,oled_showtext);
+//	sprintf(oled_showtext,"P10:");
+//	OLED_16x16(0,4,oled_showtext);
+//	
+//	OLED_ShowNum(35,0,ADCP1,6);
+//	OLED_ShowNum(35,2,ADCP2,6);
+//	OLED_ShowNum(35,4,ADCP3,6);	
+}
+
+void Motor_control(void)
+{
+	if(motor_delay) return;
+	motor_delay = 1;
 	
-	OLED_ShowNum(35,0,ADCP1,6);
-	OLED_ShowNum(35,2,ADCP2,6);
-	OLED_ShowNum(35,4,ADCP3,6);
+	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
 	
-	if(line_inaccuracy < 0)
+	if(line_inaccuracy > 1 || line_inaccuracy < -1)
 	{
-		line_inaccuracy = line_inaccuracy * -1;
-		sprintf(oled_showtext,"- ");
-		OLED_16x16(0,6,oled_showtext);
-		OLED_ShowNum(15,6,line_inaccuracy,6);
+		if(line_inaccuracy == -2)//传感器远离地面时
+			motor_sw = 0;
+		else if(line_inaccuracy == 2) //所有传感器都在地面但没识别到线时
+			line_inaccuracy = old_position;
 	}
 	else 
 	{
-//		sprintf(oled_showtext," ");
-//		OLED_16x16(0,6,oled_showtext);
-		OLED_ShowNum(0,6,line_inaccuracy,6);
+		motor_sw = 1;//正常
+		old_position = line_inaccuracy;//记录上一次的位置
 	}
 		
-		
+	dutyR = positionPID.basicSpeed + line_inaccuracy*600; //右偏左偏
+	dutyL = positionPID.basicSpeed - line_inaccuracy*600;
 	
+	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
 	
+	Update_duty(motor_sw);//更新PWM输出
 }
-
-
-
-
 
 
 

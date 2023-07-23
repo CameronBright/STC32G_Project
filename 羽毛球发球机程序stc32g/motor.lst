@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              20/07/23  19:30:24  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              23/07/23  20:48:51  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -10,11 +10,69 @@ COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE motor
 stmt  level    source
 
     1          #include "motor.h"
+    2          
+    3          void Motor_Init(void) //电机初始化
+    4          {
+    5   1        PWMA_Config(); //configure the PWM
+    6   1        Motor_Forward(); //forward
+    7   1      }
+    8          
+    9          void Motor_Forward(void) //forward motor (电机正转)
+   10          {
+   11   1        MOTOR_AIN1 = 0;
+   12   1        MOTOR_AIN2 = 1;
+   13   1        
+   14   1        MOTOR_BIN1 = 0;
+   15   1        MOTOR_BIN2 = 1;
+   16   1      }
+   17          
+   18          void Motor_reverse(void) //reverse motor (电机反转)
+   19          {
+   20   1        MOTOR_AIN1 = 1;
+   21   1        MOTOR_AIN2 = 0;
+   22   1        
+   23   1        MOTOR_BIN1 = 1;
+   24   1        MOTOR_BIN2 = 0;
+   25   1      }
+   26          
+   27          
+   28          /*
+   29          When motor1 >= 0, the motor1 is forware, otherwise the motor1 is reverse
+   30          When motor2 >= 0, the motor2 is forware, otherwise the motor2 is reverse
+   31          当pwm大于0时，电机正转 小于0时， 电机反转
+   32          */
+   33          
+   34          void Motor_FRcontrol(int motor1, int motor2)
+   35          {
+   36   1        if(motor1 >= 0)
+   37   1        {
+   38   2          MOTOR_AIN1 = 0; //Forward motor1(电机1正转)
+   39   2          MOTOR_AIN2 = 1;
+   40   2        }
+   41   1        else 
+   42   1        {
+   43   2          MOTOR_AIN1 = 1; //Forward motor1(电机1反转)
+   44   2          MOTOR_AIN2 = 0;
+   45   2        }
+   46   1        
+   47   1        if(motor2 >= 0)
+   48   1        {
+   49   2          MOTOR_BIN1 = 0; //Forward motor2(电机2正转)
+   50   2          MOTOR_BIN2 = 1;
+   51   2        }
+   52   1        else 
+   53   1        {
+   54   2          MOTOR_BIN1 = 1; //Forward motor2(电机2反转)
+   55   2          MOTOR_BIN2 = 0;
+   56   2        }
+   57   1      }
+C251 COMPILER V5.60.0,  motor                                                              23/07/23  20:48:51  PAGE 2   
+
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =    ------     ------
+  code size            =        56     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
