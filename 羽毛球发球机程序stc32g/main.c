@@ -21,6 +21,7 @@ uint timer_delay = 0;        //1us tick
 
 uint disp_delay;             //显示屏刷新延时计数
 uint motor_delay;						 //电机函数刷新延时计数
+uint mpu6050_delay;					 //mpu6050读取延时计数
 
 //----------------- motor(电机驱动和PID变量)--------------------------------
 extern int dutyL;            //左边电机驱动pwm 周期1000
@@ -35,6 +36,8 @@ char old_position;    //上一次的数据
 //------------------MPU6050-----------------------------------------------
 
 int Gyro_x, Gyro_y, Gyro_z;                        //三轴陀螺仪
+int Gyro_x_, Gyro_y_, Gyro_z_;                        //三轴陀螺仪滤波
+
 int Gyro_angle_x=0, Gyro_angle_y=0, Gyro_angle_z=0;
 int Acc_x, Acc_y, Acc_z;                           //三轴加速度
 int Temp;                                        //温度
@@ -44,6 +47,8 @@ float	xdata a_x=0,a_y=0;							           //角度矫正参数
 float	data  AngleX=0, AngleY=0, AngleZ=0;					 //四元数解算出的欧拉角
 float	xdata Angle_gx=0, Angle_gy=0, Angle_gz=0;		 //由角速度计算的角速率(角度制)
 float	xdata Angle_ax=0, Angle_ay=0, Angle_az=0;		 //由加速度计算的加速度(弧度制)
+
+uchar MPU6050_DATA[14];
 
 unsigned  int Angle_of_pitch = 0;
 unsigned 	int Roll_Angle = 0;
@@ -61,10 +66,11 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az);
 //-----------------other--------------------------------------------------
 uchar txbuf[20]; //串口发送缓存
 
-uchar oled_showtext[20]; //oled显示字符串
+uchar oled_showtext[25]; //oled显示字符串
 
 void Disp_refresh(void);  //数码管显示函数
 void Motor_control(void); //电机控制函数
+void MPU6050_Read(void);  //陀螺仪数据采集
 
 void main()
 {
@@ -75,31 +81,33 @@ void main()
 	OLED_Clear();//oled清屏
 	
 	Timer1Init();//定时器初始化
+	
 	UartInit();//串口初始化	
-	S1_S0=0;S1_S1=0;//串口1 选择P30 P31	
+	S1_S0=0;
+	S1_S1=0;//串口1 选择P30 P31	
+	
 	P54RST=1;//复位初始化
 	
+	Motor_Init(); //电机初始化
+	positionPID.basicSpeed = 400;//基础运动速度
 	
-	Motor_Init();
-	positionPID.basicSpeed = 400;
+	InitMPU6050(); //mpu6050初始化
 	
 	while(1)
 	{	
-		//rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿		
-		//Cancel_determine();      //按键取消和确定检测函数,计时方式
-		//Memu();
-		
-		Motor_control();
-		Disp_refresh();	
+		Motor_control(); //电机控制函数
+		Disp_refresh();	 //显示屏刷新函数
+		MPU6050_Read();  //陀螺仪数据采集
 		
 		//sprintf(txbuf,"1:%04d 2:%04d 3:%04d\r\n",ADCP1,ADCP2,ADCP3);
 		//Uart_String(txbuf); //串口
 	}
 }
-void timer1() interrupt 3       //100us加一次
+void timer1() interrupt 3       //100us中断一次
 {
 	if(++disp_delay == 100) disp_delay = 0;
 	if(++motor_delay == 10) motor_delay = 0;
+	if(++mpu6050_delay == 50) mpu6050_delay = 0;
 	
 	if(delay_cnt > 0) //延时函数
 		delay_cnt--;
@@ -129,13 +137,15 @@ void Disp_refresh(void)
 	
 	sprintf(oled_showtext,"%3d",positionPID.basicSpeed);
 	OLED_16x16(0,4,oled_showtext);
-//	sprintf(oled_showtext,"P00:");
-//	OLED_16x16(0,2,oled_showtext);
-//	sprintf(oled_showtext,"P10:");
-//	OLED_16x16(0,4,oled_showtext);
-//	
-//	OLED_ShowNum(35,0,ADCP1,6);
-//	OLED_ShowNum(35,2,ADCP2,6);
+
+	sprintf(oled_showtext,"X:%3d Y:%3d",Gyro_x,Gyro_y);
+	OLED_Display_string_5x7(0,6,oled_showtext);
+	
+	sprintf(oled_showtext,"Z:%3d",Gyro_z);
+	OLED_Display_string_5x7(0,7,oled_showtext);
+	
+	sprintf(txbuf,"X:%04d Y:%04d Z:%04d\r\n",Gyro_x,Gyro_y,Gyro_z);
+	Uart_String(txbuf); //串口
 //	OLED_ShowNum(35,4,ADCP3,6);	
 }
 
@@ -165,6 +175,49 @@ void Motor_control(void)
 	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
 	
 	Update_duty(motor_sw);//更新PWM输出
+}
+
+void MPU6050_Read(void)
+{
+	if(mpu6050_delay) return; //10ms刷新一次屏幕
+	mpu6050_delay = 1;
+	
+	Read_MPU6050(MPU6050_DATA);
+	Acc_x = MPU6050_DATA[0]<<8|MPU6050_DATA[1]; //加速度
+	Acc_y = MPU6050_DATA[2]<<8|MPU6050_DATA[3];
+	Acc_z = MPU6050_DATA[4]<<8|MPU6050_DATA[5];
+	
+	Temp  = MPU6050_DATA[6]<<8|MPU6050_DATA[7]; //temperature
+	
+	Gyro_x = MPU6050_DATA[8]<<8|MPU6050_DATA[9]; //陀螺仪
+	Gyro_y = MPU6050_DATA[10]<<8|MPU6050_DATA[11]; 
+	Gyro_z = MPU6050_DATA[12]<<8|MPU6050_DATA[13]; 
+	
+	if((Gyro_x == -1)||(Gyro_y == -1)||(Gyro_z == -1)||(Gyro_x == 0)||(Gyro_y == 0)||(Gyro_z == 0)) //高通滤波
+	{
+		Gyro_x = Gyro_x_;
+		Gyro_y = Gyro_y_;
+		Gyro_z = Gyro_z_;
+	}
+	else 
+	{
+		Gyro_x_ = Gyro_x;
+		Gyro_y_ = Gyro_y;
+		Gyro_z_ = Gyro_z;
+	}
+	
+	Angle_ax = Acc_x/8192.0; //偏移角
+	Angle_ay = Acc_y/8192.0; 
+	Angle_az = Acc_z/8192.0; 
+	
+	Angle_gx = Gyro_x/65.5; //
+	Angle_gy = Gyro_y/65.5;
+	Angle_gz = Gyro_z/65.5;
+	
+	IMUupdate(Angle_gx*0.0174533f,Angle_gy*0.0174533f,Angle_gz*0.0174533f,Angle_ax,Angle_ay,Angle_az);
+	
+	Angle_of_pitch = AngleX;
+	Roll_Angle = AngleY;
 }
 
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
