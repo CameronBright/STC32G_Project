@@ -9,32 +9,62 @@
 #include "Meun.h"
 #include "motor.h"
 #include "ADC.h"
-#include "LineFollower.h"
+#include "LineFollower.h" //循迹模块
 #include "stdio.h"
+#include "MPU6050.h"
+#include "MATH.H"
 
-extern uint s_count;         //计数加加
-uint disp_delay;
-uint motor_delay;
+//-------------------------------- system--------------------------------
+extern uint s_count;         //定时器计数
+extern uint delay_cnt;       //delay计数
+uint timer_delay = 0;        //1us tick
 
-extern int dutyL;
-extern int dutyR;
+uint disp_delay;             //显示屏刷新延时计数
+uint motor_delay;						 //电机函数刷新延时计数
 
-extern uint delay_cnt; //delay计数
-uint timer_delay = 0; //1us tick
+//----------------- motor(电机驱动和PID变量)--------------------------------
+extern int dutyL;            //左边电机驱动pwm 周期1000
+extern int dutyR;            //右
 
+uchar motor_sw = 1;//电机开关
+
+struct pid_parameter positionPID; //PID参数
+char line_inaccuracy; //循迹模块偏移量
+char old_position;    //上一次的数据
+
+//------------------MPU6050-----------------------------------------------
+
+int Gyro_x, Gyro_y, Gyro_z;                        //三轴陀螺仪
+int Gyro_angle_x=0, Gyro_angle_y=0, Gyro_angle_z=0;
+int Acc_x, Acc_y, Acc_z;                           //三轴加速度
+int Temp;                                        //温度
+
+int		xdata g_x=0,g_y=0,g_z=0;					         //陀螺仪矫正参数
+float	xdata a_x=0,a_y=0;							           //角度矫正参数
+float	data  AngleX=0, AngleY=0, AngleZ=0;					 //四元数解算出的欧拉角
+float	xdata Angle_gx=0, Angle_gy=0, Angle_gz=0;		 //由角速度计算的角速率(角度制)
+float	xdata Angle_ax=0, Angle_ay=0, Angle_az=0;		 //由加速度计算的加速度(弧度制)
+
+unsigned  int Angle_of_pitch = 0;
+unsigned 	int Roll_Angle = 0;
+
+#define	pi		3.14159265f                           
+#define	Kp		0.8f                        
+#define	Ki		0.001f                         
+#define	halfT	0.004f  
+
+float idata q0=1,q1=0,q2=0,q3=0;   
+float idata exInt=0,eyInt=0,ezInt=0;  
+
+void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az);
+
+//-----------------other--------------------------------------------------
 uchar txbuf[20]; //串口发送缓存
 
 uchar oled_showtext[20]; //oled显示字符串
 
-uchar motor_sw = 1;//电机开关
-
-
 void Disp_refresh(void);  //数码管显示函数
 void Motor_control(void); //电机控制函数
-
-struct pid_parameter positionPID;
-char line_inaccuracy; //循迹模块偏移量
-char old_position;
 
 void main()
 {
@@ -49,8 +79,8 @@ void main()
 	S1_S0=0;S1_S1=0;//串口1 选择P30 P31	
 	P54RST=1;//复位初始化
 	
-	Motor_Init();
 	
+	Motor_Init();
 	positionPID.basicSpeed = 400;
 	
 	while(1)
@@ -58,6 +88,7 @@ void main()
 		//rotary_encoder();        //一直扫描旋转编码器函数 ,检测上升沿 下降沿		
 		//Cancel_determine();      //按键取消和确定检测函数,计时方式
 		//Memu();
+		
 		Motor_control();
 		Disp_refresh();	
 		
@@ -136,7 +167,52 @@ void Motor_control(void)
 	Update_duty(motor_sw);//更新PWM输出
 }
 
+void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
+{
+	float data norm;
+	float idata vx, vy, vz;
+	float idata ex, ey, ez;
 
+	norm = sqrt(ax*ax + ay*ay + az*az);	//把加速度计的三维向量转成单维向量   
+	ax = ax / norm;
+	ay = ay / norm;
+	az = az / norm;
+
+		//	下面是把四元数换算成《方向余弦矩阵》中的第三列的三个元素。 
+		//	根据余弦矩阵和欧拉角的定义，地理坐标系的重力向量，转到机体坐标系，正好是这三个元素
+		//	所以这里的vx vy vz，其实就是当前的欧拉角（即四元数）的机体坐标参照系上，换算出来的
+		//	重力单位向量。
+	vx = 2*(q1*q3 - q0*q2);
+	vy = 2*(q0*q1 + q2*q3);
+	vz = q0*q0 - q1*q1 - q2*q2 + q3*q3 ;
+
+	ex = (ay*vz - az*vy) ;
+	ey = (az*vx - ax*vz) ;
+	ez = (ax*vy - ay*vx) ;
+
+	exInt = exInt + ex * Ki;
+	eyInt = eyInt + ey * Ki;
+	ezInt = ezInt + ez * Ki;
+
+	gx = gx + Kp*ex + exInt;
+	gy = gy + Kp*ey + eyInt;
+	gz = gz + Kp*ez + ezInt;
+
+	q0 = q0 + (-q1*gx - q2*gy - q3*gz) * halfT;
+	q1 = q1 + ( q0*gx + q2*gz - q3*gy) * halfT;
+	q2 = q2 + ( q0*gy - q1*gz + q3*gx) * halfT;
+	q3 = q3 + ( q0*gz + q1*gy - q2*gx) * halfT;
+
+	norm = sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
+	q0 = q0 / norm;
+	q1 = q1 / norm;
+	q2 = q2 / norm;
+	q3 = q3 / norm;
+
+	AngleX = asin(2*(q0*q2 - q1*q3 )) * 57.2957795f; // 俯仰   换算成度
+	AngleY = asin(2*(q0*q1 + q2*q3 )) * 57.2957795f; // 横滚
+	AngleZ = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.2957795f;
+}
 
 //	IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
 //	EX0=1;	//使能中断0
@@ -176,7 +252,6 @@ void Motor_control(void)
 //					t-=0.01;
 //			}
 //		}
-
 //}
 //void init1_Isr() interrupt 2
 //{

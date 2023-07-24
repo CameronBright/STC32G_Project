@@ -24,7 +24,6 @@ void Motor_reverse(void) //reverse motor (电机反转)
 	MOTOR_BIN2 = 0;
 }
 
-
 /*
 When motor1 >= 0, the motor1 is forware, otherwise the motor1 is reverse
 When motor2 >= 0, the motor2 is forware, otherwise the motor2 is reverse

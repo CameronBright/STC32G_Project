@@ -49,13 +49,13 @@ void Update_duty(uchar sw)										//更新占空比函数
 	
 //	if(dutyupdate1 ==1)
 //	{
-//	PWMA_CCR1H	= (u8)(duty >> 8); 
+//	PWMA_CCR1H	= (uchar)(duty >> 8); 
 //	PWMA_CCR1L = duty; 									//更新CC1通道占空比
 //	dutyupdate1 = 0;											//更新占空比标志清零
 //	}
 //	else if(dutyupdate2 ==1)
 //	{
-//	PWMA_CCR2H = (u8)(duty2 >> 8); 
+//	PWMA_CCR2H = (uchar)(duty2 >> 8); 
 //	PWMA_CCR2L = duty2; 									//更新CC1通道占空比
 //	dutyupdate2 = 0;											//更新占空比标志清零
 //	}

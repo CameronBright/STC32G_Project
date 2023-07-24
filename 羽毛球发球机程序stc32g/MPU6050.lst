@@ -1,0 +1,249 @@
+C251 COMPILER V5.60.0,  MPU6050                                                            24/07/23  20:21:12  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE MPU6050
+OBJECT MODULE PLACED IN MPU6050.obj
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE MPU6050\MPU6050.c XSMALL INTR2 WARNINGLEVEL(1
+                    -) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050) DEBUG
+                    - PRINT(.\MPU6050.lst) TABS(2) OBJECT(MPU6050.obj) 
+
+stmt  level    source
+
+    1          #include "main.h"
+    2          #include "MPU6050.h"
+    3          
+    4          sbit    SCL = P3^6;   //IIC时钟引脚定义
+    5          sbit    SDA = P3^7;   //IIC数据引脚定义
+    6          
+    7          void  InitMPU6050(void);  //初始化MPU6050
+    8          void  Delay2us(void);
+    9          void  I2C_Start(void);
+   10          void  I2C_Stop(void);
+   11          
+   12          bit   I2C_RecvACK(void);
+   13          
+   14          void  I2C_SendByte(uchar dat);
+   15          uchar   I2C_RecvByte(void);
+   16          
+   17          void  I2C_ReadPage(void);
+   18          void  I2C_WritePage(void);
+   19          uchar   Single_ReadI2C(uchar REG_Address);        //读取I2C数据
+   20          void  Single_WriteI2C(uchar REG_Address,uchar REG_data);  //向I2C写入数据
+   21          
+   22          
+   23          //I^C时序中延时设置，具体参见各芯片的数据手册  6050推荐最小1.3us 但是会出问题，这里延时实际1.9us左右
+   24          void Delay2us(void)
+   25          {
+   26   1        uchar i;
+   27   1        i = 7;    // @24MHZ, 6 + 33 = 39T, 1.625us
+   28   1        while (--i);
+   29   1      }
+   30          
+   31          //**************************************
+   32          //I2C起始信号
+   33          //**************************************
+   34          void I2C_Start(void)
+   35          {
+   36   1        Delay2us();                 //延时
+   37   1        Delay2us();                 //延时
+   38   1        SDA = 1;                    //拉高数据线
+   39   1        SCL = 1;                    //拉高时钟线
+   40   1        Delay2us();                 //延时
+   41   1        Delay2us();                 //延时
+   42   1        SDA = 0;                    //产生下降沿
+   43   1        Delay2us();                 //延时
+   44   1        SCL = 0;                    //拉低时钟线
+   45   1        Delay2us();                 //延时
+   46   1      }
+   47          
+   48          //**************************************
+   49          //I2C停止信号
+   50          //**************************************
+   51          void I2C_Stop(void)
+   52          {
+   53   1          Delay2us();                 //延时
+   54   1          SDA = 0;                    //拉低数据线
+   55   1          SCL = 1;                    //拉高时钟线
+   56   1        Delay2us();                 //延时
+   57   1          SDA = 1;                    //产生上升沿
+C251 COMPILER V5.60.0,  MPU6050                                                            24/07/23  20:21:12  PAGE 2   
+
+   58   1        Delay2us();                 //延时
+   59   1      }
+   60          
+   61          //**************************************
+   62          //I2C接收应答信号
+   63          //**************************************
+   64          bit I2C_RecvACK(void)
+   65          {
+   66   1        SDA = 1;
+   67   1        Delay2us();                 //延时
+   68   1          SCL = 1;                    //拉高时钟线
+   69   1          Delay2us();                 //延时
+   70   1          CY = SDA;                   //读应答信号
+   71   1          SCL = 0;                    //拉低时钟线
+   72   1          Delay2us();                 //延时
+   73   1          return CY;
+   74   1      }
+   75          
+   76          //**************************************
+   77          //向I2C总线发送一个字节数据
+   78          //**************************************
+   79          void I2C_SendByte(uchar dat)
+   80          {
+   81   1          uchar i;
+   82   1          for (i=0; i<8; i++)         //8位计数器
+   83   1          {
+   84   2              dat <<= 1;              //移出数据的最高位
+   85   2              SDA = CY;               //送数据口
+   86   2              SCL = 1;                //拉高时钟线
+   87   2              Delay2us();             //延时
+   88   2              SCL = 0;                //拉低时钟线
+   89   2              Delay2us();             //延时
+   90   2          }
+   91   1          I2C_RecvACK();
+   92   1      }
+   93          
+   94          //**************************************
+   95          //从I2C总线接收一个字节数据
+   96          //**************************************
+   97          uchar I2C_RecvByte(void)
+   98          {
+   99   1          uchar i;
+  100   1          uchar dat = 0;
+  101   1          SDA = 1;                    //使能内部上拉,准备读取数据,
+  102   1          for (i=0; i<8; i++)         //8位计数器
+  103   1          {
+  104   2              dat <<= 1;
+  105   2              SCL = 1;                //拉高时钟线
+  106   2              Delay2us();             //延时
+  107   2              dat |= SDA;             //读数据
+  108   2              SCL = 0;                //拉低时钟线
+  109   2              Delay2us();             //延时
+  110   2          }
+  111   1          return dat;
+  112   1      }
+  113          
+  114          //**************************************
+  115          //向I2C设备写入一个字节数据
+  116          //**************************************
+  117          void Single_WriteI2C(uchar REG_Address,uchar REG_data)
+  118          {
+  119   1          I2C_Start();                  //起始信号
+  120   1          I2C_SendByte(SlaveAddress);   //发送设备地址+写信号
+  121   1          I2C_SendByte(REG_Address);    //内部寄存器地址，
+  122   1          I2C_SendByte(REG_data);       //内部寄存器数据，
+  123   1          I2C_Stop();                   //发送停止信号
+C251 COMPILER V5.60.0,  MPU6050                                                            24/07/23  20:21:12  PAGE 3   
+
+  124   1      }
+  125          //**************************************
+  126          //从I2C设备读取一个字节数据
+  127          //**************************************
+  128          /*
+  129          uchar Single_ReadI2C(uchar REG_Address)
+  130          {
+  131            uchar REG_data;
+  132            I2C_Start();                   //起始信号
+  133            I2C_SendByte(SlaveAddress);    //发送设备地址+写信号
+  134            I2C_SendByte(REG_Address);     //发送存储单元地址，从0开始
+  135            I2C_Start();                   //起始信号
+  136            I2C_SendByte(SlaveAddress+1);  //发送设备地址+读信号
+  137            REG_data=I2C_RecvByte();       //读出寄存器数据
+  138            
+  139            SDA = 1;                    //写应答信号
+  140            SCL = 1;                    //拉高时钟线
+  141            Delay2us();                 //延时
+  142            SCL = 0;                    //拉低时钟线
+  143            Delay2us();                 //延时
+  144            
+  145            I2C_Stop();                    //停止信号
+  146            return REG_data;
+  147          }
+  148          */
+  149          
+  150          //**************************************
+  151          //初始化MPU6050
+  152          //**************************************
+  153          void InitMPU6050(void)
+  154          {
+  155   1        //P2n_open_drain(0x30); //P2.4 -- SDA,   P2.5 -- SCL
+  156   1        Delay2us();
+  157   1        Delay2us();
+  158   1        Delay2us();
+  159   1        Delay2us();
+  160   1      
+  161   1        Single_WriteI2C(PWR_MGMT_1, 0x00);  //解除休眠状态
+  162   1        Single_WriteI2C(SMPLRT_DIV, 0x07);  //陀螺仪125hz
+  163   1        Single_WriteI2C(CONFIG, 0x04);      //21HZ滤波 延时A8.5ms G8.3ms  此处取值应相当注意，延时与系统周期相近
+             -为宜
+  164   1        Single_WriteI2C(GYRO_CONFIG, 0x08); //陀螺仪500度/S 65.5LSB/g
+  165   1        Single_WriteI2C(ACCEL_CONFIG, 0x08);//加速度+-4g  8192LSB/g
+  166   1      }
+  167          
+  168          //**************************************
+  169          //合成数据
+  170          //**************************************
+  171          /*
+  172          int GetData(uchar REG_Address)
+  173          {
+  174            char H,L;
+  175            H = Single_ReadI2C(REG_Address);
+  176            L = Single_ReadI2C(REG_Address+1);
+  177          //  return (H<<8)+L;   //合成数据
+  178            return (((uint)H << 8) + L);   //合成数据
+  179          }
+  180          */
+  181          
+  182          void Read_MPU6050(uchar *buf)
+  183          {
+  184   1        uchar i;
+  185   1        
+  186   1        I2C_Start();                  //起始信号
+  187   1        I2C_SendByte(SlaveAddress);   //发送设备地址+写信号
+  188   1        I2C_SendByte(ACCEL_XOUT_H);    //内部寄存器地址，
+C251 COMPILER V5.60.0,  MPU6050                                                            24/07/23  20:21:12  PAGE 4   
+
+  189   1        I2C_Start();                   //起始信号
+  190   1        I2C_SendByte(SlaveAddress+1);  //发送设备地址+读信号
+  191   1        for(i=0; i<13; i++)
+  192   1        {
+  193   2          buf[i] = I2C_RecvByte();       //读出寄存器数据
+  194   2          SDA = 0;                    //写应答信号
+  195   2          SCL = 1;                    //拉高时钟线
+  196   2          Delay2us();                 //延时
+  197   2          SCL = 0;                    //拉低时钟线
+  198   2          Delay2us();                 //延时
+  199   2        }
+  200   1          buf[i] = I2C_RecvByte();  //最后一个字节
+  201   1          SDA = 1;                    //写非应答信号
+  202   1          SCL = 1;                    //拉高时钟线
+  203   1          Delay2us();                 //延时
+  204   1          SCL = 0;                    //拉低时钟线
+  205   1          Delay2us();                 //延时
+  206   1        I2C_Stop();                    //停止信号
+  207   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       333     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------          1
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

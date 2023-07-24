@@ -19,12 +19,22 @@ CPU DLL:         S251.DLL V3.129.0.0
 Dialog DLL:      DCORE51.DLL V2.81.6.0 
 <h2>Project:</h2>
 E:\Learn\Match\全国大学生电子设计大赛\stc32g\羽毛球发球机程序stc32g\LED.uvproj
-Project File Date:  07/20/2023
+Project File Date:  07/24/2023
 
 <h2>Output:</h2>
 Build target 'Target 1'
 compiling main.c...
 linking...
+*** WARNING L46: SFR SYMBOL HAS DIFFERENT VALUES
+    SYMBOL:  SCL
+    MODULE:  MPU6050.obj (MPU6050)
+   DEFINED:  iic.obj (iic)
+*** WARNING L46: SFR SYMBOL HAS DIFFERENT VALUES
+    SYMBOL:  SDA
+    MODULE:  MPU6050.obj (MPU6050)
+   DEFINED:  iic.obj (iic)
+*** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    IMUupdate/main
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
     NAME:    OLED_Display_string_5x7/oled
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
@@ -67,9 +77,13 @@ linking...
     NAME:    ADC_Read/ADC
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
     NAME:    ADC_Init/ADC
-Program Size: data=8.7 edata+hdata=425 xdata=0 const=324 code=7632
+*** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    Read_MPU6050/MPU6050
+*** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    InitMPU6050/MPU6050
+Program Size: data=24.7 edata+hdata=522 xdata=14 const=522 code=9917
 creating hex file from "LED"...
-"LED" - 0 Error(s), 21 Warning(s).
+"LED" - 0 Error(s), 26 Warning(s).
 Build Time Elapsed:  00:00:01
 </pre>
 </body>

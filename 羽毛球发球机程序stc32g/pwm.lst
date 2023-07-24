@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  pwm                                                                23/07/23  20:51:06  PAGE 1   
+C251 COMPILER V5.60.0,  pwm                                                                24/07/23  20:20:03  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE pwm
 OBJECT MODULE PLACED IN pwm.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE PWM\pwm.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE
-                    - INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG PRINT(.\pwm.lst) 
-                    -TABS(2) OBJECT(pwm.obj) 
+                    - INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050) DEBUG PRINT(.
+                    -\pwm.lst) TABS(2) OBJECT(pwm.obj) 
 
 stmt  level    source
 
@@ -60,15 +60,15 @@ stmt  level    source
    49   1        
    50   1      //  if(dutyupdate1 ==1)
    51   1      //  {
-   52   1      //  PWMA_CCR1H  = (u8)(duty >> 8); 
+   52   1      //  PWMA_CCR1H  = (uchar)(duty >> 8); 
    53   1      //  PWMA_CCR1L = duty;                  //更新CC1通道占空比
    54   1      //  dutyupdate1 = 0;                      //更新占空比标志清零
    55   1      //  }
    56   1      //  else if(dutyupdate2 ==1)
    57   1      //  {
-C251 COMPILER V5.60.0,  pwm                                                                23/07/23  20:51:06  PAGE 2   
+C251 COMPILER V5.60.0,  pwm                                                                24/07/23  20:20:03  PAGE 2   
 
-   58   1      //  PWMA_CCR2H = (u8)(duty2 >> 8); 
+   58   1      //  PWMA_CCR2H = (uchar)(duty2 >> 8); 
    59   1      //  PWMA_CCR2L = duty2;                   //更新CC1通道占空比
    60   1      //  dutyupdate2 = 0;                      //更新占空比标志清零
    61   1      //  }

@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  motor                                                              23/07/23  20:48:51  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              24/07/23  20:20:03  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
 OBJECT MODULE PLACED IN motor.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE motor\motor.c XSMALL INTR2 WARNINGLEVEL(1) BR
-                    -OWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG PRINT(.\motor
-                    -.lst) TABS(2) OBJECT(motor.obj) 
+                    -OWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050) DEBUG PRI
+                    -NT(.\motor.lst) TABS(2) OBJECT(motor.obj) 
 
 stmt  level    source
 
@@ -35,39 +35,38 @@ stmt  level    source
    24   1        MOTOR_BIN2 = 0;
    25   1      }
    26          
-   27          
-   28          /*
-   29          When motor1 >= 0, the motor1 is forware, otherwise the motor1 is reverse
-   30          When motor2 >= 0, the motor2 is forware, otherwise the motor2 is reverse
-   31          当pwm大于0时，电机正转 小于0时， 电机反转
-   32          */
-   33          
-   34          void Motor_FRcontrol(int motor1, int motor2)
-   35          {
-   36   1        if(motor1 >= 0)
-   37   1        {
-   38   2          MOTOR_AIN1 = 0; //Forward motor1(电机1正转)
-   39   2          MOTOR_AIN2 = 1;
-   40   2        }
-   41   1        else 
-   42   1        {
-   43   2          MOTOR_AIN1 = 1; //Forward motor1(电机1反转)
-   44   2          MOTOR_AIN2 = 0;
-   45   2        }
-   46   1        
-   47   1        if(motor2 >= 0)
-   48   1        {
-   49   2          MOTOR_BIN1 = 0; //Forward motor2(电机2正转)
-   50   2          MOTOR_BIN2 = 1;
-   51   2        }
-   52   1        else 
-   53   1        {
-   54   2          MOTOR_BIN1 = 1; //Forward motor2(电机2反转)
-   55   2          MOTOR_BIN2 = 0;
-   56   2        }
-   57   1      }
-C251 COMPILER V5.60.0,  motor                                                              23/07/23  20:48:51  PAGE 2   
+   27          /*
+   28          When motor1 >= 0, the motor1 is forware, otherwise the motor1 is reverse
+   29          When motor2 >= 0, the motor2 is forware, otherwise the motor2 is reverse
+   30          当pwm大于0时，电机正转 小于0时， 电机反转
+   31          */
+   32          
+   33          void Motor_FRcontrol(int motor1, int motor2)
+   34          {
+   35   1        if(motor1 >= 0)
+   36   1        {
+   37   2          MOTOR_AIN1 = 0; //Forward motor1(电机1正转)
+   38   2          MOTOR_AIN2 = 1;
+   39   2        }
+   40   1        else 
+   41   1        {
+   42   2          MOTOR_AIN1 = 1; //Forward motor1(电机1反转)
+   43   2          MOTOR_AIN2 = 0;
+   44   2        }
+   45   1        
+   46   1        if(motor2 >= 0)
+   47   1        {
+   48   2          MOTOR_BIN1 = 0; //Forward motor2(电机2正转)
+   49   2          MOTOR_BIN2 = 1;
+   50   2        }
+   51   1        else 
+   52   1        {
+   53   2          MOTOR_BIN1 = 1; //Forward motor2(电机2反转)
+   54   2          MOTOR_BIN2 = 0;
+   55   2        }
+   56   1      }
 
+C251 COMPILER V5.60.0,  motor                                                              24/07/23  20:20:03  PAGE 2   
 
 
 Module Information          Static   Overlayable

@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  LineFollower                                                       23/07/23  20:42:26  PAGE 1   
+C251 COMPILER V5.60.0,  LineFollower                                                       24/07/23  20:20:03  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollower
 OBJECT MODULE PLACED IN LineFollower.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE LineFollower\LineFollower.c XSMALL INTR2 WARN
-                    -INGLEVEL(1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG
-                    - PRINT(.\LineFollower.lst) TABS(2) OBJECT(LineFollower.obj) 
+                    -INGLEVEL(1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6
+                    -050) DEBUG PRINT(.\LineFollower.lst) TABS(2) OBJECT(LineFollower.obj) 
 
 stmt  level    source
 
@@ -67,7 +67,7 @@ Module Information          Static   Overlayable
   edata size           =         1     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
-C251 COMPILER V5.60.0,  LineFollower                                                       23/07/23  20:42:26  PAGE 2   
+C251 COMPILER V5.60.0,  LineFollower                                                       24/07/23  20:20:03  PAGE 2   
 
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------

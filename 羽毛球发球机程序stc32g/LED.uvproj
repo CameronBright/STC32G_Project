@@ -272,7 +272,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower</IncludePath>
+              <IncludePath>.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050</IncludePath>
             </VariousControls>
           </C251>
           <Ax51>
@@ -433,6 +433,16 @@
               <FileName>LineFollower.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\LineFollower\LineFollower.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>MPU6050</GroupName>
+          <Files>
+            <File>
+              <FileName>MPU6050.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MPU6050\MPU6050.c</FilePath>
             </File>
           </Files>
         </Group>

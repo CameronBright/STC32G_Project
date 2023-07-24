@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  ADC                                                                20/07/23  19:30:24  PAGE 1   
+C251 COMPILER V5.60.0,  ADC                                                                24/07/23  20:20:03  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
 OBJECT MODULE PLACED IN ADC.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE ADC\ADC.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE
-                    - INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG PRINT(.\ADC.lst) 
-                    -TABS(2) OBJECT(ADC.obj) 
+                    - INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050) DEBUG PRINT(.
+                    -\ADC.lst) TABS(2) OBJECT(ADC.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        ADC_CONTR = ADC_CONTR + 0x01;          //使能第一个通道P1.1 
    56   1        
    57   1      
-C251 COMPILER V5.60.0,  ADC                                                                20/07/23  19:30:24  PAGE 2   
+C251 COMPILER V5.60.0,  ADC                                                                24/07/23  20:20:03  PAGE 2   
 
    58   1        ADC_START = 1;         //启动AD转化
    59   1        _nop_();              //空指令
