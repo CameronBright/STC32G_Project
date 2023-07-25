@@ -129,7 +129,7 @@ void Disp_refresh(void)
 	if(disp_delay) return; //10ms刷新一次屏幕
 	disp_delay = 1;
 	
-	sprintf(oled_showtext,"%1d   ",line_inaccuracy);
+	sprintf(oled_showtext,"%d   ",line_inaccuracy);
 	OLED_16x16(0,0,oled_showtext);
 	
 	sprintf(oled_showtext,"%3d,%3d",dutyR,dutyL);
@@ -157,21 +157,21 @@ void Motor_control(void)
 	
 	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
 	
-	if(line_inaccuracy > 1 || line_inaccuracy < -1)
+	if(line_inaccuracy > 2 || line_inaccuracy < -2)
 	{
-		if(line_inaccuracy == -2)//传感器远离地面时
-			motor_sw = 0;
-		else if(line_inaccuracy == 2) //所有传感器都在地面但没识别到线时
+		if(line_inaccuracy == 3)//传感器远离地面时
+			motor_sw = 0;					//电机停转
+		else if(line_inaccuracy == -3) //所有传感器都在地面但没识别到线时
 			line_inaccuracy = old_position;
 	}
 	else 
 	{
-		motor_sw = 1;//正常
+		motor_sw = 1;//电机正常工作
 		old_position = line_inaccuracy;//记录上一次的位置
 	}
 		
-	dutyR = positionPID.basicSpeed + line_inaccuracy*600; //右偏左偏
-	dutyL = positionPID.basicSpeed - line_inaccuracy*600;
+	dutyR = positionPID.basicSpeed + line_inaccuracy*300; //右偏左偏
+	dutyL = positionPID.basicSpeed - line_inaccuracy*300;
 	
 	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
 	
@@ -208,20 +208,20 @@ void MPU6050_Read(void)
 	}
 	
 	//串口查看波形
-	Uart_sendbyte(0x03);
-	Uart_sendbyte(~0x03);	
-	
-	Uart_sendbyte((int)(Gyro_x));
-	Uart_sendbyte((int)(Gyro_x)>>8);
-	
-	Uart_sendbyte((int)(Gyro_y));
-	Uart_sendbyte((int)(Gyro_y)>>8);
-	
-	Uart_sendbyte((int)(Gyro_z));
-	Uart_sendbyte((int)(Gyro_z)>>8);		
-	
-	Uart_sendbyte(~0x03);					
-	Uart_sendbyte(0x03);
+//	Uart_sendbyte(0x03);
+//	Uart_sendbyte(~0x03);	
+//	
+//	Uart_sendbyte((int)(Gyro_x));
+//	Uart_sendbyte((int)(Gyro_x)>>8);
+//	
+//	Uart_sendbyte((int)(Gyro_y));
+//	Uart_sendbyte((int)(Gyro_y)>>8);
+//	
+//	Uart_sendbyte((int)(Gyro_z));
+//	Uart_sendbyte((int)(Gyro_z)>>8);		
+//	
+//	Uart_sendbyte(~0x03);					
+//	Uart_sendbyte(0x03);
 	
 	Angle_ax = Acc_x/8192.0; //偏移角
 	Angle_ay = Acc_y/8192.0; 

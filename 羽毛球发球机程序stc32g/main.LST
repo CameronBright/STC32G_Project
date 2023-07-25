@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               25/07/23  15:46:54  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               25/07/23  21:43:21  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -66,7 +66,7 @@ stmt  level    source
    56          #define pi    3.14159265f                           
    57          #define Kp    0.8f                        
    58          #define Ki    0.001f                         
-C251 COMPILER V5.60.0,  main                                                               25/07/23  15:46:54  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               25/07/23  21:43:21  PAGE 2   
 
    59          #define halfT 0.004f  
    60          
@@ -134,7 +134,7 @@ stmt  level    source
   122   1        {
   123   2          s_count++;   
   124   2        }
-C251 COMPILER V5.60.0,  main                                                               25/07/23  15:46:54  PAGE 3   
+C251 COMPILER V5.60.0,  main                                                               25/07/23  21:43:21  PAGE 3   
 
   125   1      } 
   126          
@@ -143,7 +143,7 @@ stmt  level    source
   129   1        if(disp_delay) return; //10ms刷新一次屏幕
   130   1        disp_delay = 1;
   131   1        
-  132   1        sprintf(oled_showtext,"%1d   ",line_inaccuracy);
+  132   1        sprintf(oled_showtext,"%d   ",line_inaccuracy);
   133   1        OLED_16x16(0,0,oled_showtext);
   134   1        
   135   1        sprintf(oled_showtext,"%3d,%3d",dutyR,dutyL);
@@ -171,21 +171,21 @@ stmt  level    source
   157   1        
   158   1        line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
   159   1        
-  160   1        if(line_inaccuracy > 1 || line_inaccuracy < -1)
+  160   1        if(line_inaccuracy > 2 || line_inaccuracy < -2)
   161   1        {
-  162   2          if(line_inaccuracy == -2)//传感器远离地面时
-  163   2            motor_sw = 0;
-  164   2          else if(line_inaccuracy == 2) //所有传感器都在地面但没识别到线时
+  162   2          if(line_inaccuracy == 3)//传感器远离地面时
+  163   2            motor_sw = 0;         //电机停转
+  164   2          else if(line_inaccuracy == -3) //所有传感器都在地面但没识别到线时
   165   2            line_inaccuracy = old_position;
   166   2        }
   167   1        else 
   168   1        {
-  169   2          motor_sw = 1;//正常
+  169   2          motor_sw = 1;//电机正常工作
   170   2          old_position = line_inaccuracy;//记录上一次的位置
   171   2        }
   172   1          
-  173   1        dutyR = positionPID.basicSpeed + line_inaccuracy*600; //右偏左偏
-  174   1        dutyL = positionPID.basicSpeed - line_inaccuracy*600;
+  173   1        dutyR = positionPID.basicSpeed + line_inaccuracy*300; //右偏左偏
+  174   1        dutyL = positionPID.basicSpeed - line_inaccuracy*300;
   175   1        
   176   1        Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
   177   1        
@@ -202,7 +202,7 @@ stmt  level    source
   188   1        Acc_y = MPU6050_DATA[2]<<8|MPU6050_DATA[3];
   189   1        Acc_z = MPU6050_DATA[4]<<8|MPU6050_DATA[5];
   190   1        
-C251 COMPILER V5.60.0,  main                                                               25/07/23  15:46:54  PAGE 4   
+C251 COMPILER V5.60.0,  main                                                               25/07/23  21:43:21  PAGE 4   
 
   191   1        Temp  = MPU6050_DATA[6]<<8|MPU6050_DATA[7]; //temperature
   192   1        
@@ -225,20 +225,20 @@ stmt  level    source
   208   2        }
   209   1        
   210   1        //串口查看波形
-  211   1        Uart_sendbyte(0x03);
-  212   1        Uart_sendbyte(~0x03); 
-  213   1        
-  214   1        Uart_sendbyte((int)(Gyro_x));
-  215   1        Uart_sendbyte((int)(Gyro_x)>>8);
-  216   1        
-  217   1        Uart_sendbyte((int)(Gyro_y));
-  218   1        Uart_sendbyte((int)(Gyro_y)>>8);
-  219   1        
-  220   1        Uart_sendbyte((int)(Gyro_z));
-  221   1        Uart_sendbyte((int)(Gyro_z)>>8);    
-  222   1        
-  223   1        Uart_sendbyte(~0x03);         
-  224   1        Uart_sendbyte(0x03);
+  211   1      //  Uart_sendbyte(0x03);
+  212   1      //  Uart_sendbyte(~0x03); 
+  213   1      //  
+  214   1      //  Uart_sendbyte((int)(Gyro_x));
+  215   1      //  Uart_sendbyte((int)(Gyro_x)>>8);
+  216   1      //  
+  217   1      //  Uart_sendbyte((int)(Gyro_y));
+  218   1      //  Uart_sendbyte((int)(Gyro_y)>>8);
+  219   1      //  
+  220   1      //  Uart_sendbyte((int)(Gyro_z));
+  221   1      //  Uart_sendbyte((int)(Gyro_z)>>8);    
+  222   1      //  
+  223   1      //  Uart_sendbyte(~0x03);         
+  224   1      //  Uart_sendbyte(0x03);
   225   1        
   226   1        Angle_ax = Acc_x/8192.0; //偏移角
   227   1        Angle_ay = Acc_y/8192.0; 
@@ -270,7 +270,7 @@ stmt  level    source
   253   1          //  所以这里的vx vy vz，其实就是当前的欧拉角（即四元数）的机体坐标参照系上，换算出来的
   254   1          //  重力单位向量。
   255   1        vx = 2*(q1*q3 - q0*q2);
-C251 COMPILER V5.60.0,  main                                                               25/07/23  15:46:54  PAGE 5   
+C251 COMPILER V5.60.0,  main                                                               25/07/23  21:43:21  PAGE 5   
 
   256   1        vy = 2*(q0*q1 + q2*q3);
   257   1        vz = q0*q0 - q1*q1 - q2*q2 + q3*q3 ;
@@ -338,7 +338,7 @@ stmt  level    source
   319          //      
   320          //      }else{
   321          //        flag=1;
-C251 COMPILER V5.60.0,  main                                                               25/07/23  15:46:54  PAGE 6   
+C251 COMPILER V5.60.0,  main                                                               25/07/23  21:43:21  PAGE 6   
 
   322          //          t-=0.01;
   323          //      }
@@ -353,7 +353,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      2128     ------
+  code size            =      2060     ------
   ecode size           =    ------     ------
   data size            =         4     ------
   idata size           =         8          4
@@ -368,7 +368,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =       244     ------
+  hconst size          =       243     ------
 End of Module Information.
 
 
