@@ -144,8 +144,9 @@ void Disp_refresh(void)
 	sprintf(oled_showtext,"Z:%3d",Gyro_z);
 	OLED_Display_string_5x7(0,7,oled_showtext);
 	
-	sprintf(txbuf,"X:%04d Y:%04d Z:%04d\r\n",Gyro_x,Gyro_y,Gyro_z);
-	Uart_String(txbuf); //串口
+	//sprintf(txbuf,"X:%d Y:%d Z:%d\r\n",Gyro_x,Gyro_y,Gyro_z);
+	//Uart_String(txbuf); //串口
+	
 //	OLED_ShowNum(35,4,ADCP3,6);	
 }
 
@@ -205,6 +206,22 @@ void MPU6050_Read(void)
 		Gyro_y_ = Gyro_y;
 		Gyro_z_ = Gyro_z;
 	}
+	
+	//串口查看波形
+	Uart_sendbyte(0x03);
+	Uart_sendbyte(~0x03);	
+	
+	Uart_sendbyte((int)(Gyro_x));
+	Uart_sendbyte((int)(Gyro_x)>>8);
+	
+	Uart_sendbyte((int)(Gyro_y));
+	Uart_sendbyte((int)(Gyro_y)>>8);
+	
+	Uart_sendbyte((int)(Gyro_z));
+	Uart_sendbyte((int)(Gyro_z)>>8);		
+	
+	Uart_sendbyte(~0x03);					
+	Uart_sendbyte(0x03);
 	
 	Angle_ax = Acc_x/8192.0; //偏移角
 	Angle_ay = Acc_y/8192.0; 
