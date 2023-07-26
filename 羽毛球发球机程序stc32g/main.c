@@ -88,10 +88,10 @@ void main()
 	
 	P54RST=1;//复位初始化
 	
+	InitMPU6050(); //mpu6050初始化
+	
 	Motor_Init(); //电机初始化
 	positionPID.basicSpeed = 400;//基础运动速度
-	
-	InitMPU6050(); //mpu6050初始化
 	
 	while(1)
 	{	
@@ -140,16 +140,16 @@ void Disp_refresh(void)
 	sprintf(oled_showtext,"%3d",positionPID.basicSpeed);
 	OLED_16x16(0,4,oled_showtext);
 
-	sprintf(oled_showtext,"X:%3d Y:%3d",Gyro_x,Gyro_y);
-	OLED_Display_string_5x7(0,6,oled_showtext);
+//	sprintf(oled_showtext,"X:%3d Y:%3d     ",Angle_ax,Angle_ax);
+//	OLED_Display_string_5x7(0,6,oled_showtext);
 	
-	sprintf(oled_showtext,"Z:%3d",Gyro_z);
+	sprintf(oled_showtext,"Z:%02d       ",(int)AngleZ);
 	OLED_Display_string_5x7(0,7,oled_showtext);
 	
 	//sprintf(txbuf,"X:%d Y:%d Z:%d\r\n",Gyro_x,Gyro_y,Gyro_z);
 	//Uart_String(txbuf); //串口
 	
-//	OLED_ShowNum(35,4,ADCP3,6);	
+//	OLED_ShowNum(35,4,ADCP3,6);
 }
 
 
@@ -163,8 +163,6 @@ void Motor_control(void)
 	
 	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
 	
-//	 
-		
 	dutyR = positionPID.basicSpeed + line_inaccuracy*600; //右偏左偏
 	dutyL = positionPID.basicSpeed - line_inaccuracy*600;
 	
@@ -178,7 +176,7 @@ void Motor_control(void)
 //-------------陀螺仪控制函数----------------------------------------
 void MPU6050_Read(void)
 {
-	if(mpu6050_delay) return; //10ms刷新一次屏幕
+	if(mpu6050_delay) return; 
 	mpu6050_delay = 1;
 	
 	Read_MPU6050(MPU6050_DATA);
@@ -188,7 +186,7 @@ void MPU6050_Read(void)
 	
 	Temp  = MPU6050_DATA[6]<<8|MPU6050_DATA[7]; //temperature
 	
-	Gyro_x = MPU6050_DATA[8]<<8|MPU6050_DATA[9]; //陀螺仪
+	Gyro_x = MPU6050_DATA[8]<<8|MPU6050_DATA[9]; //角速度
 	Gyro_y = MPU6050_DATA[10]<<8|MPU6050_DATA[11]; 
 	Gyro_z = MPU6050_DATA[12]<<8|MPU6050_DATA[13]; 
 	
@@ -205,22 +203,6 @@ void MPU6050_Read(void)
 		Gyro_z_ = Gyro_z;
 	}
 	
-	//串口查看波形
-//	Uart_sendbyte(0x03);
-//	Uart_sendbyte(~0x03);	
-//	
-//	Uart_sendbyte((int)(Gyro_x));
-//	Uart_sendbyte((int)(Gyro_x)>>8);
-//	
-//	Uart_sendbyte((int)(Gyro_y));
-//	Uart_sendbyte((int)(Gyro_y)>>8);
-//	
-//	Uart_sendbyte((int)(Gyro_z));
-//	Uart_sendbyte((int)(Gyro_z)>>8);		
-//	
-//	Uart_sendbyte(~0x03);					
-//	Uart_sendbyte(0x03);
-	
 	Angle_ax = Acc_x/8192.0; //偏移角
 	Angle_ay = Acc_y/8192.0; 
 	Angle_az = Acc_z/8192.0; 
@@ -233,6 +215,40 @@ void MPU6050_Read(void)
 	
 	Angle_of_pitch = AngleX;
 	Roll_Angle = AngleY;
+	
+	//==========串口查看波形=============
+//	Uart_sendbyte(0x03);
+//	Uart_sendbyte(~0x03);	
+//	
+////	Uart_sendbyte((int)(Gyro_x));
+////	Uart_sendbyte((int)(Gyro_x)>>8);
+////														
+////	Uart_sendbyte((int)(Gyro_y));
+////	Uart_sendbyte((int)(Gyro_y)>>8);
+////														
+////	Uart_sendbyte((int)(Gyro_z));
+////	Uart_sendbyte((int)(Gyro_z)>>8);
+//	
+////	Uart_sendbyte((int)(Angle_gx));
+////	Uart_sendbyte((int)(Angle_gx)>>8);
+////														
+////	Uart_sendbyte((int)(Angle_gy));
+////	Uart_sendbyte((int)(Angle_gy)>>8);
+////														
+////	Uart_sendbyte((int)(Angle_gz));
+////	Uart_sendbyte((int)(Angle_gz)>>8);
+
+//	Uart_sendbyte((int)(AngleX));
+//	Uart_sendbyte((int)(AngleX)>>8);
+//														
+//	Uart_sendbyte((int)(AngleY));
+//	Uart_sendbyte((int)(AngleY)>>8);
+//														
+//	Uart_sendbyte((int)(AngleZ));
+//	Uart_sendbyte((int)(AngleZ)>>8);	
+//	
+//	Uart_sendbyte(~0x03);					
+//	Uart_sendbyte(0x03);
 }
 
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
@@ -279,7 +295,7 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
 
 	AngleX = asin(2*(q0*q2 - q1*q3 )) * 57.2957795f; // 俯仰   换算成度
 	AngleY = asin(2*(q0*q1 + q2*q3 )) * 57.2957795f; // 横滚
-	AngleZ = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.2957795f;
+	AngleZ = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.2957795f; //滤波后的值
 }
 
 //	IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发

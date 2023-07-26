@@ -1,5 +1,6 @@
 #include "main.h"
 #include "MPU6050.h"
+#include "timer.h"
 
 sbit    SCL = P3^6;		//IIC时钟引脚定义
 sbit    SDA = P3^7;		//IIC数据引脚定义
@@ -27,6 +28,26 @@ void Delay2us(void)
 	i = 7;		// @24MHZ, 6 + 33 = 39T, 1.625us
 	while (--i);
 }
+
+void Delay50ms()		//@24.000MHz
+{
+	unsigned char data i, j, k;
+
+	_nop_();
+	_nop_();
+	i = 5;
+	j = 144;
+	k = 71;
+	do
+	{
+		do
+		{
+			while (--k);
+		} while (--j);
+	} while (--i);
+}
+
+
 
 //**************************************
 //I2C起始信号
@@ -157,7 +178,9 @@ void InitMPU6050(void)
 	Delay2us();
 	Delay2us();
 	Delay2us();
-
+	
+	Single_WriteI2C(PWR_MGMT_1, 0x80);	//上电复位
+	Delay50ms();                        //延时一段时间后再上电
 	Single_WriteI2C(PWR_MGMT_1, 0x00);	//解除休眠状态
 	Single_WriteI2C(SMPLRT_DIV, 0x07);  //陀螺仪125hz
 	Single_WriteI2C(CONFIG, 0x04);      //21HZ滤波 延时A8.5ms G8.3ms  此处取值应相当注意，延时与系统周期相近为宜
