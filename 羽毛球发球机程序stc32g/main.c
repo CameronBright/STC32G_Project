@@ -91,7 +91,7 @@ void main()
 	InitMPU6050(); //mpu6050初始化
 	
 	Motor_Init(); //电机初始化
-	positionPID.basicSpeed = 400;//基础运动速度
+	positionPID.basicSpeed = 500;//基础运动速度
 	
 	while(1)
 	{	
@@ -163,8 +163,21 @@ void Motor_control(void)
 	
 	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
 	
-	dutyR = positionPID.basicSpeed + line_inaccuracy*600; //右偏左偏
-	dutyL = positionPID.basicSpeed - line_inaccuracy*600;
+	if(line_inaccuracy > 2 || line_inaccuracy < -2)
+	{
+		if(line_inaccuracy == 3)//传感器远离地面时
+			motor_sw = 0;
+		else if(line_inaccuracy == -3) //所有传感器都在地面但没识别到线时
+			line_inaccuracy = old_position;
+	}
+	else 
+	{
+		motor_sw = 1;//电机正常工作
+		old_position = line_inaccuracy;//记录上一次的位置
+	}
+	
+	dutyR = positionPID.basicSpeed + line_inaccuracy*200; //右偏左偏
+	dutyL = positionPID.basicSpeed - line_inaccuracy*200;
 	
 	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
 	

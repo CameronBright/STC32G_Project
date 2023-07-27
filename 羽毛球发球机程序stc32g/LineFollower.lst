@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  LineFollower                                                       26/07/23  23:46:40  PAGE 1   
+C251 COMPILER V5.60.0,  LineFollower                                                       27/07/23  17:11:51  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollower
@@ -48,29 +48,29 @@ stmt  level    source
    37   2          case 0x02:           //往左边偏一点点
    38   2            return_value = 1;
    39   2            break;
-   40   2      //    case 0x08:
-   41   2      //      return_value = -2; //往左偏较大角度
-   42   2      //      break;
-   43   2      //    case 0x01:
-   44   2      //      return_value = 2;//往右偏较大角度
-   45   2      //      break;
-   46   2      //    case 0x00:
-   47   2      //      return_value = -3;//没识别到黑线返回 ‘-3‘
-   48   2      //      break;
-   49   2      //    case 0x0F:
-   50   2      //      return_value = 3;//宝马离开地面返回  ‘3‘
-   51   2      //      break;
-   52   2        }
+   40   2          case 0x08:
+   41   2            return_value = -2; //往右偏较大角度
+   42   2            break;
+   43   2          case 0x01:
+   44   2            return_value = 2;//往坐偏较大角度
+   45   2            break;
+   46   2          case 0x00:
+   47   2            return_value = -3;//没识别到黑线返回 ‘-3‘
+   48   2            break;
+   49   2          case 0x0F:
+   50   2            return_value = 3;//宝马离开地面返回  ‘3‘
+   51   2            break;
+   52   2        } 
    53   1        
    54   1        return return_value;
    55   1      }
 
 
-C251 COMPILER V5.60.0,  LineFollower                                                       26/07/23  23:46:40  PAGE 2   
+C251 COMPILER V5.60.0,  LineFollower                                                       27/07/23  17:11:51  PAGE 2   
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =        84     ------
+  code size            =       123     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

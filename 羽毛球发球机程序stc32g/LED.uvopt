@@ -141,7 +141,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>MPU6050\MPU6050.c</Filename>
+          <Filename>E:\Learn\Match\全国大学生电子设计大赛\stc32g\羽毛球发球机程序stc32g\MPU6050\MPU6050.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\LED\MPU6050\162</Expression>
         </Bp>
@@ -157,7 +157,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>MPU6050\MPU6050.c</Filename>
+          <Filename>E:\Learn\Match\全国大学生电子设计大赛\stc32g\羽毛球发球机程序stc32g\MPU6050\MPU6050.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\LED\MPU6050\164</Expression>
         </Bp>
@@ -421,7 +421,7 @@
 
   <Group>
     <GroupName>LineFollower</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

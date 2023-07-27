@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  MPU6050                                                            26/07/23  23:53:40  PAGE 1   
+C251 COMPILER V5.60.0,  MPU6050                                                            27/07/23  15:03:32  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE MPU6050
@@ -66,7 +66,7 @@ stmt  level    source
    55          void I2C_Start(void)
    56          {
    57   1        Delay2us();                 //延时
-C251 COMPILER V5.60.0,  MPU6050                                                            26/07/23  23:53:40  PAGE 2   
+C251 COMPILER V5.60.0,  MPU6050                                                            27/07/23  15:03:32  PAGE 2   
 
    58   1        Delay2us();                 //延时
    59   1        SDA = 1;                    //拉高数据线
@@ -134,7 +134,7 @@ stmt  level    source
   121   1          uchar dat = 0;
   122   1          SDA = 1;                    //使能内部上拉,准备读取数据,
   123   1          for (i=0; i<8; i++)         //8位计数器
-C251 COMPILER V5.60.0,  MPU6050                                                            26/07/23  23:53:40  PAGE 3   
+C251 COMPILER V5.60.0,  MPU6050                                                            27/07/23  15:03:32  PAGE 3   
 
   124   1          {
   125   2              dat <<= 1;
@@ -194,15 +194,15 @@ stmt  level    source
   179   1        Delay2us();
   180   1        Delay2us();
   181   1        
-  182   1        Single_WriteI2C(PWR_MGMT_1, 0x80);  //
-  183   1        Delay50ms();
+  182   1        Single_WriteI2C(PWR_MGMT_1, 0x80);  //上电复位
+  183   1        Delay50ms();                        //延时一段时间后再上电
   184   1        Single_WriteI2C(PWR_MGMT_1, 0x00);  //解除休眠状态
   185   1        Single_WriteI2C(SMPLRT_DIV, 0x07);  //陀螺仪125hz
   186   1        Single_WriteI2C(CONFIG, 0x04);      //21HZ滤波 延时A8.5ms G8.3ms  此处取值应相当注意，延时与系统周期相近
              -为宜
   187   1        Single_WriteI2C(GYRO_CONFIG, 0x08); //陀螺仪500度/S 65.5LSB/g
   188   1        Single_WriteI2C(ACCEL_CONFIG, 0x08);//加速度+-4g  8192LSB/g
-C251 COMPILER V5.60.0,  MPU6050                                                            26/07/23  23:53:40  PAGE 4   
+C251 COMPILER V5.60.0,  MPU6050                                                            27/07/23  15:03:32  PAGE 4   
 
   189   1      }
   190          
