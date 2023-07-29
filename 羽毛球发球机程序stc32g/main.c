@@ -1,3 +1,13 @@
+/*
+program versions : 1.1
+
+更新四路循迹模块，此版本已能正常循迹
+
+modification: 2023/7/29 13:55
+
+modifier: Cameron Bright
+
+*/
 #include "timer.h"   //定时器
 #include "oled.h"   //OLED函数
 #include "GPIO.h"   //GPIO
