@@ -1,9 +1,9 @@
 /*
-program versions : 1.1
+program versions : 2.0
 
-更新四路循迹模块，此版本已能正常循迹
+此版本仅用于测试分支，妹有实际用途
 
-modification: 2023/7/29 13:55
+modification: 2023/7/29 15:33
 
 modifier: Cameron Bright
 
