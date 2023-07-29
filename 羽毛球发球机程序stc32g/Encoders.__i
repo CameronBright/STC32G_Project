@@ -1,1 +1,0 @@
-"Encoders\Encoders.c" XSMALL INTR2 WARNINGLEVEL (1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050) DEBUG PRINT(.\Encoders.lst) TABS (2) OBJECT(Encoders.obj)

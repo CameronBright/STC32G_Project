@@ -1,9 +1,9 @@
 /*
-program versions : 2.0
+program versions : 2.1
 
-此版本仅用于测试分支，妹有实际用途
+更新五路循迹模块和驱动,并更换了12v电机驱动模块
 
-modification: 2023/7/29 15:33
+modification: 2023/7/30 1:05
 
 modifier: Cameron Bright
 
@@ -28,6 +28,7 @@ modifier: Cameron Bright
 extern uint s_count;         //定时器计数
 extern uint delay_cnt;       //delay计数
 uint timer_delay = 0;        //1us tick
+uint sys_led = 0;            //运行状态灯
 
 uint disp_delay;             //显示屏刷新延时计数
 uint motor_delay;						 //电机函数刷新延时计数
@@ -87,7 +88,7 @@ void main()
 	GPIO_init();//GPIO初始化
 	OLED_Init();//oled初始化
 	OLED_ColorTurn(0);//0正常显示，1 反色显示
-	OLED_DisplayTurn(1);//0正常显示 1 屏幕翻转显示
+	OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
 	OLED_Clear();//oled清屏
 	
 	Timer1Init();//定时器初始化
@@ -102,7 +103,7 @@ void main()
 	
 	Motor_Init(); //电机初始化
 	positionPID.basicSpeed = 500;//基础运动速度
-	
+	LED = 0;
 	while(1)
 	{	
 		Motor_control(); //电机控制函数
@@ -118,6 +119,11 @@ void timer1() interrupt 3       //100us中断一次
 	if(++disp_delay == 100) disp_delay = 0;
 	if(++motor_delay == 10) motor_delay = 0;
 	if(++mpu6050_delay == 50) mpu6050_delay = 0;
+	if(++sys_led >= 5000) 
+	{
+		LED ^= 1;
+		sys_led = 0;
+	}
 	
 	if(delay_cnt > 0) //延时函数
 		delay_cnt--;
@@ -175,9 +181,9 @@ void Motor_control(void)
 	
 	if(line_inaccuracy > 2 || line_inaccuracy < -2)
 	{
-		if(line_inaccuracy == 3)//传感器远离地面时
+		if(line_inaccuracy == -3)//传感器远离地面时
 			motor_sw = 0;
-		else if(line_inaccuracy == -3) //所有传感器都在地面但没识别到线时
+		else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
 			line_inaccuracy = old_position;
 	}
 	else 
@@ -185,9 +191,9 @@ void Motor_control(void)
 		motor_sw = 1;//电机正常工作
 		old_position = line_inaccuracy;//记录上一次的位置
 	}
-	
-	dutyR = positionPID.basicSpeed + line_inaccuracy*200; //右偏左偏
-	dutyL = positionPID.basicSpeed - line_inaccuracy*200;
+
+	dutyR = positionPID.basicSpeed + line_inaccuracy*400; //右偏左偏
+  dutyL = positionPID.basicSpeed - line_inaccuracy*400;
 	
 	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
 	
@@ -320,48 +326,4 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
 	AngleY = asin(2*(q0*q1 + q2*q3 )) * 57.2957795f; // 横滚
 	AngleZ = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.2957795f; //滤波后的值
 }
-
-//	IT0=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
-//	EX0=1;	//使能中断0
-//	IT1=0;  //中断0    IT0=0;上升沿和下降沿触发   IT0=1 下降沿触发
-//	EX1=1;	//使能中断0
-
-//add_loseit EC11_OLD_A;
-//add_loseit EC11_UP_A;
-//add_loseit EC11_DOWN_A
-//add_loseit EC11_OLD_add_lose;
-//void init0_Isr() interrupt 0
-//{
-//		IE1=0;
-//		EC11_UP_A=~EC11_A&(EC11_OLD_A^EC11_A);
-//		EC11_DOWN_A=EC11_A&(EC11_OLD_A^EC11_A)
-//		EC11_OLD_A=EC11_A;
-//		if(EC11_UP_A)
-//		{
-//			if(EC11_add_lose)
-//			{
-//				flag=1;
-//					t+=0.01;
-//			
-//			}else{
-//				t-=0.01;
-//			}
-//		}
-//		if(EC11_DOWN_A)
-//		{
-//			if(EC11_add_lose==0)
-//			{
-//				flag=1;
-//					t-=0.01;
-//			
-//			}else{
-//				flag=1;
-//					t-=0.01;
-//			}
-//		}
-//}
-//void init1_Isr() interrupt 2
-//{
-//	IE0=0;
-//}
 

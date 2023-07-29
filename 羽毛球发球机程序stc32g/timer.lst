@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  timer                                                              26/07/23  23:46:39  PAGE 1   
+C251 COMPILER V5.60.0,  timer                                                              30/07/23  00:52:48  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE timer
@@ -15,7 +15,7 @@ stmt  level    source
     4          {
     5   1        AUXR &= 0xBF;   //定时器时钟12T模式
     6   1        TMOD &= 0x0F;   //设置定时器模式
-    7   1        TL1 = 0x9C;   //设置定时初始值
+    7   1        TL1 = 0x38;   //设置定时初始值
     8   1        TH1 = 0xFF;   //设置定时初始值
     9   1        TF1 = 0;    //清除TF1标志
    10   1        TR1 = 1;    //定时器1开始计时
@@ -23,13 +23,15 @@ stmt  level    source
    12   1        EA=1;      //总中断打开
    13   1      }
    14          
-   15          uint delay_cnt;
+   15          
    16          
-   17          void delay(uint delay) //定时器延时 12mhz
-   18          {
-   19   1        delay_cnt = delay;
-   20   1        while(delay_cnt > 0);
-   21   1      }
+   17          uint delay_cnt;
+   18          
+   19          void delay(uint delay) //定时器延时 12mhz
+   20          {
+   21   1        delay_cnt = delay;
+   22   1        while(delay_cnt > 0);
+   23   1      }
 
 
 Module Information          Static   Overlayable
