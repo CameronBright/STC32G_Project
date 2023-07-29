@@ -1,9 +1,9 @@
 /*
-program versions : 2.1
+program versions : 2.2
 
-更新五路循迹模块和驱动,并更换了12v电机驱动模块
+添加了PID的P和D值的程序，暂未开始调整参数，MPU6050的数据会自己一直加
 
-modification: 2023/7/30 1:05
+modification: 2023/7/30 2:26
 
 modifier: Cameron Bright
 
@@ -41,6 +41,7 @@ extern int dutyR;            //右
 uchar motor_sw = 1;//电机开关
 
 struct pid_parameter positionPID; //PID参数
+int err_kp, err_kd;   //误差值
 char line_inaccuracy; //循迹模块偏移量
 char old_position;    //上一次的数据
 
@@ -102,7 +103,13 @@ void main()
 	InitMPU6050(); //mpu6050初始化
 	
 	Motor_Init(); //电机初始化
-	positionPID.basicSpeed = 500;//基础运动速度
+	
+	//PID参数
+	positionPID.basicSpeed = 0;//基础运动速度
+	positionPID.kp = 0;
+	positionPID.kd = 2;
+	
+	
 	LED = 0;
 	while(1)
 	{	
@@ -179,21 +186,24 @@ void Motor_control(void)
 	
 	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
 	
-	if(line_inaccuracy > 2 || line_inaccuracy < -2)
-	{
-		if(line_inaccuracy == -3)//传感器远离地面时
-			motor_sw = 0;
-		else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
-			line_inaccuracy = old_position;
-	}
-	else 
-	{
-		motor_sw = 1;//电机正常工作
-		old_position = line_inaccuracy;//记录上一次的位置
-	}
+//	if(line_inaccuracy > 2 || line_inaccuracy < -2)
+//	{
+//		if(line_inaccuracy == -3)//传感器远离地面时
+//			motor_sw = 0;
+////		else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
+////			line_inaccuracy = old_position;
+//	}
+//	else 
+//	{
+//		motor_sw = 1;//电机正常工作
+//		old_position = line_inaccuracy;//记录上一次的位置
+//	}
+	
+	err_kp = line_inaccuracy * positionPID.kp; //循迹模块数据
+	err_kd = AngleZ * positionPID.kd;					 //陀螺仪z轴数据
 
-	dutyR = positionPID.basicSpeed + line_inaccuracy*400; //右偏左偏
-  dutyL = positionPID.basicSpeed - line_inaccuracy*400;
+	dutyR = positionPID.basicSpeed  - err_kd; 
+  dutyL = positionPID.basicSpeed  + err_kd;
 	
 	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
 	
