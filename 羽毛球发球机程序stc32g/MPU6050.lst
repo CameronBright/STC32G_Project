@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  MPU6050                                                            30/07/23  00:26:38  PAGE 1   
+C251 COMPILER V5.60.0,  MPU6050                                                            30/07/23  17:27:26  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE MPU6050
@@ -66,7 +66,7 @@ stmt  level    source
    55          void I2C_Start(void)
    56          {
    57   1        Delay2us();                 //延时
-C251 COMPILER V5.60.0,  MPU6050                                                            30/07/23  00:26:38  PAGE 2   
+C251 COMPILER V5.60.0,  MPU6050                                                            30/07/23  17:27:26  PAGE 2   
 
    58   1        Delay2us();                 //延时
    59   1        SDA = 1;                    //拉高数据线
@@ -134,7 +134,7 @@ stmt  level    source
   121   1          uchar dat = 0;
   122   1          SDA = 1;                    //使能内部上拉,准备读取数据,
   123   1          for (i=0; i<8; i++)         //8位计数器
-C251 COMPILER V5.60.0,  MPU6050                                                            30/07/23  00:26:38  PAGE 3   
+C251 COMPILER V5.60.0,  MPU6050                                                            30/07/23  17:27:26  PAGE 3   
 
   124   1          {
   125   2              dat <<= 1;
@@ -202,7 +202,7 @@ stmt  level    source
              -为宜
   187   1        Single_WriteI2C(GYRO_CONFIG, 0x08); //陀螺仪500度/S 65.5LSB/g
   188   1        Single_WriteI2C(ACCEL_CONFIG, 0x08);//加速度+-4g  8192LSB/g
-C251 COMPILER V5.60.0,  MPU6050                                                            30/07/23  00:26:38  PAGE 4   
+C251 COMPILER V5.60.0,  MPU6050                                                            30/07/23  17:27:26  PAGE 4   
 
   189   1      }
   190          

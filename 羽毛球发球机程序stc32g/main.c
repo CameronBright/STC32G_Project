@@ -27,7 +27,6 @@ modifier: Cameron Bright
 //-------------------------------- system--------------------------------
 extern uint s_count;         //定时器计数
 extern uint delay_cnt;       //delay计数
-uint timer_delay = 0;        //1us tick
 uint sys_led = 0;            //运行状态灯
 
 uint disp_delay;             //显示屏刷新延时计数
@@ -41,8 +40,9 @@ extern int dutyR;            //右
 uchar motor_sw = 1;//电机开关
 
 struct pid_parameter positionPID; //PID参数
-int err_kp, err_kd;   //误差值
+int err_kp, err_ki, err_kd;   //误差值
 char line_inaccuracy; //循迹模块偏移量
+char old_line_inaccuracy;//上一次循迹模块的便宜量
 char old_position;    //上一次的数据
 
 //------------------MPU6050-----------------------------------------------
@@ -106,8 +106,9 @@ void main()
 	
 	//PID参数
 	positionPID.basicSpeed = 0;//基础运动速度
-	positionPID.kp = 0;
-	positionPID.kd = 2;
+	positionPID.kp = 100;
+	positionPID.ki = 0;
+	positionPID.kd = 0.001;
 	
 	
 	LED = 0;
@@ -134,17 +135,7 @@ void timer1() interrupt 3       //100us中断一次
 	
 	if(delay_cnt > 0) //延时函数
 		delay_cnt--;
-	
-	if(++timer_delay > 10000)
-	//Pwm_Fun();                 //pwm函数
-	if(EC11_K==0)
-	{
-		long_short=1;          //编码器按下为0   
-	}		
-	if(long_short==1)         //进入计时的条件
-	{
-		s_count++;   
-	}
+
 } 
 
 
@@ -176,42 +167,6 @@ void Disp_refresh(void)
 }
 
 
-
-
-//-----------------电机控制函数-------------------------------------
-void Motor_control(void)
-{
-	if(motor_delay) return; //延时
-	motor_delay = 1;
-	
-	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
-	
-//	if(line_inaccuracy > 2 || line_inaccuracy < -2)
-//	{
-//		if(line_inaccuracy == -3)//传感器远离地面时
-//			motor_sw = 0;
-////		else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
-////			line_inaccuracy = old_position;
-//	}
-//	else 
-//	{
-//		motor_sw = 1;//电机正常工作
-//		old_position = line_inaccuracy;//记录上一次的位置
-//	}
-	
-	err_kp = line_inaccuracy * positionPID.kp; //循迹模块数据
-	err_kd = AngleZ * positionPID.kd;					 //陀螺仪z轴数据
-
-	dutyR = positionPID.basicSpeed  - err_kd; 
-  dutyL = positionPID.basicSpeed  + err_kd;
-	
-	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
-	
-	Update_duty(motor_sw);//更新PWM输出
-}
-
-
-
 //-------------陀螺仪控制函数----------------------------------------
 void MPU6050_Read(void)
 {
@@ -229,18 +184,18 @@ void MPU6050_Read(void)
 	Gyro_y = MPU6050_DATA[10]<<8|MPU6050_DATA[11]; 
 	Gyro_z = MPU6050_DATA[12]<<8|MPU6050_DATA[13]; 
 	
-	if((Gyro_x == -1)||(Gyro_y == -1)||(Gyro_z == -1)||(Gyro_x == 0)||(Gyro_y == 0)||(Gyro_z == 0)) //高通滤波
-	{
-		Gyro_x = Gyro_x_;
-		Gyro_y = Gyro_y_;
-		Gyro_z = Gyro_z_;
-	}
-	else 
-	{
-		Gyro_x_ = Gyro_x;
-		Gyro_y_ = Gyro_y;
-		Gyro_z_ = Gyro_z;
-	}
+//	if((Gyro_x == -1)||(Gyro_y == -1)||(Gyro_z == -1)||(Gyro_x == 0)||(Gyro_y == 0)||(Gyro_z == 0)) //高通滤波
+//	{
+//		Gyro_x = Gyro_x_;
+//		Gyro_y = Gyro_y_;
+//		Gyro_z = Gyro_z_;
+//	}
+//	else 
+//	{
+//		Gyro_x_ = Gyro_x;
+//		Gyro_y_ = Gyro_y;
+//		Gyro_z_ = Gyro_z;
+//	}
 	
 	Angle_ax = Acc_x/8192.0; //偏移角
 	Angle_ay = Acc_y/8192.0; 
@@ -256,26 +211,26 @@ void MPU6050_Read(void)
 	Roll_Angle = AngleY;
 	
 	//==========串口查看波形=============
-//	Uart_sendbyte(0x03);
-//	Uart_sendbyte(~0x03);	
-//	
-////	Uart_sendbyte((int)(Gyro_x));
-////	Uart_sendbyte((int)(Gyro_x)>>8);
-////														
-////	Uart_sendbyte((int)(Gyro_y));
-////	Uart_sendbyte((int)(Gyro_y)>>8);
-////														
-////	Uart_sendbyte((int)(Gyro_z));
-////	Uart_sendbyte((int)(Gyro_z)>>8);
-//	
-////	Uart_sendbyte((int)(Angle_gx));
-////	Uart_sendbyte((int)(Angle_gx)>>8);
-////														
-////	Uart_sendbyte((int)(Angle_gy));
-////	Uart_sendbyte((int)(Angle_gy)>>8);
-////														
-////	Uart_sendbyte((int)(Angle_gz));
-////	Uart_sendbyte((int)(Angle_gz)>>8);
+	Uart_sendbyte(0x03);
+	Uart_sendbyte(~0x03);	
+	
+	Uart_sendbyte((int)(Gyro_x));
+	Uart_sendbyte((int)(Gyro_x)>>8);
+														
+	Uart_sendbyte((int)(Gyro_y));
+	Uart_sendbyte((int)(Gyro_y)>>8);
+														
+	Uart_sendbyte((int)(Gyro_z));
+	Uart_sendbyte((int)(Gyro_z)>>8);
+	
+//	Uart_sendbyte((int)(Angle_gx));
+//	Uart_sendbyte((int)(Angle_gx)>>8);
+//														
+//	Uart_sendbyte((int)(Angle_gy));
+//	Uart_sendbyte((int)(Angle_gy)>>8);
+//														
+//	Uart_sendbyte((int)(Angle_gz));
+//	Uart_sendbyte((int)(Angle_gz)>>8);
 
 //	Uart_sendbyte((int)(AngleX));
 //	Uart_sendbyte((int)(AngleX)>>8);
@@ -285,9 +240,9 @@ void MPU6050_Read(void)
 //														
 //	Uart_sendbyte((int)(AngleZ));
 //	Uart_sendbyte((int)(AngleZ)>>8);	
-//	
-//	Uart_sendbyte(~0x03);					
-//	Uart_sendbyte(0x03);
+	
+	Uart_sendbyte(~0x03);					
+	Uart_sendbyte(0x03);
 }
 
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
@@ -337,3 +292,38 @@ void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
 	AngleZ = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.2957795f; //滤波后的值
 }
 
+
+//-----------------电机控制函数-------------------------------------
+void Motor_control(void)
+{
+	if(motor_delay) return; //延时
+	motor_delay = 1;
+	
+	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
+	
+	if(line_inaccuracy > 2 || line_inaccuracy < -2)
+	{
+		if(line_inaccuracy == -3)//传感器远离地面时
+			motor_sw = 0;
+		else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
+			line_inaccuracy = old_position;
+	}
+	else 
+	{
+		motor_sw = 1;//电机正常工作
+		old_position = line_inaccuracy;//记录上一次的位置
+	}
+	
+	err_kp = positionPID.kp * line_inaccuracy;     //循迹模块数据
+	err_ki = positionPID.ki * line_inaccuracy;     //积分
+	err_kd = positionPID.kd * old_line_inaccuracy; //微分
+
+	dutyR = positionPID.basicSpeed + err_kp - err_kd; 
+  dutyL = positionPID.basicSpeed - err_kp + err_kd;
+	
+	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
+	
+	old_line_inaccuracy = line_inaccuracy;
+	
+	Update_duty(motor_sw);//更新PWM输出
+}

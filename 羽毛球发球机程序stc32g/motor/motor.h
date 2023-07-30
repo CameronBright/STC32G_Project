@@ -17,9 +17,9 @@ void Motor_FRcontrol(int motor1, int motor2); //Forward / reverse control(正反转
 	
 struct pid_parameter     //PID参数
 {
-	char kp;
-	char ki;
-	char kd;
+	float kp;
+	float ki;
+	float kd;
 	int basicSpeed; //基础速度
 };
 
