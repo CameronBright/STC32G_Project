@@ -2,6 +2,7 @@
 "oled.obj",
 "Meun.obj",
 "Encoders.obj",
+"key.obj",
 "timer.obj",
 "Uart.obj",
 "iic.obj",

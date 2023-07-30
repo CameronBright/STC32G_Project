@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  motor                                                              30/07/23  22:07:29  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              30/07/23  23:36:05  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
 OBJECT MODULE PLACED IN motor.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE motor\motor.c XSMALL INTR2 WARNINGLEVEL(1) BR
-                    -OWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050) DEBUG PRI
-                    -NT(.\motor.lst) TABS(2) OBJECT(motor.obj) 
+                    -OWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key) DEB
+                    -UG PRINT(.\motor.lst) TABS(2) OBJECT(motor.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   2        }
    56   1      }
 
-C251 COMPILER V5.60.0,  motor                                                              30/07/23  22:07:29  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              30/07/23  23:36:05  PAGE 2   
 
 
 Module Information          Static   Overlayable

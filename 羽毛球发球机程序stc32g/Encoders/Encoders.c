@@ -171,5 +171,3 @@ void Cancel_determine()
 		}
 	}
 }
-
-

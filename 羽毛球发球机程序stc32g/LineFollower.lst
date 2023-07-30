@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  LineFollower                                                       30/07/23  17:27:25  PAGE 1   
+C251 COMPILER V5.60.0,  LineFollower                                                       30/07/23  23:36:05  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollower
 OBJECT MODULE PLACED IN LineFollower.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE LineFollower\LineFollower.c XSMALL INTR2 WARN
                     -INGLEVEL(1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6
-                    -050) DEBUG PRINT(.\LineFollower.lst) TABS(2) OBJECT(LineFollower.obj) 
+                    -050;.\Key) DEBUG PRINT(.\LineFollower.lst) TABS(2) OBJECT(LineFollower.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   2            return_value = -2;//往坐偏较大角度
    56   2            break;
    57   2          case 0x18:
-C251 COMPILER V5.60.0,  LineFollower                                                       30/07/23  17:27:25  PAGE 2   
+C251 COMPILER V5.60.0,  LineFollower                                                       30/07/23  23:36:05  PAGE 2   
 
    58   2            return_value = 2; //往右偏较大角度
    59   2            break;

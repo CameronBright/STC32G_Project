@@ -13,16 +13,16 @@ modifier: Cameron Bright
 #include "GPIO.h"   //GPIO
 #include "pwm.h"      //pwm
 #include "Encoders.h"  //旋转编码器
-#include "iic.h"
+#include "key.h"  	//按键
+#include "iic.h"    //i2C
 #include "Uart.h"   //串口
-#include "stdio.h"
-#include "Meun.h"
-#include "motor.h"
-#include "ADC.h"
+#include "stdio.h"  //c标准库
+#include "Meun.h"   //显示屏菜单
+#include "motor.h"  //电机
+#include "ADC.h"    //ADC
 #include "LineFollower.h" //循迹模块
-#include "stdio.h"
-#include "MPU6050.h"
-#include "MATH.H"
+#include "MPU6050.h"//mpu6050
+#include "MATH.H"   //数学运算模块
 
 //-------------------------------- system--------------------------------
 extern uint s_count;         //定时器计数
@@ -32,6 +32,7 @@ uint sys_led = 0;            //运行状态灯
 uint disp_delay;             //显示屏刷新延时计数
 uint motor_delay;						 //电机函数刷新延时计数
 uint mpu6050_delay;					 //mpu6050读取延时计数
+uint key_delay;              //案件延时刷新计数
 
 //----------------- motor(电机驱动和PID变量)--------------------------------
 extern int dutyL;            //左边电机驱动pwm 周期1000
@@ -83,6 +84,14 @@ uchar oled_showtext[25]; //oled显示字符串
 void Disp_refresh(void);  //数码管显示函数
 void Motor_control(void); //电机控制函数
 void MPU6050_Read(void);  //陀螺仪数据采集
+void Key_Proc(void);
+
+//*****************按键***********//
+
+unsigned char key_old = 0;
+unsigned char key_value = 0;
+unsigned char key_Down = 0;
+
 
 void main()
 {
@@ -105,29 +114,31 @@ void main()
 	Motor_Init(); //电机初始化
 	
 	//PID参数
-	positionPID.basicSpeed = 0;//基础运动速度
+	positionPID.basicSpeed = 200;//基础运动速度
 	positionPID.kp = 100;
 	positionPID.ki = 0;
 	positionPID.kd = 0.001;
 	
-	
 	LED = 0;
+
 	while(1)
 	{	
 		Motor_control(); //电机控制函数
 		Disp_refresh();	 //显示屏刷新函数
 		MPU6050_Read();  //陀螺仪数据采集
-		
+		Key_Proc();
 		//sprintf(txbuf,"1:%04d 2:%04d 3:%04d\r\n",ADCP1,ADCP2,ADCP3);
 		//Uart_String(txbuf); //串口
 	}
 }
+//-----------------中断-----------------------------------
 void timer1() interrupt 3       //100us中断一次
 {
-	if(++disp_delay == 100) disp_delay = 0;
-	if(++motor_delay == 10) motor_delay = 0;
-	if(++mpu6050_delay == 50) mpu6050_delay = 0;
-	if(++sys_led >= 5000) 
+	if(++disp_delay == 100) disp_delay = 0;       //显示屏刷新时间
+	if(++motor_delay == 10) motor_delay = 0;			//电机控制刷新时间
+	if(++mpu6050_delay == 50) mpu6050_delay = 0;  //mpu6050执行刷新时间
+	if(++key_delay == 100) key_delay = 0;        //按键扫描刷新时间
+	if(++sys_led >= 5000)                         
 	{
 		LED ^= 1;
 		sys_led = 0;
@@ -138,6 +149,32 @@ void timer1() interrupt 3       //100us中断一次
 
 } 
 
+//-----------------按键处理-----------------------------------
+void Key_Proc(void)
+{
+	if(key_delay) return; //100ms扫描一次按键
+	key_delay = 1;
+	
+	key_value = Key_Rvalue();//读取按键按下的编号
+	key_Down = key_value & (key_old ^ key_value);																		
+	key_old = key_value;	
+	
+	switch(key_Down)
+	{
+		case 1:
+				positionPID.kp++;
+		break;
+		case 2:
+				positionPID.kp--;
+		break;
+		case 3:
+				positionPID.kd++;
+		break;
+		case 4:
+				positionPID.kd--;
+		break;
+	}
+}
 
 //-----------------显示屏函数-----------------------------------
 void Disp_refresh(void)
@@ -145,20 +182,23 @@ void Disp_refresh(void)
 	if(disp_delay) return; //10ms刷新一次屏幕
 	disp_delay = 1;
 	
-	sprintf(oled_showtext,"%d   ",line_inaccuracy);
+	sprintf(oled_showtext,"line:%2d  ",line_inaccuracy);
 	OLED_16x16(0,0,oled_showtext);
 	
-	sprintf(oled_showtext,"%3d,%3d       ",dutyR,dutyL);
+	sprintf(oled_showtext,"R:%3d,L%3d ",dutyR,dutyL);
 	OLED_16x16(0,2,oled_showtext);
 	
-	sprintf(oled_showtext,"%3d",positionPID.basicSpeed);
+	sprintf(oled_showtext,"basic:%3d ",positionPID.basicSpeed);
 	OLED_16x16(0,4,oled_showtext);
 
 //	sprintf(oled_showtext,"X:%3d Y:%3d     ",Angle_ax,Angle_ax);
 //	OLED_Display_string_5x7(0,6,oled_showtext);
 	
-	sprintf(oled_showtext,"Z:%02d       ",(int)AngleZ);
+	sprintf(oled_showtext,"Z:%02d  ",(int)AngleZ);
 	OLED_Display_string_5x7(0,7,oled_showtext);
+	
+	sprintf(oled_showtext,"p:%4d,d:%4d",(int)positionPID.kp,(int)positionPID.kd);
+	OLED_Display_string_5x7(50,7,oled_showtext);
 	
 	//sprintf(txbuf,"X:%d Y:%d Z:%d\r\n",Gyro_x,Gyro_y,Gyro_z);
 	//Uart_String(txbuf); //串口

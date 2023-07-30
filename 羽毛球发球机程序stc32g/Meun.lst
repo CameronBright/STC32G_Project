@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  Meun                                                               30/07/23  17:27:25  PAGE 1   
+C251 COMPILER V5.60.0,  Meun                                                               30/07/23  23:36:04  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Meun
 OBJECT MODULE PLACED IN Meun.obj
 COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE Menu\Meun.c XSMALL INTR2 WARNINGLEVEL(1) BROW
-                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050) DEBUG PRINT
-                    -(.\Meun.lst) TABS(2) OBJECT(Meun.obj) 
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key) DEBUG
+                    - PRINT(.\Meun.lst) TABS(2) OBJECT(Meun.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   2          break;
    56   2        }   
    57   1      }
-C251 COMPILER V5.60.0,  Meun                                                               30/07/23  17:27:25  PAGE 2   
+C251 COMPILER V5.60.0,  Meun                                                               30/07/23  23:36:04  PAGE 2   
 
    58          
    59          /******************************************************************************
@@ -134,7 +134,7 @@ stmt  level    source
   121   1      }
   122          
   123          void Meun_2_Pitching()   //¶þ¼¶²Ëµ¥¸©Ñö½Ç
-C251 COMPILER V5.60.0,  Meun                                                               30/07/23  17:27:25  PAGE 3   
+C251 COMPILER V5.60.0,  Meun                                                               30/07/23  23:36:04  PAGE 3   
 
   124          {
   125   1        OLED_16x16(set[12].x,set[12].y,set[12].Text);

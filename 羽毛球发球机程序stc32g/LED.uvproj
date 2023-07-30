@@ -272,7 +272,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050</IncludePath>
+              <IncludePath>.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key</IncludePath>
             </VariousControls>
           </C251>
           <Ax51>
@@ -353,6 +353,11 @@
               <FileName>Encoders.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Encoders\Encoders.c</FilePath>
+            </File>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Key\key.c</FilePath>
             </File>
           </Files>
         </Group>
