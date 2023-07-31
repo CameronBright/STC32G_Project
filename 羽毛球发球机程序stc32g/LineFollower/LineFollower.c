@@ -59,12 +59,12 @@ uchar ReadLine(void) //往左边偏的时候输出1 右边偏输出-1 踩在线上输出0
 			break;
 		case 0x03:
 			return_value = -2;//往坐偏较大角度
-			break;
-		case 0x00:
-			return_value = 3;//没识别到黑线返回 ‘3‘
-			break;
+			break;	
 		case 0x1F:
 			return_value = -3;//宝马离开地面返回  ‘-3‘
+			break;
+		default:
+			return_value = 3;//没识别到黑线返回 ‘3‘
 			break;
 	} 
 	

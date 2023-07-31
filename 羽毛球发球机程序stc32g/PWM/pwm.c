@@ -41,11 +41,11 @@ when sw = 0, motor can't work
 void Update_duty(uchar sw,int PWMR,int PWML)										//更新占空比函数
 {
 	
-//	if(!sw)
-//	{
-//		PWML = 0;
-//		PWMR = 0;
-//	}
+	if(!sw)
+	{
+		PWML = 0;
+		PWMR = 0;
+	}
 	
 	if(PWMR < 0)
 	{
@@ -69,21 +69,5 @@ void Update_duty(uchar sw,int PWMR,int PWML)										//更新占空比函数
 		
 	PWMA_CCR2H = (uchar)(PWMR >> 8); 
 	PWMA_CCR2L = PWMR;	
-//	}
 }
 
-void Update2_duty(uchar sw)										//更新占空比函数
-{
-//	if(!sw)
-//	{
-//		dutyL = 0;
-//		dutyR = 0;
-//	}
-	
-	PWMA_CCR1H	= (uchar)(dutyL >> 8);  
-	PWMA_CCR1L = dutyL;                //调整占空比
-		
-	PWMA_CCR2H = (uchar)(dutyR >> 8); 
-	PWMA_CCR2L = dutyR;	
-
-}

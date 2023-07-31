@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  LineFollower                                                       31/07/23  21:13:12  PAGE 1   
+C251 COMPILER V5.60.0,  LineFollower                                                       01/08/23  00:36:43  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollower
@@ -66,18 +66,18 @@ stmt  level    source
    55   2            return_value = -2;//往坐偏较大角度
    56   2            break;
    57   2          case 0x18:
-C251 COMPILER V5.60.0,  LineFollower                                                       31/07/23  21:13:12  PAGE 2   
+C251 COMPILER V5.60.0,  LineFollower                                                       01/08/23  00:36:43  PAGE 2   
 
    58   2            return_value = 2; //往右偏较大角度
    59   2            break;
    60   2          case 0x03:
    61   2            return_value = -2;//往坐偏较大角度
-   62   2            break;
-   63   2          case 0x00:
-   64   2            return_value = 3;//没识别到黑线返回 ‘3‘
+   62   2            break;  
+   63   2          case 0x1F:
+   64   2            return_value = -3;//宝马离开地面返回  ‘-3‘
    65   2            break;
-   66   2          case 0x1F:
-   67   2            return_value = -3;//宝马离开地面返回  ‘-3‘
+   66   2          default:
+   67   2            return_value = 3;//没识别到黑线返回 ‘3‘
    68   2            break;
    69   2        } 
    70   1        
@@ -87,7 +87,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       233     ------
+  code size            =       218     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

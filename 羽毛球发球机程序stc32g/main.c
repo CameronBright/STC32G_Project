@@ -1,9 +1,9 @@
 /*
-program versions : 2.3
+program versions : 2.3.1
 
-修复了电机正反转控制部分代码，现在已能正常控制电机正反转
+能控制电机正反转，循迹也大概能运行 但是过弯时电机没有达到一边正转一边反转的效果
 
-modification: 2023/7/31 21:42
+modification: 2023/8/1 00:54
 
 modifier: Cameron Bright
 
@@ -114,10 +114,10 @@ void main()
 	Motor_Init(); //电机初始化
 	
 	//PID参数
-	positionPID.basicSpeed = 0;//基础运动速度
-	positionPID.kp = 110;
+	positionPID.basicSpeed = 300;//基础运动速度
+	positionPID.kp = 400;
 	positionPID.ki = 0;
-	positionPID.kd = 30;
+	positionPID.kd = 0;
 	
 	LED = 0;
 
@@ -358,12 +358,18 @@ void Motor_control(void)
 	err_kp = positionPID.kp * line_inaccuracy;     //循迹模块数据
 	err_ki = positionPID.ki * line_inaccuracy;     //积分
 	err_kd = positionPID.kd * old_line_inaccuracy; //微分
+	
+	if(line_inaccuracy)
+	{
+		dutyR = positionPID.basicSpeed + err_kp + err_kd; 
+		dutyL = positionPID.basicSpeed - err_kp - err_kd;
+	}
+	else 
+	{
+		dutyR = positionPID.basicSpeed;
+	} dutyL = positionPID.basicSpeed;
+	
 
-//	dutyR = positionPID.basicSpeed + err_kp + err_kd; 
-//	dutyL = positionPID.basicSpeed - err_kp - err_kd;
-
-	dutyR = 500; 
-	dutyL = -500;
 	
 	Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
 	

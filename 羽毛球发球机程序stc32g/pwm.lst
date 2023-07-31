@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  pwm                                                                31/07/23  21:34:32  PAGE 1   
+C251 COMPILER V5.60.0,  pwm                                                                01/08/23  00:10:29  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE pwm
@@ -52,11 +52,11 @@ stmt  level    source
    41          void Update_duty(uchar sw,int PWMR,int PWML)                    //更新占空比函数
    42          {
    43   1        
-   44   1      //  if(!sw)
-   45   1      //  {
-   46   1      //    PWML = 0;
-   47   1      //    PWMR = 0;
-   48   1      //  }
+   44   1        if(!sw)
+   45   1        {
+   46   2          PWML = 0;
+   47   2          PWMR = 0;
+   48   2        }
    49   1        
    50   1        if(PWMR < 0)
    51   1        {
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        else 
    56   1          MotorR_Forward();
    57   1          
-C251 COMPILER V5.60.0,  pwm                                                                31/07/23  21:34:32  PAGE 2   
+C251 COMPILER V5.60.0,  pwm                                                                01/08/23  00:10:29  PAGE 2   
 
    58   1        if(PWML < 0)
    59   1        {
@@ -82,31 +82,13 @@ stmt  level    source
    69   1          
    70   1        PWMA_CCR2H = (uchar)(PWMR >> 8); 
    71   1        PWMA_CCR2L = PWMR;  
-   72   1      //  }
-   73   1      }
-*** WARNING C47 IN LINE 41 OF PWM\pwm.c: 'sw': unreferenced parameter
-   74          
-   75          void Update2_duty(uchar sw)                   //更新占空比函数
-   76          {
-   77   1      //  if(!sw)
-   78   1      //  {
-   79   1      //    dutyL = 0;
-   80   1      //    dutyR = 0;
-   81   1      //  }
-   82   1        
-   83   1        PWMA_CCR1H  = (uchar)(dutyL >> 8);  
-   84   1        PWMA_CCR1L = dutyL;                //调整占空比
-   85   1          
-   86   1        PWMA_CCR2H = (uchar)(dutyR >> 8); 
-   87   1        PWMA_CCR2L = dutyR; 
-   88   1      
-   89   1      }
-*** WARNING C47 IN LINE 75 OF PWM\pwm.c: 'sw': unreferenced parameter
+   72   1      }
+   73          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       279     ------
+  code size            =       244     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
@@ -125,4 +107,4 @@ Module Information          Static   Overlayable
 End of Module Information.
 
 
-C251 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
