@@ -3,25 +3,32 @@
 void Motor_Init(void) //电机初始化
 {
 	PWMA_Config(); //configure the PWM
-	Motor_Forward(); //forward
+	MotorL_Forward();
+	MotorR_Forward();
 }
 
-void Motor_Forward(void) //forward motor (电机正转)
+void MotorL_Forward(void) //右边电机正转
 {
-	MOTOR_AIN1 = 0;
-	MOTOR_AIN2 = 1;
-	
 	MOTOR_BIN1 = 0;
 	MOTOR_BIN2 = 1;
 }
 
-void Motor_reverse(void) //reverse motor (电机反转)
+void MotorL_Reverse(void) //右边电机反转
+{
+	MOTOR_BIN1 = 1;
+	MOTOR_BIN2 = 0;
+}
+
+void MotorR_Forward(void) //左边电机正转
+{
+	MOTOR_AIN1 = 0;
+	MOTOR_AIN2 = 1;
+}
+
+void MotorR_Reverse(void) //左边电机反转
 {
 	MOTOR_AIN1 = 1;
 	MOTOR_AIN2 = 0;
-	
-	MOTOR_BIN1 = 1;
-	MOTOR_BIN2 = 0;
 }
 
 /*

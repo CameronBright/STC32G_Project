@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  pwm                                                                30/07/23  23:36:05  PAGE 1   
+C251 COMPILER V5.60.0,  pwm                                                                31/07/23  20:21:21  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE pwm
@@ -49,48 +49,52 @@ stmt  level    source
    38          when sw = 0, motor can't work
    39          */
    40          
-   41          void Update_duty(uchar sw)                    //更新占空比函数
+   41          void Update_duty(uchar sw,int PWMR,int PWML)                    //更新占空比函数
    42          {
-   43   1        if(!sw)
-   44   1        {
-   45   2          dutyL = 0;
-   46   2          dutyR = 0;
-   47   2        }
-   48   1          
-   49   1        
-   50   1      //  if(dutyupdate1 ==1)
-   51   1      //  {
-   52   1      //  PWMA_CCR1H  = (uchar)(duty >> 8); 
-   53   1      //  PWMA_CCR1L = duty;                  //更新CC1通道占空比
-   54   1      //  dutyupdate1 = 0;                      //更新占空比标志清零
-   55   1      //  }
-   56   1      //  else if(dutyupdate2 ==1)
-   57   1      //  {
-C251 COMPILER V5.60.0,  pwm                                                                30/07/23  23:36:05  PAGE 2   
+   43   1      //  if(!sw)
+   44   1      //  {
+   45   1      //    PWML = 0;
+   46   1      //    PWMR = 0;
+   47   1      //  }
+   48   1        
+   49   1        if(PWMR < 0)
+   50   1          PWMR = PWMR * -1;
+   51   1        
+   52   1        if(PWML < 0)
+   53   1          PWML = PWML * -1;
+   54   1        
+   55   1        PWMA_CCR1H  = (uchar)(PWML >> 8);  
+   56   1        PWMA_CCR1L = PWML;                //调整占空比
+   57   1          
+C251 COMPILER V5.60.0,  pwm                                                                31/07/23  20:21:21  PAGE 2   
 
-   58   1      //  PWMA_CCR2H = (uchar)(duty2 >> 8); 
-   59   1      //  PWMA_CCR2L = duty2;                   //更新CC1通道占空比
-   60   1      //  dutyupdate2 = 0;                      //更新占空比标志清零
-   61   1      //  }
-   62   1      //  
-   63   1      //  else if(dutyupdate3 == 1)
-   64   1      //  {
-   65   1        PWMA_CCR1H  = (uchar)(dutyL >> 8);  
-   66   1        PWMA_CCR1L = dutyL;                //调整占空比
-   67   1          
-   68   1        PWMA_CCR2H = (uchar)(dutyR >> 8); 
-   69   1        PWMA_CCR2L = dutyR; 
+   58   1        PWMA_CCR2H = (uchar)(PWMR >> 8); 
+   59   1        PWMA_CCR2L = PWMR;  
+   60   1      //  }
+   61   1      }
+*** WARNING C47 IN LINE 41 OF PWM\pwm.c: 'sw': unreferenced parameter
+   62          
+   63          void Update2_duty(uchar sw)                   //更新占空比函数
+   64          {
+   65   1      //  if(!sw)
+   66   1      //  {
+   67   1      //    dutyL = 0;
+   68   1      //    dutyR = 0;
+   69   1      //  }
    70   1        
-   71   1      
-   72   1          
-   73   1      //  }
-   74   1      }
-   75          
+   71   1        PWMA_CCR1H  = (uchar)(dutyL >> 8);  
+   72   1        PWMA_CCR1L = dutyL;                //调整占空比
+   73   1          
+   74   1        PWMA_CCR2H = (uchar)(dutyR >> 8); 
+   75   1        PWMA_CCR2L = dutyR; 
+   76   1      
+   77   1      }
+*** WARNING C47 IN LINE 63 OF PWM\pwm.c: 'sw': unreferenced parameter
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       206     ------
+  code size            =       257     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
@@ -109,4 +113,4 @@ Module Information          Static   Overlayable
 End of Module Information.
 
 
-C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C251 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

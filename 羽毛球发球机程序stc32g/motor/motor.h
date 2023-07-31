@@ -11,8 +11,12 @@ sbit MOTOR_BIN1=P0^3; //BIN1
 sbit MOTOR_BIN2=P0^4; //BIN2
 
 void Motor_Init(void);
-void Motor_Forward(void); //forward motor (电机正转)
-void Motor_reverse(void); //reverse motor (电机反转)
+
+void MotorR_Forward(void); //左边电机正转
+void MotorR_Reverse(void); //左边电机反转
+void MotorL_Forward(void); //右边电机正转
+void MotorL_Reverse(void); //右边电机反转
+	
 void Motor_FRcontrol(int motor1, int motor2); //Forward / reverse control(正反转控制) 
 	
 struct pid_parameter     //PID参数

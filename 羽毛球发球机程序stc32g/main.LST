@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               30/07/23  23:58:23  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -10,11 +10,11 @@ COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE main.
 stmt  level    source
 
     1          /*
-    2          program versions : 2.2
+    2          program versions : 2.3
     3          
-    4          添加了PID的P和D值的程序，暂未开始调整参数，MPU6050的数据会自己一直加
+    4          添加了按键程序，并尝试只使用偏移量一个参数调试pid，并添加了程序
     5          
-    6          modification: 2023/7/30 2:26
+    6          modification: 2023/7/31 14:54
     7          
     8          modifier: Cameron Bright
     9          
@@ -66,7 +66,7 @@ stmt  level    source
    55          int Acc_x, Acc_y, Acc_z;                           //三轴加速度
    56          int Temp;                                        //温度
    57          
-C251 COMPILER V5.60.0,  main                                                               30/07/23  23:58:23  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 2   
 
    58          int   xdata g_x=0,g_y=0,g_z=0;                   //陀螺仪矫正参数
    59          float xdata a_x=0,a_y=0;                         //角度矫正参数
@@ -127,14 +127,14 @@ stmt  level    source
   114   1        Motor_Init(); //电机初始化
   115   1        
   116   1        //PID参数
-  117   1        positionPID.basicSpeed = 200;//基础运动速度
-  118   1        positionPID.kp = 100;
+  117   1        positionPID.basicSpeed = 0;//基础运动速度
+  118   1        positionPID.kp = 110;
   119   1        positionPID.ki = 0;
-  120   1        positionPID.kd = 0.001;
+  120   1        positionPID.kd = 30;
   121   1        
   122   1        LED = 0;
   123   1      
-C251 COMPILER V5.60.0,  main                                                               30/07/23  23:58:23  PAGE 3   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 3   
 
   124   1        while(1)
   125   1        { 
@@ -153,249 +153,262 @@ stmt  level    source
   138   1        if(++motor_delay == 10) motor_delay = 0;      //电机控制刷新时间
   139   1        if(++mpu6050_delay == 50) mpu6050_delay = 0;  //mpu6050执行刷新时间
   140   1        if(++key_delay == 100) key_delay = 0;        //按键扫描刷新时间
-  141   1        if(++sys_led >= 5000)                         
-  142   1        {
-  143   2          LED ^= 1;
-  144   2          sys_led = 0;
-  145   2        }
-  146   1        
-  147   1        if(delay_cnt > 0) //延时函数
-  148   1          delay_cnt--;
-  149   1      
-  150   1      } 
-  151          
-  152          //-----------------按键处理-----------------------------------
-  153          void Key_Proc(void)
-  154          {
-  155   1        if(key_delay) return; //100ms扫描一次按键
-  156   1        key_delay = 1;
-  157   1        
-  158   1        key_value = Key_Rvalue();//读取按键按下的编号
-  159   1        key_Down = key_value & (key_old ^ key_value);                                   
-  160   1        key_old = key_value;  
-  161   1        
-  162   1        switch(key_Down)
-  163   1        {
-  164   2          case 1:
-  165   2              positionPID.kp++;
-  166   2          break;
-  167   2          case 2:
-  168   2              positionPID.kp--;
-  169   2          break;
-  170   2          case 3:
-  171   2              positionPID.kd++;
-  172   2          break;
-  173   2          case 4:
-  174   2              positionPID.kd--;
-  175   2          break;
-  176   2        }
-  177   1      }
-  178          
-  179          //-----------------显示屏函数-----------------------------------
-  180          void Disp_refresh(void)
-  181          {
-  182   1        if(disp_delay) return; //10ms刷新一次屏幕
-  183   1        disp_delay = 1;
-  184   1        
-  185   1        sprintf(oled_showtext,"line:%2d  ",line_inaccuracy);
-  186   1        OLED_16x16(0,0,oled_showtext);
-  187   1        
-  188   1        sprintf(oled_showtext,"R:%3d,L%3d ",dutyR,dutyL);
-  189   1        OLED_16x16(0,2,oled_showtext);
-C251 COMPILER V5.60.0,  main                                                               30/07/23  23:58:23  PAGE 4   
+  141   1        
+  142   1        if(++sys_led >= 5000)                         
+  143   1        {
+  144   2          LED ^= 1;
+  145   2          sys_led = 0;
+  146   2        }
+  147   1        
+  148   1        if(delay_cnt > 0) //延时函数
+  149   1          delay_cnt--;
+  150   1      
+  151   1      } 
+  152          
+  153          //-----------------按键处理-----------------------------------
+  154          void Key_Proc(void)
+  155          {
+  156   1        if(key_delay) return; //100ms扫描一次按键
+  157   1        key_delay = 1;
+  158   1        
+  159   1        key_value = Key_Rvalue();//读取按键按下的编号
+  160   1        key_Down = key_value & (key_old ^ key_value);                                   
+  161   1        key_old = key_value;  
+  162   1        
+  163   1        switch(key_Down)
+  164   1        {
+  165   2          case 1:
+  166   2              positionPID.kp++;
+  167   2          break;
+  168   2          case 2:
+  169   2              positionPID.kp--;
+  170   2          break;
+  171   2          case 3:
+  172   2              positionPID.kd++;
+  173   2          break;
+  174   2          case 4:
+  175   2              positionPID.kd--;
+  176   2          break;
+  177   2        }
+  178   1      }
+  179          
+  180          //-----------------显示屏函数-----------------------------------
+  181          void Disp_refresh(void)
+  182          {
+  183   1        if(disp_delay) return; //10ms刷新一次屏幕
+  184   1        disp_delay = 1;
+  185   1        
+  186   1        sprintf(oled_showtext,"line:%2d  ",line_inaccuracy);
+  187   1        OLED_16x16(0,0,oled_showtext);
+  188   1        
+  189   1        sprintf(oled_showtext,"L:%3d,R%3d ",dutyL,dutyR);
+C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 4   
 
-  190   1        
-  191   1        sprintf(oled_showtext,"basic:%3d ",positionPID.basicSpeed);
-  192   1        OLED_16x16(0,4,oled_showtext);
-  193   1      
-  194   1      //  sprintf(oled_showtext,"X:%3d Y:%3d     ",Angle_ax,Angle_ax);
-  195   1      //  OLED_Display_string_5x7(0,6,oled_showtext);
-  196   1        
-  197   1        sprintf(oled_showtext,"Z:%02d  ",(int)AngleZ);
-  198   1        OLED_Display_string_5x7(0,7,oled_showtext);
-  199   1        
-  200   1        sprintf(oled_showtext,"p:%4d,d:%4d",(int)positionPID.kp,(int)positionPID.kd);
-  201   1        OLED_Display_string_5x7(50,7,oled_showtext);
-  202   1        
-  203   1        //sprintf(txbuf,"X:%d Y:%d Z:%d\r\n",Gyro_x,Gyro_y,Gyro_z);
-  204   1        //Uart_String(txbuf); //串口
-  205   1        
-  206   1      //  OLED_ShowNum(35,4,ADCP3,6);
-  207   1      }
-  208          
+  190   1        OLED_16x16(0,2,oled_showtext);
+  191   1        
+  192   1        sprintf(oled_showtext,"basic:%3d ",positionPID.basicSpeed);
+  193   1        OLED_16x16(0,4,oled_showtext);
+  194   1      
+  195   1      //  sprintf(oled_showtext,"X:%3d Y:%3d     ",Angle_ax,Angle_ax);
+  196   1      //  OLED_Display_string_5x7(0,6,oled_showtext);
+  197   1        
+  198   1        sprintf(oled_showtext,"Z:%02d  ",(int)AngleZ);
+  199   1        OLED_Display_string_5x7(0,7,oled_showtext);
+  200   1        
+  201   1        sprintf(oled_showtext,"p:%4d,d:%4d",(int)positionPID.kp,(int)positionPID.kd);
+  202   1        OLED_Display_string_5x7(50,7,oled_showtext);
+  203   1        
+  204   1        //sprintf(txbuf,"X:%d Y:%d Z:%d\r\n",Gyro_x,Gyro_y,Gyro_z);
+  205   1        //Uart_String(txbuf); //串口
+  206   1        
+  207   1      //  OLED_ShowNum(35,4,ADCP3,6);
+  208   1      }
   209          
-  210          //-------------陀螺仪控制函数----------------------------------------
-  211          void MPU6050_Read(void)
-  212          {
-  213   1        if(mpu6050_delay) return; 
-  214   1        mpu6050_delay = 1;
-  215   1        
-  216   1        Read_MPU6050(MPU6050_DATA);
-  217   1        Acc_x = MPU6050_DATA[0]<<8|MPU6050_DATA[1]; //加速度
-  218   1        Acc_y = MPU6050_DATA[2]<<8|MPU6050_DATA[3];
-  219   1        Acc_z = MPU6050_DATA[4]<<8|MPU6050_DATA[5];
-  220   1        
-  221   1        Temp  = MPU6050_DATA[6]<<8|MPU6050_DATA[7]; //temperature
-  222   1        
-  223   1        Gyro_x = MPU6050_DATA[8]<<8|MPU6050_DATA[9]; //角速度
-  224   1        Gyro_y = MPU6050_DATA[10]<<8|MPU6050_DATA[11]; 
-  225   1        Gyro_z = MPU6050_DATA[12]<<8|MPU6050_DATA[13]; 
-  226   1        
-  227   1      //  if((Gyro_x == -1)||(Gyro_y == -1)||(Gyro_z == -1)||(Gyro_x == 0)||(Gyro_y == 0)||(Gyro_z == 0)) //高通
+  210          
+  211          //-------------陀螺仪控制函数----------------------------------------
+  212          void MPU6050_Read(void)
+  213          {
+  214   1        if(mpu6050_delay) return; 
+  215   1        mpu6050_delay = 1;
+  216   1        
+  217   1        Read_MPU6050(MPU6050_DATA);
+  218   1        Acc_x = MPU6050_DATA[0]<<8|MPU6050_DATA[1]; //加速度
+  219   1        Acc_y = MPU6050_DATA[2]<<8|MPU6050_DATA[3];
+  220   1        Acc_z = MPU6050_DATA[4]<<8|MPU6050_DATA[5];
+  221   1        
+  222   1        Temp  = MPU6050_DATA[6]<<8|MPU6050_DATA[7]; //temperature
+  223   1        
+  224   1        Gyro_x = MPU6050_DATA[8]<<8|MPU6050_DATA[9]; //角速度
+  225   1        Gyro_y = MPU6050_DATA[10]<<8|MPU6050_DATA[11]; 
+  226   1        Gyro_z = MPU6050_DATA[12]<<8|MPU6050_DATA[13]; 
+  227   1        
+  228   1      //  if((Gyro_x == -1)||(Gyro_y == -1)||(Gyro_z == -1)||(Gyro_x == 0)||(Gyro_y == 0)||(Gyro_z == 0)) //高通
              -滤波
-  228   1      //  {
-  229   1      //    Gyro_x = Gyro_x_;
-  230   1      //    Gyro_y = Gyro_y_;
-  231   1      //    Gyro_z = Gyro_z_;
-  232   1      //  }
-  233   1      //  else 
-  234   1      //  {
-  235   1      //    Gyro_x_ = Gyro_x;
-  236   1      //    Gyro_y_ = Gyro_y;
-  237   1      //    Gyro_z_ = Gyro_z;
-  238   1      //  }
-  239   1        
-  240   1        Angle_ax = Acc_x/8192.0; //偏移角
-  241   1        Angle_ay = Acc_y/8192.0; 
-  242   1        Angle_az = Acc_z/8192.0; 
-  243   1        
-  244   1        Angle_gx = Gyro_x/65.5; //
-  245   1        Angle_gy = Gyro_y/65.5;
-  246   1        Angle_gz = Gyro_z/65.5;
-  247   1        
-  248   1        IMUupdate(Angle_gx*0.0174533f,Angle_gy*0.0174533f,Angle_gz*0.0174533f,Angle_ax,Angle_ay,Angle_az);
-  249   1        
-  250   1        Angle_of_pitch = AngleX;
-  251   1        Roll_Angle = AngleY;
-  252   1        
-  253   1        //==========串口查看波形=============
-  254   1        Uart_sendbyte(0x03);
-C251 COMPILER V5.60.0,  main                                                               30/07/23  23:58:23  PAGE 5   
+  229   1      //  {
+  230   1      //    Gyro_x = Gyro_x_;
+  231   1      //    Gyro_y = Gyro_y_;
+  232   1      //    Gyro_z = Gyro_z_;
+  233   1      //  }
+  234   1      //  else 
+  235   1      //  {
+  236   1      //    Gyro_x_ = Gyro_x;
+  237   1      //    Gyro_y_ = Gyro_y;
+  238   1      //    Gyro_z_ = Gyro_z;
+  239   1      //  }
+  240   1        
+  241   1        Angle_ax = Acc_x/8192.0; //偏移角
+  242   1        Angle_ay = Acc_y/8192.0; 
+  243   1        Angle_az = Acc_z/8192.0; 
+  244   1        
+  245   1        Angle_gx = Gyro_x/65.5; //
+  246   1        Angle_gy = Gyro_y/65.5;
+  247   1        Angle_gz = Gyro_z/65.5;
+  248   1        
+  249   1        IMUupdate(Angle_gx*0.0174533f,Angle_gy*0.0174533f,Angle_gz*0.0174533f,Angle_ax,Angle_ay,Angle_az);
+  250   1        
+  251   1        Angle_of_pitch = AngleX;
+  252   1        Roll_Angle = AngleY;
+  253   1        
+  254   1        //==========串口查看波形=============
+C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 5   
 
-  255   1        Uart_sendbyte(~0x03); 
-  256   1        
-  257   1        Uart_sendbyte((int)(Gyro_x));
-  258   1        Uart_sendbyte((int)(Gyro_x)>>8);
-  259   1                                  
-  260   1        Uart_sendbyte((int)(Gyro_y));
-  261   1        Uart_sendbyte((int)(Gyro_y)>>8);
-  262   1                                  
-  263   1        Uart_sendbyte((int)(Gyro_z));
-  264   1        Uart_sendbyte((int)(Gyro_z)>>8);
-  265   1        
-  266   1      //  Uart_sendbyte((int)(Angle_gx));
-  267   1      //  Uart_sendbyte((int)(Angle_gx)>>8);
-  268   1      //                            
-  269   1      //  Uart_sendbyte((int)(Angle_gy));
-  270   1      //  Uart_sendbyte((int)(Angle_gy)>>8);
-  271   1      //                            
-  272   1      //  Uart_sendbyte((int)(Angle_gz));
-  273   1      //  Uart_sendbyte((int)(Angle_gz)>>8);
-  274   1      
-  275   1      //  Uart_sendbyte((int)(AngleX));
-  276   1      //  Uart_sendbyte((int)(AngleX)>>8);
-  277   1      //                            
-  278   1      //  Uart_sendbyte((int)(AngleY));
-  279   1      //  Uart_sendbyte((int)(AngleY)>>8);
-  280   1      //                            
-  281   1      //  Uart_sendbyte((int)(AngleZ));
-  282   1      //  Uart_sendbyte((int)(AngleZ)>>8);  
-  283   1        
-  284   1        Uart_sendbyte(~0x03);         
-  285   1        Uart_sendbyte(0x03);
-  286   1      }
-  287          
-  288          void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
-  289          {
-  290   1        float data norm;
-  291   1        float idata vx, vy, vz;
-  292   1        float idata ex, ey, ez;
-  293   1      
-  294   1        norm = sqrt(ax*ax + ay*ay + az*az); //把加速度计的三维向量转成单维向量   
-  295   1        ax = ax / norm;
-  296   1        ay = ay / norm;
-  297   1        az = az / norm;
-  298   1      
-  299   1          //  下面是把四元数换算成《方向余弦矩阵》中的第三列的三个元素。 
-  300   1          //  根据余弦矩阵和欧拉角的定义，地理坐标系的重力向量，转到机体坐标系，正好是这三个元素
-  301   1          //  所以这里的vx vy vz，其实就是当前的欧拉角（即四元数）的机体坐标参照系上，换算出来的
-  302   1          //  重力单位向量。
-  303   1        vx = 2*(q1*q3 - q0*q2);
-  304   1        vy = 2*(q0*q1 + q2*q3);
-  305   1        vz = q0*q0 - q1*q1 - q2*q2 + q3*q3 ;
-  306   1      
-  307   1        ex = (ay*vz - az*vy) ;
-  308   1        ey = (az*vx - ax*vz) ;
-  309   1        ez = (ax*vy - ay*vx) ;
-  310   1      
-  311   1        exInt = exInt + ex * Ki;
-  312   1        eyInt = eyInt + ey * Ki;
-  313   1        ezInt = ezInt + ez * Ki;
-  314   1      
-  315   1        gx = gx + Kp*ex + exInt;
-  316   1        gy = gy + Kp*ey + eyInt;
-  317   1        gz = gz + Kp*ez + ezInt;
-  318   1      
-  319   1        q0 = q0 + (-q1*gx - q2*gy - q3*gz) * halfT;
-  320   1        q1 = q1 + ( q0*gx + q2*gz - q3*gy) * halfT;
-C251 COMPILER V5.60.0,  main                                                               30/07/23  23:58:23  PAGE 6   
+  255   1      //  Uart_sendbyte(0x03);
+  256   1      //  Uart_sendbyte(~0x03); 
+  257   1      //  
+  258   1      //  Uart_sendbyte((int)(Gyro_x));
+  259   1      //  Uart_sendbyte((int)(Gyro_x)>>8);
+  260   1      //                            
+  261   1      //  Uart_sendbyte((int)(Gyro_y));
+  262   1      //  Uart_sendbyte((int)(Gyro_y)>>8);
+  263   1      //                            
+  264   1      //  Uart_sendbyte((int)(Gyro_z));
+  265   1      //  Uart_sendbyte((int)(Gyro_z)>>8);
+  266   1      //  
+  267   1      ////  Uart_sendbyte((int)(Angle_gx));
+  268   1      ////  Uart_sendbyte((int)(Angle_gx)>>8);
+  269   1      ////                            
+  270   1      ////  Uart_sendbyte((int)(Angle_gy));
+  271   1      ////  Uart_sendbyte((int)(Angle_gy)>>8);
+  272   1      ////                            
+  273   1      ////  Uart_sendbyte((int)(Angle_gz));
+  274   1      ////  Uart_sendbyte((int)(Angle_gz)>>8);
+  275   1      
+  276   1      ////  Uart_sendbyte((int)(AngleX));
+  277   1      ////  Uart_sendbyte((int)(AngleX)>>8);
+  278   1      ////                            
+  279   1      ////  Uart_sendbyte((int)(AngleY));
+  280   1      ////  Uart_sendbyte((int)(AngleY)>>8);
+  281   1      ////                            
+  282   1      ////  Uart_sendbyte((int)(AngleZ));
+  283   1      ////  Uart_sendbyte((int)(AngleZ)>>8);  
+  284   1      //  
+  285   1      //  Uart_sendbyte(~0x03);         
+  286   1      //  Uart_sendbyte(0x03);
+  287   1      }
+  288          
+  289          void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
+  290          {
+  291   1        float data norm;
+  292   1        float idata vx, vy, vz;
+  293   1        float idata ex, ey, ez;
+  294   1      
+  295   1        norm = sqrt(ax*ax + ay*ay + az*az); //把加速度计的三维向量转成单维向量   
+  296   1        ax = ax / norm;
+  297   1        ay = ay / norm;
+  298   1        az = az / norm;
+  299   1      
+  300   1          //  下面是把四元数换算成《方向余弦矩阵》中的第三列的三个元素。 
+  301   1          //  根据余弦矩阵和欧拉角的定义，地理坐标系的重力向量，转到机体坐标系，正好是这三个元素
+  302   1          //  所以这里的vx vy vz，其实就是当前的欧拉角（即四元数）的机体坐标参照系上，换算出来的
+  303   1          //  重力单位向量。
+  304   1        vx = 2*(q1*q3 - q0*q2);
+  305   1        vy = 2*(q0*q1 + q2*q3);
+  306   1        vz = q0*q0 - q1*q1 - q2*q2 + q3*q3 ;
+  307   1      
+  308   1        ex = (ay*vz - az*vy) ;
+  309   1        ey = (az*vx - ax*vz) ;
+  310   1        ez = (ax*vy - ay*vx) ;
+  311   1      
+  312   1        exInt = exInt + ex * Ki;
+  313   1        eyInt = eyInt + ey * Ki;
+  314   1        ezInt = ezInt + ez * Ki;
+  315   1      
+  316   1        gx = gx + Kp*ex + exInt;
+  317   1        gy = gy + Kp*ey + eyInt;
+  318   1        gz = gz + Kp*ez + ezInt;
+  319   1      
+  320   1        q0 = q0 + (-q1*gx - q2*gy - q3*gz) * halfT;
+C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 6   
 
-  321   1        q2 = q2 + ( q0*gy - q1*gz + q3*gx) * halfT;
-  322   1        q3 = q3 + ( q0*gz + q1*gy - q2*gx) * halfT;
-  323   1      
-  324   1        norm = sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
-  325   1        q0 = q0 / norm;
-  326   1        q1 = q1 / norm;
-  327   1        q2 = q2 / norm;
-  328   1        q3 = q3 / norm;
-  329   1      
-  330   1        AngleX = asin(2*(q0*q2 - q1*q3 )) * 57.2957795f; // 俯仰   换算成度
-  331   1        AngleY = asin(2*(q0*q1 + q2*q3 )) * 57.2957795f; // 横滚
-  332   1        AngleZ = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.2957795f; //滤波后的值
-  333   1      }
-  334          
+  321   1        q1 = q1 + ( q0*gx + q2*gz - q3*gy) * halfT;
+  322   1        q2 = q2 + ( q0*gy - q1*gz + q3*gx) * halfT;
+  323   1        q3 = q3 + ( q0*gz + q1*gy - q2*gx) * halfT;
+  324   1      
+  325   1        norm = sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
+  326   1        q0 = q0 / norm;
+  327   1        q1 = q1 / norm;
+  328   1        q2 = q2 / norm;
+  329   1        q3 = q3 / norm;
+  330   1      
+  331   1        AngleX = asin(2*(q0*q2 - q1*q3 )) * 57.2957795f; // 俯仰   换算成度
+  332   1        AngleY = asin(2*(q0*q1 + q2*q3 )) * 57.2957795f; // 横滚
+  333   1        AngleZ = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.2957795f; //滤波后的值
+  334   1      }
   335          
-  336          //-----------------电机控制函数-------------------------------------
-  337          void Motor_control(void)
-  338          {
-  339   1        if(motor_delay) return; //延时
-  340   1        motor_delay = 1;
-  341   1        
-  342   1        line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
-  343   1        
-  344   1        if(line_inaccuracy > 2 || line_inaccuracy < -2)
-  345   1        {
-  346   2          if(line_inaccuracy == -3)//传感器远离地面时
-  347   2            motor_sw = 0;
-  348   2          else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
-  349   2            line_inaccuracy = old_position;
-  350   2        }
-  351   1        else 
-  352   1        {
-  353   2          motor_sw = 1;//电机正常工作
-  354   2          old_position = line_inaccuracy;//记录上一次的位置
-  355   2        }
-  356   1        
-  357   1        err_kp = positionPID.kp * line_inaccuracy;     //循迹模块数据
-  358   1        err_ki = positionPID.ki * line_inaccuracy;     //积分
-  359   1        err_kd = positionPID.kd * old_line_inaccuracy; //微分
-  360   1      
-  361   1        dutyR = positionPID.basicSpeed + err_kp - err_kd; 
-  362   1        dutyL = positionPID.basicSpeed - err_kp + err_kd;
-  363   1        
-  364   1        Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
-  365   1        
-  366   1        old_line_inaccuracy = line_inaccuracy;
+  336          
+  337          //-----------------电机控制函数-------------------------------------
+  338          void Motor_control(void)
+  339          {
+  340   1        if(motor_delay) return; //延时
+  341   1        motor_delay = 1;
+  342   1        
+  343   1        line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
+  344   1        
+  345   1        if(line_inaccuracy > 2 || line_inaccuracy < -2)
+  346   1        {
+  347   2          if(line_inaccuracy == -3)//传感器远离地面时
+  348   2            motor_sw = 0;
+  349   2          else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
+  350   2            line_inaccuracy = old_position;
+  351   2        }
+  352   1        else 
+  353   1        {
+  354   2          motor_sw = 1;//电机正常工作
+  355   2          old_position = line_inaccuracy;//记录上一次的位置
+  356   2        }
+  357   1        
+  358   1        err_kp = positionPID.kp * line_inaccuracy;     //循迹模块数据
+  359   1        err_ki = positionPID.ki * line_inaccuracy;     //积分
+  360   1        err_kd = positionPID.kd * old_line_inaccuracy; //微分
+  361   1      
+  362   1      //  dutyR = positionPID.basicSpeed + err_kp + err_kd; 
+  363   1      //  dutyL = positionPID.basicSpeed - err_kp - err_kd;
+  364   1      
+  365   1        dutyR = 100; 
+  366   1        dutyL = 100;
   367   1        
-  368   1        Update_duty(motor_sw);//更新PWM输出
-  369   1      }
+  368   1        
+  369   1        
+  370   1        //Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
+  371   1        
+  372   1        //Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
+  373   1        //Update2_duty(motor_sw);//更新PWM输出
+  374   1        
+  375   1        
+  376   1        
+  377   1        old_line_inaccuracy = line_inaccuracy;
+  378   1        
+  379   1        
+  380   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      2296     ------
+  code size            =      2190     ------
   ecode size           =    ------     ------
   data size            =         4     ------
+C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 7   
+
   idata size           =         8          4
   pdata size           =    ------     ------
   xdata size           =        14     ------
@@ -407,8 +420,6 @@ Module Information          Static   Overlayable
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
   huge data size       =    ------     ------
-C251 COMPILER V5.60.0,  main                                                               30/07/23  23:58:23  PAGE 7   
-
   const size           =    ------     ------
   hconst size          =       277     ------
 End of Module Information.

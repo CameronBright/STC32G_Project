@@ -114,10 +114,10 @@ void main()
 	Motor_Init(); //电机初始化
 	
 	//PID参数
-	positionPID.basicSpeed = 200;//基础运动速度
-	positionPID.kp = 100;
+	positionPID.basicSpeed = 0;//基础运动速度
+	positionPID.kp = 110;
 	positionPID.ki = 0;
-	positionPID.kd = 0.001;
+	positionPID.kd = 30;
 	
 	LED = 0;
 
@@ -138,6 +138,7 @@ void timer1() interrupt 3       //100us中断一次
 	if(++motor_delay == 10) motor_delay = 0;			//电机控制刷新时间
 	if(++mpu6050_delay == 50) mpu6050_delay = 0;  //mpu6050执行刷新时间
 	if(++key_delay == 100) key_delay = 0;        //按键扫描刷新时间
+	
 	if(++sys_led >= 5000)                         
 	{
 		LED ^= 1;
@@ -185,7 +186,7 @@ void Disp_refresh(void)
 	sprintf(oled_showtext,"line:%2d  ",line_inaccuracy);
 	OLED_16x16(0,0,oled_showtext);
 	
-	sprintf(oled_showtext,"R:%3d,L%3d ",dutyR,dutyL);
+	sprintf(oled_showtext,"L:%3d,R%3d ",dutyL,dutyR);
 	OLED_16x16(0,2,oled_showtext);
 	
 	sprintf(oled_showtext,"basic:%3d ",positionPID.basicSpeed);
@@ -251,38 +252,38 @@ void MPU6050_Read(void)
 	Roll_Angle = AngleY;
 	
 	//==========串口查看波形=============
-	Uart_sendbyte(0x03);
-	Uart_sendbyte(~0x03);	
-	
-	Uart_sendbyte((int)(Gyro_x));
-	Uart_sendbyte((int)(Gyro_x)>>8);
-														
-	Uart_sendbyte((int)(Gyro_y));
-	Uart_sendbyte((int)(Gyro_y)>>8);
-														
-	Uart_sendbyte((int)(Gyro_z));
-	Uart_sendbyte((int)(Gyro_z)>>8);
-	
-//	Uart_sendbyte((int)(Angle_gx));
-//	Uart_sendbyte((int)(Angle_gx)>>8);
+//	Uart_sendbyte(0x03);
+//	Uart_sendbyte(~0x03);	
+//	
+//	Uart_sendbyte((int)(Gyro_x));
+//	Uart_sendbyte((int)(Gyro_x)>>8);
 //														
-//	Uart_sendbyte((int)(Angle_gy));
-//	Uart_sendbyte((int)(Angle_gy)>>8);
+//	Uart_sendbyte((int)(Gyro_y));
+//	Uart_sendbyte((int)(Gyro_y)>>8);
 //														
-//	Uart_sendbyte((int)(Angle_gz));
-//	Uart_sendbyte((int)(Angle_gz)>>8);
+//	Uart_sendbyte((int)(Gyro_z));
+//	Uart_sendbyte((int)(Gyro_z)>>8);
+//	
+////	Uart_sendbyte((int)(Angle_gx));
+////	Uart_sendbyte((int)(Angle_gx)>>8);
+////														
+////	Uart_sendbyte((int)(Angle_gy));
+////	Uart_sendbyte((int)(Angle_gy)>>8);
+////														
+////	Uart_sendbyte((int)(Angle_gz));
+////	Uart_sendbyte((int)(Angle_gz)>>8);
 
-//	Uart_sendbyte((int)(AngleX));
-//	Uart_sendbyte((int)(AngleX)>>8);
-//														
-//	Uart_sendbyte((int)(AngleY));
-//	Uart_sendbyte((int)(AngleY)>>8);
-//														
-//	Uart_sendbyte((int)(AngleZ));
-//	Uart_sendbyte((int)(AngleZ)>>8);	
-	
-	Uart_sendbyte(~0x03);					
-	Uart_sendbyte(0x03);
+////	Uart_sendbyte((int)(AngleX));
+////	Uart_sendbyte((int)(AngleX)>>8);
+////														
+////	Uart_sendbyte((int)(AngleY));
+////	Uart_sendbyte((int)(AngleY)>>8);
+////														
+////	Uart_sendbyte((int)(AngleZ));
+////	Uart_sendbyte((int)(AngleZ)>>8);	
+//	
+//	Uart_sendbyte(~0x03);					
+//	Uart_sendbyte(0x03);
 }
 
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az)
@@ -358,12 +359,20 @@ void Motor_control(void)
 	err_ki = positionPID.ki * line_inaccuracy;     //积分
 	err_kd = positionPID.kd * old_line_inaccuracy; //微分
 
-	dutyR = positionPID.basicSpeed + err_kp - err_kd; 
-  dutyL = positionPID.basicSpeed - err_kp + err_kd;
+//	dutyR = positionPID.basicSpeed + err_kp + err_kd; 
+//	dutyL = positionPID.basicSpeed - err_kp - err_kd;
+
+	dutyR = 100; 
+	dutyL = 100;
 	
-	Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
+	//Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
+	
+	Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
+	//Update2_duty(motor_sw);//更新PWM输出
+	
+	
 	
 	old_line_inaccuracy = line_inaccuracy;
 	
-	Update_duty(motor_sw);//更新PWM输出
+	
 }
