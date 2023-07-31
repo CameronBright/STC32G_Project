@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              31/07/23  20:24:24  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              31/07/23  21:13:12  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -66,7 +66,7 @@ stmt  level    source
    55   2          MOTOR_BIN1 = 0; //Forward motor2(电机2正转)
    56   2          MOTOR_BIN2 = 1;
    57   2        }
-C251 COMPILER V5.60.0,  motor                                                              31/07/23  20:24:24  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              31/07/23  21:13:12  PAGE 2   
 
    58   1        else 
    59   1        {

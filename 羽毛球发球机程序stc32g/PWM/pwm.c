@@ -1,5 +1,5 @@
 #include "pwm.h"
-
+#include "motor.h"
 
 //变量声明区
 
@@ -40,6 +40,7 @@ when sw = 0, motor can't work
 
 void Update_duty(uchar sw,int PWMR,int PWML)										//更新占空比函数
 {
+	
 //	if(!sw)
 //	{
 //		PWML = 0;
@@ -47,10 +48,21 @@ void Update_duty(uchar sw,int PWMR,int PWML)										//更新占空比函数
 //	}
 	
 	if(PWMR < 0)
+	{
 		PWMR = PWMR * -1;
-	
+		MotorR_Reverse();
+	}
+	else 
+		MotorR_Forward();
+		
 	if(PWML < 0)
+	{
 		PWML = PWML * -1;
+		MotorL_Reverse();
+	}
+	else 
+		MotorL_Forward();
+		
 	
 	PWMA_CCR1H	= (uchar)(PWML >> 8);  
 	PWMA_CCR1L = PWML;                //调整占空比

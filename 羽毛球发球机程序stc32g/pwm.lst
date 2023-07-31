@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  pwm                                                                31/07/23  20:21:21  PAGE 1   
+C251 COMPILER V5.60.0,  pwm                                                                31/07/23  21:34:32  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE pwm
@@ -10,7 +10,7 @@ COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE PWM\p
 stmt  level    source
 
     1          #include "pwm.h"
-    2          
+    2          #include "motor.h"
     3          
     4          //变量声明区
     5          
@@ -51,50 +51,62 @@ stmt  level    source
    40          
    41          void Update_duty(uchar sw,int PWMR,int PWML)                    //更新占空比函数
    42          {
-   43   1      //  if(!sw)
-   44   1      //  {
-   45   1      //    PWML = 0;
-   46   1      //    PWMR = 0;
-   47   1      //  }
-   48   1        
-   49   1        if(PWMR < 0)
-   50   1          PWMR = PWMR * -1;
-   51   1        
-   52   1        if(PWML < 0)
-   53   1          PWML = PWML * -1;
-   54   1        
-   55   1        PWMA_CCR1H  = (uchar)(PWML >> 8);  
-   56   1        PWMA_CCR1L = PWML;                //调整占空比
+   43   1        
+   44   1      //  if(!sw)
+   45   1      //  {
+   46   1      //    PWML = 0;
+   47   1      //    PWMR = 0;
+   48   1      //  }
+   49   1        
+   50   1        if(PWMR < 0)
+   51   1        {
+   52   2          PWMR = PWMR * -1;
+   53   2          MotorR_Reverse();
+   54   2        }
+   55   1        else 
+   56   1          MotorR_Forward();
    57   1          
-C251 COMPILER V5.60.0,  pwm                                                                31/07/23  20:21:21  PAGE 2   
+C251 COMPILER V5.60.0,  pwm                                                                31/07/23  21:34:32  PAGE 2   
 
-   58   1        PWMA_CCR2H = (uchar)(PWMR >> 8); 
-   59   1        PWMA_CCR2L = PWMR;  
-   60   1      //  }
-   61   1      }
+   58   1        if(PWML < 0)
+   59   1        {
+   60   2          PWML = PWML * -1;
+   61   2          MotorL_Reverse();
+   62   2        }
+   63   1        else 
+   64   1          MotorL_Forward();
+   65   1          
+   66   1        
+   67   1        PWMA_CCR1H  = (uchar)(PWML >> 8);  
+   68   1        PWMA_CCR1L = PWML;                //调整占空比
+   69   1          
+   70   1        PWMA_CCR2H = (uchar)(PWMR >> 8); 
+   71   1        PWMA_CCR2L = PWMR;  
+   72   1      //  }
+   73   1      }
 *** WARNING C47 IN LINE 41 OF PWM\pwm.c: 'sw': unreferenced parameter
-   62          
-   63          void Update2_duty(uchar sw)                   //更新占空比函数
-   64          {
-   65   1      //  if(!sw)
-   66   1      //  {
-   67   1      //    dutyL = 0;
-   68   1      //    dutyR = 0;
-   69   1      //  }
-   70   1        
-   71   1        PWMA_CCR1H  = (uchar)(dutyL >> 8);  
-   72   1        PWMA_CCR1L = dutyL;                //调整占空比
-   73   1          
-   74   1        PWMA_CCR2H = (uchar)(dutyR >> 8); 
-   75   1        PWMA_CCR2L = dutyR; 
-   76   1      
-   77   1      }
-*** WARNING C47 IN LINE 63 OF PWM\pwm.c: 'sw': unreferenced parameter
+   74          
+   75          void Update2_duty(uchar sw)                   //更新占空比函数
+   76          {
+   77   1      //  if(!sw)
+   78   1      //  {
+   79   1      //    dutyL = 0;
+   80   1      //    dutyR = 0;
+   81   1      //  }
+   82   1        
+   83   1        PWMA_CCR1H  = (uchar)(dutyL >> 8);  
+   84   1        PWMA_CCR1L = dutyL;                //调整占空比
+   85   1          
+   86   1        PWMA_CCR2H = (uchar)(dutyR >> 8); 
+   87   1        PWMA_CCR2L = dutyR; 
+   88   1      
+   89   1      }
+*** WARNING C47 IN LINE 75 OF PWM\pwm.c: 'sw': unreferenced parameter
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       257     ------
+  code size            =       279     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

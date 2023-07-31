@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  21:39:31  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -66,7 +66,7 @@ stmt  level    source
    55          int Acc_x, Acc_y, Acc_z;                           //三轴加速度
    56          int Temp;                                        //温度
    57          
-C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  21:39:31  PAGE 2   
 
    58          int   xdata g_x=0,g_y=0,g_z=0;                   //陀螺仪矫正参数
    59          float xdata a_x=0,a_y=0;                         //角度矫正参数
@@ -134,7 +134,7 @@ stmt  level    source
   121   1        
   122   1        LED = 0;
   123   1      
-C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 3   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  21:39:31  PAGE 3   
 
   124   1        while(1)
   125   1        { 
@@ -202,7 +202,7 @@ stmt  level    source
   187   1        OLED_16x16(0,0,oled_showtext);
   188   1        
   189   1        sprintf(oled_showtext,"L:%3d,R%3d ",dutyL,dutyR);
-C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 4   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  21:39:31  PAGE 4   
 
   190   1        OLED_16x16(0,2,oled_showtext);
   191   1        
@@ -270,7 +270,7 @@ stmt  level    source
   252   1        Roll_Angle = AngleY;
   253   1        
   254   1        //==========串口查看波形=============
-C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 5   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  21:39:31  PAGE 5   
 
   255   1      //  Uart_sendbyte(0x03);
   256   1      //  Uart_sendbyte(~0x03); 
@@ -338,7 +338,7 @@ stmt  level    source
   318   1        gz = gz + Kp*ez + ezInt;
   319   1      
   320   1        q0 = q0 + (-q1*gx - q2*gy - q3*gz) * halfT;
-C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 6   
+C251 COMPILER V5.60.0,  main                                                               31/07/23  21:39:31  PAGE 6   
 
   321   1        q1 = q1 + ( q0*gx + q2*gz - q3*gy) * halfT;
   322   1        q2 = q2 + ( q0*gy - q1*gz + q3*gx) * halfT;
@@ -384,33 +384,31 @@ stmt  level    source
   362   1      //  dutyR = positionPID.basicSpeed + err_kp + err_kd; 
   363   1      //  dutyL = positionPID.basicSpeed - err_kp - err_kd;
   364   1      
-  365   1        dutyR = 100; 
-  366   1        dutyL = 100;
+  365   1        dutyR = 500; 
+  366   1        dutyL = -500;
   367   1        
-  368   1        
+  368   1        //Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
   369   1        
-  370   1        //Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
-  371   1        
-  372   1        //Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
-  373   1        //Update2_duty(motor_sw);//更新PWM输出
+  370   1        Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
+  371   1        //Update2_duty(motor_sw);//更新PWM输出
+  372   1        
+  373   1        
   374   1        
-  375   1        
+  375   1        old_line_inaccuracy = line_inaccuracy;
   376   1        
-  377   1        old_line_inaccuracy = line_inaccuracy;
-  378   1        
-  379   1        
-  380   1      }
+  377   1        
+  378   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      2190     ------
+  code size            =      2201     ------
   ecode size           =    ------     ------
   data size            =         4     ------
-C251 COMPILER V5.60.0,  main                                                               31/07/23  20:24:24  PAGE 7   
-
   idata size           =         8          4
   pdata size           =    ------     ------
+C251 COMPILER V5.60.0,  main                                                               31/07/23  21:39:31  PAGE 7   
+
   xdata size           =        14     ------
   xdata-const size     =    ------     ------
   edata size           =       178         20

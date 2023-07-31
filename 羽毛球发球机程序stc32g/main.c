@@ -1,9 +1,9 @@
 /*
 program versions : 2.3
 
-添加了按键程序，并尝试只使用偏移量一个参数调试pid，并添加了程序
+修复了电机正反转控制部分代码，现在已能正常控制电机正反转
 
-modification: 2023/7/31 14:54
+modification: 2023/7/31 21:42
 
 modifier: Cameron Bright
 
@@ -362,13 +362,10 @@ void Motor_control(void)
 //	dutyR = positionPID.basicSpeed + err_kp + err_kd; 
 //	dutyL = positionPID.basicSpeed - err_kp - err_kd;
 
-	dutyR = 100; 
-	dutyL = 100;
-	
-	//Motor_FRcontrol(dutyR,dutyL);//pwm值小于0就反转，大于0正转
+	dutyR = 500; 
+	dutyL = -500;
 	
 	Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
-	//Update2_duty(motor_sw);//更新PWM输出
 	
 	
 	
