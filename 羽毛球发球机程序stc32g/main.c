@@ -1,9 +1,9 @@
 /*
-program versions : 2.2
+program versions : 2.3
 
-添加了PID的P和D值的程序，暂未开始调整参数，MPU6050的数据会自己一直加
+添加了按键程序，并尝试只使用偏移量一个参数调试pid，并添加了程序
 
-modification: 2023/7/30 2:26
+modification: 2023/7/31 14:54
 
 modifier: Cameron Bright
 
