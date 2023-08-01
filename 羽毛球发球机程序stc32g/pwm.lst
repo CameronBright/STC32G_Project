@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  pwm                                                                01/08/23  00:10:29  PAGE 1   
+C251 COMPILER V5.60.0,  pwm                                                                01/08/23  13:21:14  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE pwm
@@ -60,17 +60,17 @@ stmt  level    source
    49   1        
    50   1        if(PWMR < 0)
    51   1        {
-   52   2          PWMR = PWMR * -1;
+   52   2          PWMR = -PWMR;
    53   2          MotorR_Reverse();
    54   2        }
    55   1        else 
    56   1          MotorR_Forward();
    57   1          
-C251 COMPILER V5.60.0,  pwm                                                                01/08/23  00:10:29  PAGE 2   
+C251 COMPILER V5.60.0,  pwm                                                                01/08/23  13:21:14  PAGE 2   
 
    58   1        if(PWML < 0)
    59   1        {
-   60   2          PWML = PWML * -1;
+   60   2          PWML = -PWML;
    61   2          MotorL_Reverse();
    62   2        }
    63   1        else 
@@ -88,7 +88,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       244     ------
+  code size            =       240     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

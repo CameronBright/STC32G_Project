@@ -1,9 +1,9 @@
 /*
 program versions : 2.3.1
 
-能控制电机正反转，循迹也大概能运行 但是过弯时电机没有达到一边正转一边反转的效果
+能控制电机正反转，用p值就已经可以完美循迹
 
-modification: 2023/8/1 00:54
+modification: 2023/8/1 14:06
 
 modifier: Cameron Bright
 
@@ -114,8 +114,8 @@ void main()
 	Motor_Init(); //电机初始化
 	
 	//PID参数
-	positionPID.basicSpeed = 300;//基础运动速度
-	positionPID.kp = 400;
+	positionPID.basicSpeed = 500;//基础运动速度
+	positionPID.kp = 300;
 	positionPID.ki = 0;
 	positionPID.kd = 0;
 	
@@ -367,8 +367,8 @@ void Motor_control(void)
 	else 
 	{
 		dutyR = positionPID.basicSpeed;
-	} dutyL = positionPID.basicSpeed;
-	
+		dutyL = positionPID.basicSpeed;
+	}
 
 	
 	Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出

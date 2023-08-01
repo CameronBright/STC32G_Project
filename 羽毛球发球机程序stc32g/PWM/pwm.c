@@ -49,7 +49,7 @@ void Update_duty(uchar sw,int PWMR,int PWML)										//更新占空比函数
 	
 	if(PWMR < 0)
 	{
-		PWMR = PWMR * -1;
+		PWMR = -PWMR;
 		MotorR_Reverse();
 	}
 	else 
@@ -57,7 +57,7 @@ void Update_duty(uchar sw,int PWMR,int PWML)										//更新占空比函数
 		
 	if(PWML < 0)
 	{
-		PWML = PWML * -1;
+		PWML = -PWML;
 		MotorL_Reverse();
 	}
 	else 
