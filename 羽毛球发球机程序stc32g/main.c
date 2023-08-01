@@ -1,9 +1,9 @@
 /*
 program versions : 2.3.1
 
-能控制电机正反转，用p值就已经可以完美循迹
+完美版本，用p值、d值就已经可以丝滑循迹
 
-modification: 2023/8/1 14:06
+modification: 2023/8/1 14:38
 
 modifier: Cameron Bright
 
@@ -100,9 +100,7 @@ void main()
 	OLED_ColorTurn(0);//0正常显示，1 反色显示
 	OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
 	OLED_Clear();//oled清屏
-	
 	Timer1Init();//定时器初始化
-	
 	UartInit();//串口初始化	
 	S1_S0=0;
 	S1_S1=0;//串口1 选择P30 P31	
@@ -114,10 +112,10 @@ void main()
 	Motor_Init(); //电机初始化
 	
 	//PID参数
-	positionPID.basicSpeed = 500;//基础运动速度
-	positionPID.kp = 300;
+	positionPID.basicSpeed = 600;//基础运动速度
+	positionPID.kp = 400;
 	positionPID.ki = 0;
-	positionPID.kd = 0;
+	positionPID.kd = 20;
 	
 	LED = 0;
 
@@ -372,9 +370,6 @@ void Motor_control(void)
 
 	
 	Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
-	
-	
-	
 	old_line_inaccuracy = line_inaccuracy;
 	
 	
