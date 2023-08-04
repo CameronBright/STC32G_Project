@@ -1,0 +1,114 @@
+C251 COMPILER V5.60.0,  Wave                                                               04/08/23  11:01:32  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Wave
+OBJECT MODULE PLACED IN Wave.obj
+COMPILER INVOKED BY: C:\Keil_v5\C251\BIN\C251.EXE Wave\Wave.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE INCDIR(.\OLED;.\timer;
+                    -.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG PRINT(.\Wave.l
+                    -st) TABS(2) OBJECT(Wave.obj) 
+
+stmt  level    source
+
+    1          #include "Wave.h"
+    2          
+    3          unsigned long TF_Count = 0;
+    4          
+    5          unsigned char Wave_flag = 0;
+    6          
+    7          unsigned int Wave_ultrasonic()
+    8          {
+    9   1        unsigned char i = 0;
+   10   1        unsigned long Wave_Distance = 0;
+   11   1      
+   12   1        Tx=1; 
+   13   1        Delay10us();
+   14   1        Delay10us();  
+   15   1        Tx=0;
+   16   1      
+   17   1        
+   18   1        while(!Rx);
+   19   1        TR0=0;  
+   20   1        TH0=0;
+   21   1        TL0=0;
+   22   1        TR0=1;
+   23   1        
+   24   1        while(Rx);
+   25   1        
+   26   1        TR0 = 0;
+   27   1        
+   28   1        Wave_Distance = (unsigned long)(TF_Count * 65534 + (( TH0 << 8) | TL0))* 0.00075;   //24分频 1MHZ
+   29   1        
+   30   1        TH0=0;
+   31   1        TL0=0;
+   32   1        TF_Count = 0;
+   33   1        if(Wave_Distance <= 300)  
+   34   1          return Wave_Distance;
+   35   1        else
+   36   1          return 255;
+   37   1      }
+   38          
+   39          
+   40          
+   41          void Delay10us()    //@24.000MHz
+   42          {
+   43   1        unsigned char data i;
+   44   1      
+   45   1        _nop_();
+   46   1        _nop_();
+   47   1        i = 63;
+   48   1        while (--i);
+   49   1      }
+   50          
+   51          
+   52          
+   53          
+   54          void Timer0Init(void)   //1毫秒@24.000MHz
+   55          {
+   56   1        AUXR |= 0x80;     //定时器时钟1T模式
+   57   1        TMOD &= 0xF0;     //设置定时器模式
+C251 COMPILER V5.60.0,  Wave                                                               04/08/23  11:01:32  PAGE 2   
+
+   58   1        TL0 = 0;    //设置定时初始值
+   59   1        TH0 = 0;    //设置定时初始值
+   60   1        TF0 = 0;    //清除TF0标志
+   61   1        TR0 = 0;    //定时器0停止计时
+   62   1        ET0=1;      //关闭中断
+   63   1      }
+   64          
+   65          
+   66          
+   67          //超声波测距函数
+   68          
+   69          void Wave_proc(void)
+   70          {
+   71   1        if(Wave_ultrasonic() <= 40)
+   72   1        {
+   73   2          Wave_flag = 1;
+   74   2        }
+   75   1      }
+   76            
+   77          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       154     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =         5     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        13     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
