@@ -78,6 +78,7 @@ void Disp_refresh(void);  //数码管显示函数
 void Motor_control(void); //电机控制函数
 void MPU6050_Read(void);  //陀螺仪数据采集
 void Key_Proc(void);
+void Process(void); //流程程序
 
 //*****************按键***********//
 
@@ -104,6 +105,8 @@ unsigned char flag = 0;
 unsigned char flag_count = 0;
 unsigned char Tracking_value = 0;  //循迹值
 
+unsigned char scene = 0;
+
 void main()
 {
 	GPIO_init();//GPIO初始化
@@ -126,19 +129,22 @@ void main()
 	Motor_Init(); //电机初始化
 	
 	//PID参数
-	positionPID.basicSpeed = 600;//基础运动速度
-	positionPID.kp = 400;
+	positionPID.basicSpeed = 0;        //基础运动速度
+	positionPID.kp = 500;
 	positionPID.ki = 0;
-	positionPID.kd = 20;
+	positionPID.kd = 50;
 	
-	PWMB_CCA = 1000; //浮空pwm
+	PWMB_CCA = 1000; //浮空
 	
+	scene = 1;
+		
 	while(1)
 	{
 		Disp_refresh(); //数码管刷新函数
 		MPU6050_Read(); //MPU6050控制函数
 		Motor_control(); //电机控制函数
 		Key_Proc();   //按键处理函数
+		//Process(); //流程控制函数
 	}
 }
 
@@ -161,6 +167,9 @@ void timer1() interrupt 3       //100us中断一次
 		LED ^= 1;
 		sys_led = 0;
 	}
+	
+	if(delay_cnt > 0) //延时函数
+		delay_cnt--;
 } 
 
 void Timer3_Isr(void) interrupt 19   //等待测试 1ms
@@ -194,25 +203,21 @@ void Key_Proc(void)
 	{
 		case 1:
 		PWMB_CCR00 += 50;
-		Update_Pwm0(PWMB_CCR00);
 		if(PWMB_CCR00 > 1000)
 			PWMB_CCR00 = 300;
 		break;
 		case 2:
 		PWMB_CCR01 += 50;	
-		Update_Pwm1(PWMB_CCR01);
 		if(PWMB_CCR01 > 1000)
 			PWMB_CCR01 = 300;
 		break;
 		case 3:
 		PWMB_CCR02 += 50;
-		Update_Pwm2(PWMB_CCR02);
 		if(PWMB_CCR02 > 1000)
 			PWMB_CCR02 = 300;
 		break;
 		case 4:
 		PWMB_CCR03 += 50;
-		Update_Pwm3(PWMB_CCR03);
 		if(PWMB_CCR03 > 1000)
 			PWMB_CCR03 = 300;
 		break;
@@ -228,10 +233,10 @@ void Disp_refresh(void)
 	sprintf(oled_showtext,"Line:%d",line_inaccuracy); //循迹函数返回值
 	OLED_Display_string_5x7(0,0,oled_showtext);
 	
-	sprintf(oled_showtext,"0:%03d 1:%03d",PWMB_CCR00,PWMB_CCR01);
+	sprintf(oled_showtext,"0:%03d 1:%03d ",PWMB_CCR00,PWMB_CCR01);
 	OLED_Display_string_5x7(0,2,oled_showtext);
 	
-	sprintf(oled_showtext,"2:%03d 3:%03d",PWMB_CCR02,PWMB_CCR03);
+	sprintf(oled_showtext,"2:%03d 3:%03d ",PWMB_CCR02,PWMB_CCR03);
 	OLED_Display_string_5x7(0,3,oled_showtext);
 
 	sprintf(oled_showtext,"speed:%d",PWMB_CCA);
@@ -321,37 +326,47 @@ void Motor_control(void)
 	if(motor_delay) return; //延时
 	motor_delay = 1;
 	
-	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
+	line_inaccuracy = ReadLine();//读取循线状态 2、1、0、-1、-2
+	
+	if(line_inaccuracy > 2 || line_inaccuracy < -2)
+	{
+		if(line_inaccuracy == 3)
+			line_inaccuracy = old_position;
+	}
+	else 
+	{
+		old_position = line_inaccuracy;//记录上一次的位置
+	}
 	
 	if(!line_inaccuracy)
 	{
-		PWMB_CCR00 = 0;
+		PWMB_CCR02 = positionPID.basicSpeed;
+		PWMB_CCR00 = PWMB_CCR01 = 0;
+	}
+	else if(line_inaccuracy > 0)
+	{
+		PWMB_CCR00 = (positionPID.kp * line_inaccuracy) + (positionPID.kd * old_line_inaccuracy);
 		PWMB_CCR01 = 0;
 		
-		PWMB_CCR02 = 0;
 	}
-	if(line_inaccuracy == 1 || line_inaccuracy == 2)
+	else if(line_inaccuracy < 0)
 	{
-		PWMB_CCR00 = 1000;
-		PWMB_CCR01 = 0;
-		
-		PWMB_CCR02 = 0;
-	}
-	else if(line_inaccuracy == -1 || line_inaccuracy == -2)
-	{
-		PWMB_CCR01 = 1000;
+		PWMB_CCR01 = (positionPID.kp * -line_inaccuracy) - (positionPID.kd * old_line_inaccuracy) - 100;
 		PWMB_CCR00 = 0;
-		
-		PWMB_CCR02 = 0;
 	}
-	
-//	Update_Pwm0(PWMB_CCR00);
-//	Update_Pwm1(PWMB_CCR01);
-//	
-//	Update_Pwm2(PWMB_CCR02);
-//	
-//	Update_Pwm4(PWMB_CCA);
 	
 	Update_PWM(PWMB_CCR00,PWMB_CCR01,PWMB_CCR02,PWMB_CCR03,PWMB_CCA);
+	old_line_inaccuracy = line_inaccuracy;
+}
+
+void Process(void)
+{
+	
+	if(scene == 1)
+	{
+		PWMB_CCA = 1000;
+		sys_delay(30000);
+
+	}
 }
 

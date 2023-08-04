@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  MPU6050                                                            04/08/23  23:43:56  PAGE 1   
+C251 COMPILER V5.60.0,  MPU6050                                                            05/08/23  05:04:32  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE MPU6050
@@ -66,7 +66,7 @@ stmt  level    source
    55   1          Delay2us();                 //延时
    56   1          SDA = 0;                    //拉低数据线
    57   1          SCL = 1;                    //拉高时钟线
-C251 COMPILER V5.60.0,  MPU6050                                                            04/08/23  23:43:56  PAGE 2   
+C251 COMPILER V5.60.0,  MPU6050                                                            05/08/23  05:04:32  PAGE 2   
 
    58   1        Delay2us();                 //延时
    59   1          SDA = 1;                    //产生上升沿
@@ -134,7 +134,7 @@ stmt  level    source
   121   1          I2C_Start();                  //起始信号
   122   1          I2C_SendByte(SlaveAddress);   //发送设备地址+写信号
   123   1          I2C_SendByte(REG_Address);    //内部寄存器地址，
-C251 COMPILER V5.60.0,  MPU6050                                                            04/08/23  23:43:56  PAGE 3   
+C251 COMPILER V5.60.0,  MPU6050                                                            05/08/23  05:04:32  PAGE 3   
 
   124   1          I2C_SendByte(REG_data);       //内部寄存器数据，
   125   1          I2C_Stop();                   //发送停止信号
@@ -202,7 +202,7 @@ stmt  level    source
   186   1        Single_WriteI2C(GYRO_CONFIG, 0x08); //陀螺仪500度/S 65.5LSB/g
   187   1        Single_WriteI2C(ACCEL_CONFIG, 0x08);//加速度+-4g  8192LSB/g
   188   1      }
-C251 COMPILER V5.60.0,  MPU6050                                                            04/08/23  23:43:56  PAGE 4   
+C251 COMPILER V5.60.0,  MPU6050                                                            05/08/23  05:04:32  PAGE 4   
 
   189          
   190          //**************************************

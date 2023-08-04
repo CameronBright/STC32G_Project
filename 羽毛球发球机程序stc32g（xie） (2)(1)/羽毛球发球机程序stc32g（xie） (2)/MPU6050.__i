@@ -1,0 +1,1 @@
+"MPU6050\MPU6050.c" XSMALL INTR2 BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG PRINT(.\MPU6050.lst) TABS (2) OBJECT(MPU6050.obj)
