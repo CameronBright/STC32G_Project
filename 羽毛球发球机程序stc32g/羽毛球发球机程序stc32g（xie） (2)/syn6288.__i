@@ -1,1 +1,0 @@
-"SYN6288\syn6288.c" XSMALL INTR2 WARNINGLEVEL (1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG PRINT(.\syn6288.lst) TABS (2) OBJECT(syn6288.obj)
