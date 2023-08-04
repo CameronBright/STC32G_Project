@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 1   
+C251 COMPILER V5.60.0,  oled                                                               05/08/23  06:02:02  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE oled
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        OLED_WR_Byte(0x10,OLED_CMD);//关闭电荷泵
    56   1        OLED_WR_Byte(0xAE,OLED_CMD);//关闭屏幕
    57   1      }
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 2   
+C251 COMPILER V5.60.0,  oled                                                               05/08/23  06:02:02  PAGE 2   
 
    58          
    59          
@@ -134,7 +134,7 @@ stmt  level    source
   119   1      }
   120          //设置起始地址
   121          void OLED_address(uchar x,uchar y)
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 3   
+C251 COMPILER V5.60.0,  oled                                                               05/08/23  06:02:02  PAGE 3   
 
   122          {
   123   1        x+=2;
@@ -202,7 +202,7 @@ stmt  level    source
   184   2          dp++;
   185   2        }
   186   1      }
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 4   
+C251 COMPILER V5.60.0,  oled                                                               05/08/23  06:02:02  PAGE 4   
 
   187          
   188          //送指令到晶联讯字库IC
@@ -270,7 +270,7 @@ stmt  level    source
   249   1        uchar addrHigh,addrMid,addrLow;
   250   1        uchar fontbuf[32];
   251   1        while(text[i]>0x00)
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 5   
+C251 COMPILER V5.60.0,  oled                                                               05/08/23  06:02:02  PAGE 5   
 
   252   1        {
   253   2          if((text[i]>=0xb0)&&(text[i]<=0xf7)&&(text[i+1]>=0xa1))
@@ -338,7 +338,7 @@ stmt  level    source
   315   1        {
   316   2          if((text[i]>=0x20)&&(text[i]<=0x7e))
   317   2          {
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 6   
+C251 COMPILER V5.60.0,  oled                                                               05/08/23  06:02:02  PAGE 6   
 
   318   3            uchar fontbuf[8];
   319   3            fontaddr=(text[i]-0x20);
@@ -406,7 +406,7 @@ stmt  level    source
   380   1        OLED_WR_Byte(0x40,OLED_CMD); /*set display start line*/ 
   381   1        OLED_WR_Byte(0xB0,OLED_CMD); /*set page address*/
   382   1        OLED_WR_Byte(0x81,OLED_CMD); /*contract control*/ 
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 7   
+C251 COMPILER V5.60.0,  oled                                                               05/08/23  06:02:02  PAGE 7   
 
   383   1        OLED_WR_Byte(0xcf,OLED_CMD); /*128*/ 
   384   1        OLED_WR_Byte(0xA1,OLED_CMD); /*set segment remap*/ 

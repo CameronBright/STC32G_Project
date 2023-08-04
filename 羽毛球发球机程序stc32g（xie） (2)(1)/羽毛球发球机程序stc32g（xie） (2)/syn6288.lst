@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  syn6288                                                            04/08/23  23:43:57  PAGE 1   
+C251 COMPILER V5.60.0,  syn6288                                                            05/08/23  06:02:03  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE syn6288
@@ -66,7 +66,7 @@ stmt  level    source
    54          * 说    明：本函数用于配置，停止合成、暂停合成等设置 ，默认波特率9600bps。
    55          * 调用方法：通过调用已经定义的相关数组进行配置。
    56          **********************************************************/
-C251 COMPILER V5.60.0,  syn6288                                                            04/08/23  23:43:57  PAGE 2   
+C251 COMPILER V5.60.0,  syn6288                                                            05/08/23  06:02:03  PAGE 2   
 
    57          void YS_SYN_Set(uchar *Info_data)
    58          {

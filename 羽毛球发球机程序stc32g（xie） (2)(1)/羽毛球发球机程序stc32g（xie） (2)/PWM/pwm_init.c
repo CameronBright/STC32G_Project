@@ -172,6 +172,17 @@ void Update_Pwm4(unsigned int Duty4)
 
 void Update_PWM(int pwm0,int pwm1,int pwm2,int pwm3,int pwm4)
 {
+	if(pwm0 > 1000)
+		pwm0 = 1000;
+	if(pwm1 > 1000)
+		pwm1 = 1000;
+	if(pwm2 > 1000)
+		pwm2 = 1000;
+	if(pwm3 > 1000)
+		pwm3 = 1000;
+	if(pwm4 > 1000)
+		pwm4 = 1000;
+	
 	Update_Pwm0(pwm0);
 	Update_Pwm1(pwm1);
 	Update_Pwm2(pwm2);

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Wave                                                               04/08/23  23:43:56  PAGE 1   
+C251 COMPILER V5.60.0,  Wave                                                               05/08/23  06:02:03  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Wave
@@ -66,7 +66,7 @@ stmt  level    source
    55          {
    56   1        AUXR |= 0x80;     //定时器时钟1T模式
    57   1        TMOD &= 0xF0;     //设置定时器模式
-C251 COMPILER V5.60.0,  Wave                                                               04/08/23  23:43:56  PAGE 2   
+C251 COMPILER V5.60.0,  Wave                                                               05/08/23  06:02:03  PAGE 2   
 
    58   1        TL0 = 0;    //设置定时初始值
    59   1        TH0 = 0;    //设置定时初始值

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Uart                                                               04/08/23  23:43:56  PAGE 1   
+C251 COMPILER V5.60.0,  Uart                                                               05/08/23  06:02:02  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Uart
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        while(!S2TI);
    56   1        S2TI = 0;
    57   1      }
-C251 COMPILER V5.60.0,  Uart                                                               04/08/23  23:43:56  PAGE 2   
+C251 COMPILER V5.60.0,  Uart                                                               05/08/23  06:02:02  PAGE 2   
 
    58          
    59          void Uart2_String(uchar *p)    //´®¿Ú·¢ËÍ×Ö·û´®
@@ -135,7 +135,7 @@ Module Information          Static   Overlayable
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
   edata size           =    ------          2
-C251 COMPILER V5.60.0,  Uart                                                               04/08/23  23:43:56  PAGE 3   
+C251 COMPILER V5.60.0,  Uart                                                               05/08/23  06:02:02  PAGE 3   
 
   bit size             =    ------     ------
   ebit size            =    ------     ------

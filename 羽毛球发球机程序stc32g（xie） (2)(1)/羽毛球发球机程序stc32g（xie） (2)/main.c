@@ -78,7 +78,6 @@ void Disp_refresh(void);  //数码管显示函数
 void Motor_control(void); //电机控制函数
 void MPU6050_Read(void);  //陀螺仪数据采集
 void Key_Proc(void);
-void Process(void); //流程程序
 
 //*****************按键***********//
 
@@ -105,7 +104,10 @@ unsigned char flag = 0;
 unsigned char flag_count = 0;
 unsigned char Tracking_value = 0;  //循迹值
 
+//*******流程*****//
 unsigned char scene = 0;
+bit wait_sw;
+unsigned int wait_tick = 0;
 
 void main()
 {
@@ -130,7 +132,7 @@ void main()
 	
 	//PID参数
 	positionPID.basicSpeed = 0;        //基础运动速度
-	positionPID.kp = 500;
+	positionPID.kp = 600;
 	positionPID.ki = 0;
 	positionPID.kd = 50;
 	
@@ -170,6 +172,7 @@ void timer1() interrupt 3       //100us中断一次
 	
 	if(delay_cnt > 0) //延时函数
 		delay_cnt--;
+	
 } 
 
 void Timer3_Isr(void) interrupt 19   //等待测试 1ms
@@ -326,6 +329,14 @@ void Motor_control(void)
 	if(motor_delay) return; //延时
 	motor_delay = 1;
 	
+	if(scene == 1)
+	{
+		positionPID.basicSpeed = 0;
+		sys_delay(60000);
+		positionPID.basicSpeed = 600;
+		scene = 0;
+	}
+		
 	line_inaccuracy = ReadLine();//读取循线状态 2、1、0、-1、-2
 	
 	if(line_inaccuracy > 2 || line_inaccuracy < -2)
@@ -351,22 +362,11 @@ void Motor_control(void)
 	}
 	else if(line_inaccuracy < 0)
 	{
-		PWMB_CCR01 = (positionPID.kp * -line_inaccuracy) - (positionPID.kd * old_line_inaccuracy) - 100;
+		PWMB_CCR01 = (positionPID.kp * -line_inaccuracy) + (positionPID.kd * -old_line_inaccuracy)+200;
 		PWMB_CCR00 = 0;
 	}
 	
 	Update_PWM(PWMB_CCR00,PWMB_CCR01,PWMB_CCR02,PWMB_CCR03,PWMB_CCA);
 	old_line_inaccuracy = line_inaccuracy;
-}
-
-void Process(void)
-{
-	
-	if(scene == 1)
-	{
-		PWMB_CCA = 1000;
-		sys_delay(30000);
-
-	}
 }
 

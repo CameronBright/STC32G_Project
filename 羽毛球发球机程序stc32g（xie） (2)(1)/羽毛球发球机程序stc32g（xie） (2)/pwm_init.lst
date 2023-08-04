@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  23:43:56  PAGE 1   
+C251 COMPILER V5.60.0,  pwm_init                                                           05/08/23  06:06:32  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE pwm_init
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        PWMA_CR1 = 0x01;                    // 启动PWM定时器  
    56   1        
    57   1        
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  23:43:56  PAGE 2   
+C251 COMPILER V5.60.0,  pwm_init                                                           05/08/23  06:06:32  PAGE 2   
 
    58   1        //PWMB
    59   1        PWMB_PS = 0xAA;                   //PWMB:P00 P01 P02 P03
@@ -134,7 +134,7 @@ stmt  level    source
   121   1      }
   122          //更新PWM 1
   123          void Update_Pwm1(unsigned int Duty1)
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  23:43:56  PAGE 3   
+C251 COMPILER V5.60.0,  pwm_init                                                           05/08/23  06:06:32  PAGE 3   
 
   124          {
   125   1        PWMB_CCR6H = (uint)(Duty1 >> 8); // 设置CC6占空比时间 占空比2.5%
@@ -187,24 +187,35 @@ stmt  level    source
   172          
   173          void Update_PWM(int pwm0,int pwm1,int pwm2,int pwm3,int pwm4)
   174          {
-  175   1        Update_Pwm0(pwm0);
-  176   1        Update_Pwm1(pwm1);
-  177   1        Update_Pwm2(pwm2);
-  178   1        Update_Pwm3(pwm3);
-  179   1        
-  180   1        Update_Pwm4(pwm4);
-  181   1      }
-  182            
-  183          
+  175   1        if(pwm0 > 1000)
+  176   1          pwm0 = 1000;
+  177   1        if(pwm1 > 1000)
+  178   1          pwm1 = 1000;
+  179   1        if(pwm2 > 1000)
+  180   1          pwm2 = 1000;
+  181   1        if(pwm3 > 1000)
+  182   1          pwm3 = 1000;
+  183   1        if(pwm4 > 1000)
+  184   1          pwm4 = 1000;
+  185   1        
+  186   1        Update_Pwm0(pwm0);
+  187   1        Update_Pwm1(pwm1);
+  188   1        Update_Pwm2(pwm2);
+  189   1        Update_Pwm3(pwm3);
+C251 COMPILER V5.60.0,  pwm_init                                                           05/08/23  06:06:32  PAGE 4   
+
+  190   1        
+  191   1        Update_Pwm4(pwm4);
+  192   1      }
+  193            
+  194          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       547     ------
+  code size            =       617     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  23:43:56  PAGE 4   
-
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
