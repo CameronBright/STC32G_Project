@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  20:55:20  PAGE 1   
+C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  23:43:56  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE pwm_init
 OBJECT MODULE PLACED IN pwm_init.obj
-COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE PWM\pwm_init.c XSMALL INTR2 WARNINGLEVEL(1) B
-                    -ROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\S
-                    -YN6288) DEBUG PRINT(.\pwm_init.lst) TABS(2) OBJECT(pwm_init.obj) 
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE PWM\pwm_init.c XSMALL INTR2 BROWSE INCDIR(.\O
+                    -LED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG PR
+                    -INT(.\pwm_init.lst) TABS(2) OBJECT(pwm_init.obj) 
 
 stmt  level    source
 
@@ -19,10 +19,10 @@ stmt  level    source
     8          extern int Forwar_dmoto1  = 0;//前
     9          extern int Backward_moto2 = 0;//后
    10          
-   11          unsigned int PWMB_CCR5 = 300;  //P00
-   12          unsigned int PWMB_CCR6 = 300;  //P01
-   13          unsigned int PWMB_CCR7 = 300;  //P0
-   14          unsigned int PWMB_CCR8 = 300;  //P03
+   11          unsigned int PWMB_CCR00 = 0;  //P00
+   12          unsigned int PWMB_CCR01 = 0;  //P01
+   13          unsigned int PWMB_CCR02 = 0;  //P0
+   14          unsigned int PWMB_CCR03 = 0;  //P03
    15          
    16          unsigned int PWMB_CCA = 0;
    17          
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        PWMA_CR1 = 0x01;                    // 启动PWM定时器  
    56   1        
    57   1        
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  20:55:20  PAGE 2   
+C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  23:43:56  PAGE 2   
 
    58   1        //PWMB
    59   1        PWMB_PS = 0xAA;                   //PWMB:P00 P01 P02 P03
@@ -86,17 +86,17 @@ stmt  level    source
    73   1        PWMB_CCER2 = 0x33; // 使能 CC3 CC4通道
    74   1        
    75   1        
-   76   1        PWMB_CCR5H = (uint)(PWMB_CCR5 >> 8); // 设置CC5占空比时间 占空比2.5%
-   77   1        PWMB_CCR5L = (uint)(PWMB_CCR5); 
+   76   1        PWMB_CCR5H = (uint)(PWMB_CCR00 >> 8); // 设置CC5占空比时间 占空比2.5%
+   77   1        PWMB_CCR5L = (uint)(PWMB_CCR00); 
    78   1        
-   79   1        PWMB_CCR6H = (uint)(PWMB_CCR6 >> 8); // 设置CC6占空比时间 占空比2.5%
-   80   1        PWMB_CCR6L = (uint)(PWMB_CCR6); 
+   79   1        PWMB_CCR6H = (uint)(PWMB_CCR01 >> 8); // 设置CC6占空比时间 占空比2.5%
+   80   1        PWMB_CCR6L = (uint)(PWMB_CCR01); 
    81   1      
-   82   1        PWMB_CCR7H = (uint)(PWMB_CCR7 >> 8); // 设置CC7占空比时间 占空比2.5%
-   83   1        PWMB_CCR7L = (uint)(PWMB_CCR7); 
+   82   1        PWMB_CCR7H = (uint)(PWMB_CCR02 >> 8); // 设置CC7占空比时间 占空比2.5%
+   83   1        PWMB_CCR7L = (uint)(PWMB_CCR02); 
    84   1        
-   85   1        PWMB_CCR8H = (uint)(PWMB_CCR8 >> 8); // 设置CC8占空比时间 占空比2.5%
-   86   1        PWMB_CCR8L = (uint)(PWMB_CCR8); 
+   85   1        PWMB_CCR8H = (uint)(PWMB_CCR03 >> 8); // 设置CC8占空比时间 占空比2.5%
+   86   1        PWMB_CCR8L = (uint)(PWMB_CCR03); 
    87   1        
    88   1      
    89   1        PWMB_ARRH = (uint)(PWM_PERIOD >> 8); // 设置PWMA周期20毫秒
@@ -108,191 +108,108 @@ stmt  level    source
    95   1        PWMB_CR1 = 0x01;                    // 启动PWM定时器    
    96   1      }
    97          
-   98          
-   99          //更新PWMB 5
-  100          void Update_5(unsigned int Duty1)
-  101          {
-  102   1        PWMB_CCR5H = (uint)(Duty1 >> 8); // 设置CC5占空比时间 占空比2.5%
-  103   1        PWMB_CCR5L = (uint)(Duty1); 
-  104   1      }
-  105          //更新PWMB 6
-  106          void Update_6(unsigned int Duty2)
-  107          {
-  108   1        PWMB_CCR6H = (uint)(Duty2 >> 8); // 设置CC6占空比时间 占空比2.5%
-  109   1        PWMB_CCR6L = (uint)(Duty2);   
-  110   1      }
-  111          //更新PWMB 7
-  112          void Update_7(unsigned int Duty3)
-  113          {
-  114   1        PWMB_CCR7H = (uint)(Duty3 >> 8); // 设置CC7占空比时间 占空比2.5%
-  115   1        PWMB_CCR7L = (uint)(Duty3);   
-  116   1      }
-  117          //更新PWMB 8
-  118          void Update_8(unsigned int Duty4)
-  119          {
-  120   1        PWMB_CCR8H = (uint)(Duty4 >> 8); // 设置CC8占空比时间 占空比2.5%
-  121   1        PWMB_CCR8L = (uint)(Duty4);   
-  122   1      }
-  123          
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  20:55:20  PAGE 3   
+   98          /**************************************************************************
+   99          函数功能：限制PWM赋值 
+  100          入口参数：无
+  101          返回  值：无
+  102          **************************************************************************/
+  103          //void Xianfu_Pwm(void)
+  104          //{
+  105          //   //===PWM满幅是100 限制在95
+  106          //    if(Left_moto1<-950 ) Left_moto1=-950 ;
+  107          //    if(Left_moto1>950 )  Left_moto1=950 ;
+  108          //    if(Right_moto2<-950 ) Right_moto2=-950 ;
+  109          //    if(Right_moto2>950 )  Right_moto2=950 ;
+  110          //    if(Forwar_dmoto1<-950 ) Forwar_dmoto1=-950 ;
+  111          //    if(Forwar_dmoto1>950 )  Forwar_dmoto1=950 ;
+  112          //    if(Backward_moto2<-950 ) Backward_moto2=-950 ;
+  113          //    if(Backward_moto2>950 )  Backward_moto2=950 ;
+  114          //}
+  115          
+  116          //更新PWM 0
+  117          void Update_Pwm0(unsigned int Duty0)
+  118          {
+  119   1        PWMB_CCR5H = (uint)(Duty0 >> 8); // 设置CC5占空比时间 占空比2.5%
+  120   1        PWMB_CCR5L = (uint)(Duty0); 
+  121   1      }
+  122          //更新PWM 1
+  123          void Update_Pwm1(unsigned int Duty1)
+C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  23:43:56  PAGE 3   
 
-  124          /**************************************************************************
-  125          函数功能：绝对值函数
-  126          入口参数：int
-  127          返回  值：unsigned int
-  128          目    的：对PWM进行绝对值处理
-  129          **************************************************************************/
-  130          int myabs(int a)
-  131          {        
-  132   1          int temp;
-  133   1          if(a<0)  temp=-a;  
-  134   1          else temp=a;
-  135   1          return temp;
-  136   1      }
-  137          
-  138          /**************************************************************************
-  139          函数功能：限制PWM赋值 
-  140          入口参数：无
-  141          返回  值：无
-  142          **************************************************************************/
-  143          void Xianfu_Pwm(void)
-  144          {
-  145   1         //===PWM满幅是100 限制在95
-  146   1          if(Left_moto1<-950 ) Left_moto1=-950 ;
-  147   1          if(Left_moto1>950 )  Left_moto1=950 ;
-  148   1          if(Right_moto2<-950 ) Right_moto2=-950 ;
-  149   1          if(Right_moto2>950 )  Right_moto2=950 ;
-  150   1          if(Forwar_dmoto1<-950 ) Forwar_dmoto1=-950 ;
-  151   1          if(Forwar_dmoto1>950 )  Forwar_dmoto1=950 ;
-  152   1          if(Backward_moto2<-950 ) Backward_moto2=-950 ;
-  153   1          if(Backward_moto2>950 )  Backward_moto2=950 ;
-  154   1      }
-  155          
-  156          /**************************************************************************
-  157          函数功能：检测异常关闭电机
-  158          入口参数：检测异常参数
-  159          返回  值：无
-  160          **************************************************************************/
-  161          //void Turn_Off(float angle)
-  162          //{
-  163          //    if(angle<-40||angle>40)  //电池电压低于11.1V关闭电机
-  164          //    {                                    //===倾角大于40度关闭电机                                       
-  165          //        moto1=0;
-  166          //        moto2=0;
-  167          //    }   
-  168          //}
-  169          
-  170          /**************************************************************************
-  171          函数功能：赋值给PWM寄存器
-  172          入口参数：左轮PWM、右轮PWM
-  173          返回  值：无
-  174          **************************************************************************/
-  175          
-  176          void Set_LRPwm(int Left_moto1,int Right_moto2)    //更新左右风机占空比
-  177          {
-  178   1        
+  124          {
+  125   1        PWMB_CCR6H = (uint)(Duty1 >> 8); // 设置CC6占空比时间 占空比2.5%
+  126   1        PWMB_CCR6L = (uint)(Duty1);   
+  127   1      }
+  128          //更新PWM 2
+  129          void Update_Pwm2(unsigned int Duty2)
+  130          {
+  131   1        PWMB_CCR7H = (uint)(Duty2 >> 8); // 设置CC7占空比时间 占空比2.5%
+  132   1        PWMB_CCR7L = (uint)(Duty2);   
+  133   1      }
+  134          //更新PWM 3
+  135          void Update_Pwm3(unsigned int Duty3)
+  136          {
+  137   1        PWMB_CCR8H = (uint)(Duty3 >> 8); // 设置CC8占空比时间 占空比2.5%
+  138   1        PWMB_CCR8L = (uint)(Duty3);   
+  139   1      }
+  140          //更新PWM 4 (往下吹风的电机)
+  141          void Update_Pwm4(unsigned int Duty4)
+  142          {
+  143   1        PWMA_CCR3H = (uint)(Duty4 >> 8); // 设置CC3占空比时间 占空比2.5%
+  144   1        PWMA_CCR3L = (uint)(Duty4); 
+  145   1      }
+  146          
+  147          //void Set_FBPwm(int Forwar_dmoto1,int Backward_moto2)    //更新前后风机占空比
+  148          //{
+  149          //  
+  150          //  
+  151          //  if(Forwar_dmoto1<0)   
+  152          //  CIN2=1,     CIN1=0;  //如果小于零就是反转  先变换电平  motol
+  153          //  else
+  154          //  CIN2=0,     CIN1=1;
+  155          //  
+  156          //  
+  157          //  PWMA_CCR3H = (myabs(Forwar_dmoto1) >> 8);  
+  158          //  PWMA_CCR3L = (myabs(Forwar_dmoto1));
+  159          
+  160          //  
+  161          //  if(Forwar_dmoto1<0)   
+  162          //  DIN1=0,     DIN2=1;
+  163          //  
+  164          //  else
+  165          //  DIN1=1,     DIN2=0;
+  166          //  
+  167          //  PWMA_CCR4H = (myabs(Backward_moto2)>> 8);  
+  168          //  PWMA_CCR4L = (myabs(Backward_moto2));
+  169          //  
+  170          //  
+  171          //}
+  172          
+  173          void Update_PWM(int pwm0,int pwm1,int pwm2,int pwm3,int pwm4)
+  174          {
+  175   1        Update_Pwm0(pwm0);
+  176   1        Update_Pwm1(pwm1);
+  177   1        Update_Pwm2(pwm2);
+  178   1        Update_Pwm3(pwm3);
   179   1        
-  180   1        if(Left_moto1<0)    
-  181   1        AIN2=1,     AIN1=0;  //如果小于零就是反转  先变换电平  motol
-  182   1        else
-  183   1        AIN2=0,     AIN1=1;
-  184   1        
-  185   1        
-  186   1        PWMA_CCR1H = (myabs(Left_moto1) >> 8);  
-  187   1        PWMA_CCR1L = (myabs(Left_moto1));
-  188   1      
-  189   1        
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  20:55:20  PAGE 4   
-
-  190   1        if(Right_moto2<0)   
-  191   1        BIN1=0,     BIN2=1;
-  192   1        
-  193   1        else
-  194   1        BIN1=1,     BIN2=0;
-  195   1        
-  196   1        PWMA_CCR2H = (myabs(Right_moto2)>> 8);  
-  197   1        PWMA_CCR2L = (myabs(Right_moto2));
-  198   1        
-  199   1        
-  200   1      }
-  201          
-  202          void Set_FBPwm(int Forwar_dmoto1,int Backward_moto2)    //更新前后风机占空比
-  203          {
-  204   1        
-  205   1        
-  206   1        if(Forwar_dmoto1<0)   
-  207   1        CIN2=1,     CIN1=0;  //如果小于零就是反转  先变换电平  motol
-  208   1        else
-  209   1        CIN2=0,     CIN1=1;
-  210   1        
-  211   1        
-  212   1        PWMA_CCR3H = (myabs(Forwar_dmoto1) >> 8);  
-  213   1        PWMA_CCR3L = (myabs(Forwar_dmoto1));
-  214   1      
-  215   1        
-  216   1        if(Forwar_dmoto1<0)   
-  217   1        DIN1=0,     DIN2=1;
-  218   1        
-  219   1        else
-  220   1        DIN1=1,     DIN2=0;
-  221   1        
-  222   1        PWMA_CCR4H = (myabs(Backward_moto2)>> 8);  
-  223   1        PWMA_CCR4L = (myabs(Backward_moto2));
-  224   1        
-  225   1        
-  226   1      }
-  227          
-  228          void Update_duty(uchar sw,int PWMR,int PWML)                    //更新占空比函数
-  229          {
-  230   1        
-  231   1        if(!sw)
-  232   1        {
-  233   2          PWML = 0;
-  234   2          PWMR = 0;
-  235   2        }
-  236   1        
-  237   1        if(PWMR < 0)
-  238   1        {
-  239   2          PWMR = -PWMR;
-  240   2          MotorR_Reverse();
-*** WARNING C140 IN LINE 240 OF PWM\pwm_init.c: 'MotorR_Reverse' undefined; assuming 'extern int MotorR_Reverse()'
-  241   2        }
-  242   1        else 
-  243   1          MotorR_Forward();
-*** WARNING C140 IN LINE 243 OF PWM\pwm_init.c: 'MotorR_Forward' undefined; assuming 'extern int MotorR_Forward()'
-  244   1          
-  245   1        if(PWML < 0)
-  246   1        {
-  247   2          PWML = -PWML;
-  248   2          MotorL_Reverse();
-*** WARNING C140 IN LINE 248 OF PWM\pwm_init.c: 'MotorL_Reverse' undefined; assuming 'extern int MotorL_Reverse()'
-  249   2        }
-  250   1        else 
-  251   1          MotorL_Forward();
-*** WARNING C140 IN LINE 251 OF PWM\pwm_init.c: 'MotorL_Forward' undefined; assuming 'extern int MotorL_Forward()'
-C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  20:55:20  PAGE 5   
-
-  252   1          
-  253   1        
-  254   1        PWMA_CCR1H  = (uchar)(PWML >> 8);  
-  255   1        PWMA_CCR1L = PWML;                //调整占空比
-  256   1          
-  257   1        PWMA_CCR2H = (uchar)(PWMR >> 8); 
-  258   1        PWMA_CCR2L = PWMR;  
-  259   1      }
-  260          
+  180   1        Update_Pwm4(pwm4);
+  181   1      }
+  182            
+  183          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       969     ------
+  code size            =       547     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
+C251 COMPILER V5.60.0,  pwm_init                                                           04/08/23  23:43:56  PAGE 4   
+
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =        22     ------
+  edata size           =        22          4
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
@@ -304,4 +221,4 @@ Module Information          Static   Overlayable
 End of Module Information.
 
 
-C251 COMPILATION COMPLETE.  4 WARNING(S),  0 ERROR(S)
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -23,6 +23,7 @@ Project File Date:  08/04/2023
 
 <h2>Output:</h2>
 Build target 'Target 1'
+compiling main.c...
 linking...
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
     NAME:    OLED_Clear_0_2/oled
@@ -47,13 +48,11 @@ linking...
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
     NAME:    Uart3_Init/Uart
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
-    NAME:    Xianfu_Pwm/pwm_init
-*** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
-    NAME:    Set_FBPwm/pwm_init
-*** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
-    NAME:    Set_LRPwm/pwm_init
-*** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
     NAME:    Motor_FRcontrol/motor
+*** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    MotorL_Reverse/motor
+*** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
+    NAME:    MotorR_Reverse/motor
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
     NAME:    Wave_ultrasonic/Wave
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
@@ -62,26 +61,10 @@ linking...
     NAME:    YS_SYN_Set/syn6288
 *** WARNING L57: UNCALLED FUNCTION, IGNORED FOR OVERLAY PROCESS
     NAME:    SYN_FrameInfo/syn6288
-*** WARNING L25: DATA TYPES DIFFERENT
-    SYMBOL:  MotorL_Forward
-    MODULE:  pwm_init.obj (pwm_init)
-   DEFINED:  motor.obj (motor)
-*** WARNING L25: DATA TYPES DIFFERENT
-    SYMBOL:  MotorR_Forward
-    MODULE:  pwm_init.obj (pwm_init)
-   DEFINED:  motor.obj (motor)
-*** WARNING L25: DATA TYPES DIFFERENT
-    SYMBOL:  MotorL_Reverse
-    MODULE:  pwm_init.obj (pwm_init)
-   DEFINED:  motor.obj (motor)
-*** WARNING L25: DATA TYPES DIFFERENT
-    SYMBOL:  MotorR_Reverse
-    MODULE:  pwm_init.obj (pwm_init)
-   DEFINED:  motor.obj (motor)
-Program Size: data=8.0 edata+hdata=666 xdata=0 const=400 code=7691
+Program Size: data=8.0 edata+hdata=666 xdata=0 const=400 code=7189
 creating hex file from "LED"...
-"LED" - 0 Error(s), 23 Warning(s).
-Build Time Elapsed:  00:00:01
+"LED" - 0 Error(s), 18 Warning(s).
+Build Time Elapsed:  00:00:00
 </pre>
 </body>
 </html>

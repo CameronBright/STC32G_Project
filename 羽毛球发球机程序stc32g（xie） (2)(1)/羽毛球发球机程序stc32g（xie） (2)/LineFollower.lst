@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  21:23:38  PAGE 1   
+C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  23:43:56  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollower
 OBJECT MODULE PLACED IN LineFollower.obj
-COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE LineFollower\LineFollower.c XSMALL INTR2 WARN
-                    -INGLEVEL(1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wa
-                    -ve;.\Uart;.\SYN6288) DEBUG PRINT(.\LineFollower.lst) TABS(2) OBJECT(LineFollower.obj) 
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE LineFollower\LineFollower.c XSMALL INTR2 BROW
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6
+                    -288) DEBUG PRINT(.\LineFollower.lst) TABS(2) OBJECT(LineFollower.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   2              break;
    56   2            case 0x02:           //往左边偏一点点
    57   2              return_value = -1;
-C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  21:23:38  PAGE 2   
+C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  23:43:56  PAGE 2   
 
    58   2              break;
    59   2            case 0x0C:           //往右边偏一点点
@@ -134,7 +134,7 @@ stmt  level    source
   121          
   122          ////功能3
   123          //void T_S_B_2_ReadLine(void)
-C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  21:23:38  PAGE 3   
+C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  23:43:56  PAGE 3   
 
   124          //{
   125          
@@ -203,7 +203,7 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =       218     ------
-C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  21:23:38  PAGE 4   
+C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  23:43:56  PAGE 4   
 
   ecode size           =    ------     ------
   data size            =    ------     ------

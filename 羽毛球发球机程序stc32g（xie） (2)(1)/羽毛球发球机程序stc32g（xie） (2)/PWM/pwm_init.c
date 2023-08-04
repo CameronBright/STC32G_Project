@@ -8,10 +8,10 @@ extern int Right_moto2    = 0;//右
 extern int Forwar_dmoto1  = 0;//前
 extern int Backward_moto2 = 0;//后
 
-unsigned int PWMB_CCR5 = 300;  //P00
-unsigned int PWMB_CCR6 = 300;  //P01
-unsigned int PWMB_CCR7 = 300;  //P0
-unsigned int PWMB_CCR8 = 300;  //P03
+unsigned int PWMB_CCR00 = 0;  //P00
+unsigned int PWMB_CCR01 = 0;  //P01
+unsigned int PWMB_CCR02 = 0;  //P0
+unsigned int PWMB_CCR03 = 0;  //P03
 
 unsigned int PWMB_CCA = 0;
 
@@ -73,17 +73,17 @@ void PWM_Config(void)
 	PWMB_CCER2 = 0x33; // 使能 CC3 CC4通道
 	
 	
-	PWMB_CCR5H = (uint)(PWMB_CCR5 >> 8); // 设置CC5占空比时间 占空比2.5%
-	PWMB_CCR5L = (uint)(PWMB_CCR5); 
+	PWMB_CCR5H = (uint)(PWMB_CCR00 >> 8); // 设置CC5占空比时间 占空比2.5%
+	PWMB_CCR5L = (uint)(PWMB_CCR00); 
 	
-	PWMB_CCR6H = (uint)(PWMB_CCR6 >> 8); // 设置CC6占空比时间 占空比2.5%
-	PWMB_CCR6L = (uint)(PWMB_CCR6); 
+	PWMB_CCR6H = (uint)(PWMB_CCR01 >> 8); // 设置CC6占空比时间 占空比2.5%
+	PWMB_CCR6L = (uint)(PWMB_CCR01); 
 
-	PWMB_CCR7H = (uint)(PWMB_CCR7 >> 8); // 设置CC7占空比时间 占空比2.5%
-	PWMB_CCR7L = (uint)(PWMB_CCR7); 
+	PWMB_CCR7H = (uint)(PWMB_CCR02 >> 8); // 设置CC7占空比时间 占空比2.5%
+	PWMB_CCR7L = (uint)(PWMB_CCR02); 
 	
-	PWMB_CCR8H = (uint)(PWMB_CCR8 >> 8); // 设置CC8占空比时间 占空比2.5%
-	PWMB_CCR8L = (uint)(PWMB_CCR8); 
+	PWMB_CCR8H = (uint)(PWMB_CCR03 >> 8); // 设置CC8占空比时间 占空比2.5%
+	PWMB_CCR8L = (uint)(PWMB_CCR03); 
 	
 
 	PWMB_ARRH = (uint)(PWM_PERIOD >> 8); // 设置PWMA周期20毫秒
@@ -95,166 +95,89 @@ void PWM_Config(void)
 	PWMB_CR1 = 0x01; 										// 启动PWM定时器		
 }
 
-
-//更新PWMB 5
-void Update_5(unsigned int Duty1)
-{
-	PWMB_CCR5H = (uint)(Duty1 >> 8); // 设置CC5占空比时间 占空比2.5%
-	PWMB_CCR5L = (uint)(Duty1); 
-}
-//更新PWMB 6
-void Update_6(unsigned int Duty2)
-{
-	PWMB_CCR6H = (uint)(Duty2 >> 8); // 设置CC6占空比时间 占空比2.5%
-	PWMB_CCR6L = (uint)(Duty2); 	
-}
-//更新PWMB 7
-void Update_7(unsigned int Duty3)
-{
-	PWMB_CCR7H = (uint)(Duty3 >> 8); // 设置CC7占空比时间 占空比2.5%
-	PWMB_CCR7L = (uint)(Duty3); 	
-}
-//更新PWMB 8
-void Update_8(unsigned int Duty4)
-{
-	PWMB_CCR8H = (uint)(Duty4 >> 8); // 设置CC8占空比时间 占空比2.5%
-	PWMB_CCR8L = (uint)(Duty4); 	
-}
-
-/**************************************************************************
-函数功能：绝对值函数
-入口参数：int
-返回  值：unsigned int
-目    的：对PWM进行绝对值处理
-**************************************************************************/
-int myabs(int a)
-{ 		   
-	  int temp;
-		if(a<0)  temp=-a;  
-	  else temp=a;
-	  return temp;
-}
-
 /**************************************************************************
 函数功能：限制PWM赋值 
 入口参数：无
 返回  值：无
 **************************************************************************/
-void Xianfu_Pwm(void)
-{
-	 //===PWM满幅是100 限制在95
-    if(Left_moto1<-950 ) Left_moto1=-950 ;
-		if(Left_moto1>950 )  Left_moto1=950 ;
-	  if(Right_moto2<-950 ) Right_moto2=-950 ;
-		if(Right_moto2>950 )  Right_moto2=950 ;
-	  if(Forwar_dmoto1<-950 ) Forwar_dmoto1=-950 ;
-		if(Forwar_dmoto1>950 )  Forwar_dmoto1=950 ;
-	  if(Backward_moto2<-950 ) Backward_moto2=-950 ;
-		if(Backward_moto2>950 )  Backward_moto2=950 ;
-}
-
-/**************************************************************************
-函数功能：检测异常关闭电机
-入口参数：检测异常参数
-返回  值：无
-**************************************************************************/
-//void Turn_Off(float angle)
+//void Xianfu_Pwm(void)
 //{
-//		if(angle<-40||angle>40)	 //电池电压低于11.1V关闭电机
-//		{	                                   //===倾角大于40度关闭电机																			 
-//				moto1=0;
-//				moto2=0;
-//		}		
+//	 //===PWM满幅是100 限制在95
+//    if(Left_moto1<-950 ) Left_moto1=-950 ;
+//		if(Left_moto1>950 )  Left_moto1=950 ;
+//	  if(Right_moto2<-950 ) Right_moto2=-950 ;
+//		if(Right_moto2>950 )  Right_moto2=950 ;
+//	  if(Forwar_dmoto1<-950 ) Forwar_dmoto1=-950 ;
+//		if(Forwar_dmoto1>950 )  Forwar_dmoto1=950 ;
+//	  if(Backward_moto2<-950 ) Backward_moto2=-950 ;
+//		if(Backward_moto2>950 )  Backward_moto2=950 ;
 //}
 
-/**************************************************************************
-函数功能：赋值给PWM寄存器
-入口参数：左轮PWM、右轮PWM
-返回  值：无
-**************************************************************************/
-
-void Set_LRPwm(int Left_moto1,int Right_moto2)    //更新左右风机占空比
+//更新PWM 0
+void Update_Pwm0(unsigned int Duty0)
 {
-	
-	
-	if(Left_moto1<0)		
-	AIN2=1,			AIN1=0;  //如果小于零就是反转  先变换电平  motol
-	else
-	AIN2=0,			AIN1=1;
-	
-	
-	PWMA_CCR1H = (myabs(Left_moto1) >> 8);  
-	PWMA_CCR1L = (myabs(Left_moto1));
-
-	
-	if(Right_moto2<0)		
-	BIN1=0,			BIN2=1;
-	
-	else
-	BIN1=1,			BIN2=0;
-	
-	PWMA_CCR2H = (myabs(Right_moto2)>> 8);  
-	PWMA_CCR2L = (myabs(Right_moto2));
-	
-	
+	PWMB_CCR5H = (uint)(Duty0 >> 8); // 设置CC5占空比时间 占空比2.5%
+	PWMB_CCR5L = (uint)(Duty0); 
+}
+//更新PWM 1
+void Update_Pwm1(unsigned int Duty1)
+{
+	PWMB_CCR6H = (uint)(Duty1 >> 8); // 设置CC6占空比时间 占空比2.5%
+	PWMB_CCR6L = (uint)(Duty1); 	
+}
+//更新PWM 2
+void Update_Pwm2(unsigned int Duty2)
+{
+	PWMB_CCR7H = (uint)(Duty2 >> 8); // 设置CC7占空比时间 占空比2.5%
+	PWMB_CCR7L = (uint)(Duty2); 	
+}
+//更新PWM 3
+void Update_Pwm3(unsigned int Duty3)
+{
+	PWMB_CCR8H = (uint)(Duty3 >> 8); // 设置CC8占空比时间 占空比2.5%
+	PWMB_CCR8L = (uint)(Duty3); 	
+}
+//更新PWM 4 (往下吹风的电机)
+void Update_Pwm4(unsigned int Duty4)
+{
+	PWMA_CCR3H = (uint)(Duty4 >> 8); // 设置CC3占空比时间 占空比2.5%
+	PWMA_CCR3L = (uint)(Duty4); 
 }
 
-void Set_FBPwm(int Forwar_dmoto1,int Backward_moto2)    //更新前后风机占空比
-{
-	
-	
-	if(Forwar_dmoto1<0)		
-	CIN2=1,			CIN1=0;  //如果小于零就是反转  先变换电平  motol
-	else
-	CIN2=0,			CIN1=1;
-	
-	
-	PWMA_CCR3H = (myabs(Forwar_dmoto1) >> 8);  
-	PWMA_CCR3L = (myabs(Forwar_dmoto1));
+//void Set_FBPwm(int Forwar_dmoto1,int Backward_moto2)    //更新前后风机占空比
+//{
+//	
+//	
+//	if(Forwar_dmoto1<0)		
+//	CIN2=1,			CIN1=0;  //如果小于零就是反转  先变换电平  motol
+//	else
+//	CIN2=0,			CIN1=1;
+//	
+//	
+//	PWMA_CCR3H = (myabs(Forwar_dmoto1) >> 8);  
+//	PWMA_CCR3L = (myabs(Forwar_dmoto1));
 
-	
-	if(Forwar_dmoto1<0)		
-	DIN1=0,			DIN2=1;
-	
-	else
-	DIN1=1,			DIN2=0;
-	
-	PWMA_CCR4H = (myabs(Backward_moto2)>> 8);  
-	PWMA_CCR4L = (myabs(Backward_moto2));
-	
-	
-}
+//	
+//	if(Forwar_dmoto1<0)		
+//	DIN1=0,			DIN2=1;
+//	
+//	else
+//	DIN1=1,			DIN2=0;
+//	
+//	PWMA_CCR4H = (myabs(Backward_moto2)>> 8);  
+//	PWMA_CCR4L = (myabs(Backward_moto2));
+//	
+//	
+//}
 
-void Update_duty(uchar sw,int PWMR,int PWML)										//更新占空比函数
+void Update_PWM(int pwm0,int pwm1,int pwm2,int pwm3,int pwm4)
 {
+	Update_Pwm0(pwm0);
+	Update_Pwm1(pwm1);
+	Update_Pwm2(pwm2);
+	Update_Pwm3(pwm3);
 	
-	if(!sw)
-	{
-		PWML = 0;
-		PWMR = 0;
-	}
-	
-	if(PWMR < 0)
-	{
-		PWMR = -PWMR;
-		MotorR_Reverse();
-	}
-	else 
-		MotorR_Forward();
-		
-	if(PWML < 0)
-	{
-		PWML = -PWML;
-		MotorL_Reverse();
-	}
-	else 
-		MotorL_Forward();
-		
-	
-	PWMA_CCR1H	= (uchar)(PWML >> 8);  
-	PWMA_CCR1L = PWML;                //调整占空比
-		
-	PWMA_CCR2H = (uchar)(PWMR >> 8); 
-	PWMA_CCR2L = PWMR;	
+	Update_Pwm4(pwm4);
 }
+	
 

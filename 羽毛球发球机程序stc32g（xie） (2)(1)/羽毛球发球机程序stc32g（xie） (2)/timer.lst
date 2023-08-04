@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  timer                                                              04/08/23  20:04:27  PAGE 1   
+C251 COMPILER V5.60.0,  timer                                                              04/08/23  23:43:56  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE timer
 OBJECT MODULE PLACED IN timer.obj
-COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE timer\timer.c XSMALL INTR2 WARNINGLEVEL(1) BR
-                    -OWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SY
-                    -N6288) DEBUG PRINT(.\timer.lst) TABS(2) OBJECT(timer.obj) 
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE timer\timer.c XSMALL INTR2 BROWSE INCDIR(.\OL
+                    -ED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG PRI
+                    -NT(.\timer.lst) TABS(2) OBJECT(timer.obj) 
 
 stmt  level    source
 

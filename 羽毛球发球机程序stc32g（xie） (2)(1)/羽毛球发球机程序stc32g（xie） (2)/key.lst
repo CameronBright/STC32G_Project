@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  key                                                                04/08/23  20:04:27  PAGE 1   
+C251 COMPILER V5.60.0,  key                                                                04/08/23  23:43:56  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE key
 OBJECT MODULE PLACED IN key.obj
-COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE Key\key.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE
-                    - INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN628
-                    -8) DEBUG PRINT(.\key.lst) TABS(2) OBJECT(key.obj) 
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE Key\key.c XSMALL INTR2 BROWSE INCDIR(.\OLED;.
+                    -\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG PRINT(.
+                    -\key.lst) TABS(2) OBJECT(key.obj) 
 
 stmt  level    source
 

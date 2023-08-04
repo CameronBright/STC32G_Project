@@ -1,9 +1,9 @@
 /*
-program versions : 3.1
+program versions : 3.2
 
-修正了部分代码 此时已能正常识别循迹模块 
+增加了电机控制函数，此版本已能悬停
 
-modification: 2023/8/4 21:46
+modification: 2023/8/5 0:18
 
 modifier: Cameron Bright
 
@@ -44,7 +44,6 @@ extern int Left_moto1     ;//左风机PWM
 extern int Right_moto2    ;//右
 extern int Forwar_dmoto1  ;//前
 extern int Backward_moto2 ;//后
-
 
 //======================================================================
 uchar motor_sw = 1;//电机开关
@@ -87,10 +86,10 @@ unsigned char key_value = 0;
 unsigned char key_Down = 0;
 unsigned char key_up = 0;
 
-extern unsigned int PWMB_CCR5;
-extern unsigned int PWMB_CCR6;
-extern unsigned int PWMB_CCR7;
-extern unsigned int PWMB_CCR8;
+extern unsigned int PWMB_CCR00;
+extern unsigned int PWMB_CCR01;
+extern unsigned int PWMB_CCR02;
+extern unsigned int PWMB_CCR03;
 
 extern unsigned int PWMB_CCA;
 
@@ -104,8 +103,6 @@ unsigned char T_S_B = 0;  //启动循迹按键
 unsigned char flag = 0;
 unsigned char flag_count = 0;
 unsigned char Tracking_value = 0;  //循迹值
-extern int dutyL; //左轮
-extern int dutyR; //右轮
 
 void main()
 {
@@ -134,6 +131,8 @@ void main()
 	positionPID.ki = 0;
 	positionPID.kd = 20;
 	
+	PWMB_CCA = 1000; //浮空pwm
+	
 	while(1)
 	{
 		Disp_refresh(); //数码管刷新函数
@@ -143,15 +142,11 @@ void main()
 	}
 }
 
-
-
-
 //定时器0中断函数
 void Timer0() interrupt 1
 {
 	TF_Count += 1;
 }
-
 
 //-----------------定时器1中断-----------------------------------
 void timer1() interrupt 3       //100us中断一次
@@ -183,7 +178,6 @@ void Timer3_Isr(void) interrupt 19   //等待测试 1ms
 }
 
 
-
 //-----------------按键处理-----------------------------------
 
 void Key_Proc(void)
@@ -199,28 +193,28 @@ void Key_Proc(void)
 	switch(key_Down)
 	{
 		case 1:
-		PWMB_CCR5 += 50;
-		Update_5(PWMB_CCR5);
-		if(PWMB_CCR5 > 1000)
-			PWMB_CCR5 = 300;
+		PWMB_CCR00 += 50;
+		Update_Pwm0(PWMB_CCR00);
+		if(PWMB_CCR00 > 1000)
+			PWMB_CCR00 = 300;
 		break;
 		case 2:
-		PWMB_CCR6 += 50;	
-		Update_6(PWMB_CCR6);
-		if(PWMB_CCR6 > 1000)
-			PWMB_CCR6 = 300;
+		PWMB_CCR01 += 50;	
+		Update_Pwm1(PWMB_CCR01);
+		if(PWMB_CCR01 > 1000)
+			PWMB_CCR01 = 300;
 		break;
 		case 3:
-		PWMB_CCR7 += 50;
-		Update_7(PWMB_CCR7);
-		if(PWMB_CCR7 > 1000)
-			PWMB_CCR7 = 300;
+		PWMB_CCR02 += 50;
+		Update_Pwm2(PWMB_CCR02);
+		if(PWMB_CCR02 > 1000)
+			PWMB_CCR02 = 300;
 		break;
 		case 4:
-		PWMB_CCR8 += 50;
-		Update_8(PWMB_CCR8);
-		if(PWMB_CCR8 > 1000)
-			PWMB_CCR8 = 300;
+		PWMB_CCR03 += 50;
+		Update_Pwm3(PWMB_CCR03);
+		if(PWMB_CCR03 > 1000)
+			PWMB_CCR03 = 300;
 		break;
 	}
 }
@@ -234,10 +228,10 @@ void Disp_refresh(void)
 	sprintf(oled_showtext,"Line:%d",line_inaccuracy); //循迹函数返回值
 	OLED_Display_string_5x7(0,0,oled_showtext);
 	
-	sprintf(oled_showtext,"0:%03d 1:%03d",PWMB_CCR5,PWMB_CCR6);
+	sprintf(oled_showtext,"0:%03d 1:%03d",PWMB_CCR00,PWMB_CCR01);
 	OLED_Display_string_5x7(0,2,oled_showtext);
 	
-	sprintf(oled_showtext,"2:%03d 3:%03d",PWMB_CCR7,PWMB_CCR8);
+	sprintf(oled_showtext,"2:%03d 3:%03d",PWMB_CCR02,PWMB_CCR03);
 	OLED_Display_string_5x7(0,3,oled_showtext);
 
 	sprintf(oled_showtext,"speed:%d",PWMB_CCA);
@@ -263,16 +257,15 @@ void Disp_refresh(void)
 //		sprintf(oled_showtext,"Y: %5d ",(int)flag_count);
 //	OLED_Display_string_5x7(64,7,oled_showtext);
 
-//		sprintf(oled_showtext,"P42 5: %5d ",PWMB_CCR5);
+//		sprintf(oled_showtext,"P42 5: %5d ",PWMB_CCR00);
 //		OLED_Display_string_5x7(0,0,oled_showtext);
-//		sprintf(oled_showtext,"P41 6: %5d ",PWMB_CCR6);
+//		sprintf(oled_showtext,"P41 6: %5d ",PWMB_CCR01);
 //		OLED_Display_string_5x7(0,2,oled_showtext);
-//		sprintf(oled_showtext,"P73 7: %5d ",PWMB_CCR7);
+//		sprintf(oled_showtext,"P73 7: %5d ",PWMB_CCR02);
 //		OLED_Display_string_5x7(0,4,oled_showtext);
-//		sprintf(oled_showtext,"P70 8: %5d ",PWMB_CCR8);
+//		sprintf(oled_showtext,"P70 8: %5d ",PWMB_CCR03);
 //		OLED_Display_string_5x7(0,6,oled_showtext);
 }
-
 
 //-------------陀螺仪控制函数----------------------------------------
 //相关变量
@@ -322,10 +315,6 @@ void MPU6050_Read(void)
 		//========================= 
 }
 
-
-
-
-
 //-----------------电机控制函数-------------------------------------
 void Motor_control(void)
 {
@@ -333,36 +322,36 @@ void Motor_control(void)
 	motor_delay = 1;
 	
 	line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
-
-	if(line_inaccuracy > 2 || line_inaccuracy < -2)
+	
+	if(!line_inaccuracy)
 	{
-		if(line_inaccuracy == -3)//传感器远离地面时
-			motor_sw = 0;           //电机正转
-		else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
-			line_inaccuracy = old_position;
+		PWMB_CCR00 = 0;
+		PWMB_CCR01 = 0;
+		
+		PWMB_CCR02 = 0;
 	}
-	else 
+	if(line_inaccuracy == 1 || line_inaccuracy == 2)
 	{
-		motor_sw = 1;//电机正常工作
-		old_position = line_inaccuracy;//记录上一次的位置
+		PWMB_CCR00 = 1000;
+		PWMB_CCR01 = 0;
+		
+		PWMB_CCR02 = 0;
+	}
+	else if(line_inaccuracy == -1 || line_inaccuracy == -2)
+	{
+		PWMB_CCR01 = 1000;
+		PWMB_CCR00 = 0;
+		
+		PWMB_CCR02 = 0;
 	}
 	
-	err_kp = positionPID.kp * line_inaccuracy;     //循迹模块数据
-	err_ki = positionPID.ki * line_inaccuracy;     //积分
-	err_kd = positionPID.kd * old_line_inaccuracy; //微分
+//	Update_Pwm0(PWMB_CCR00);
+//	Update_Pwm1(PWMB_CCR01);
+//	
+//	Update_Pwm2(PWMB_CCR02);
+//	
+//	Update_Pwm4(PWMB_CCA);
 	
-	if(line_inaccuracy)
-	{
-		dutyR = positionPID.basicSpeed + err_kp + err_kd; 
-		dutyL = positionPID.basicSpeed - err_kp - err_kd;
-	}
-	else 
-	{
-		dutyR = positionPID.basicSpeed;
-		dutyL = positionPID.basicSpeed;
-	}
-
-	Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
-	old_line_inaccuracy = line_inaccuracy;
+	Update_PWM(PWMB_CCR00,PWMB_CCR01,PWMB_CCR02,PWMB_CCR03,PWMB_CCA);
 }
 

@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  motor                                                              04/08/23  20:04:28  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              04/08/23  23:43:56  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
 OBJECT MODULE PLACED IN motor.obj
-COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE motor\motor.c XSMALL INTR2 WARNINGLEVEL(1) BR
-                    -OWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SY
-                    -N6288) DEBUG PRINT(.\motor.lst) TABS(2) OBJECT(motor.obj) 
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE motor\motor.c XSMALL INTR2 BROWSE INCDIR(.\OL
+                    -ED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG PRI
+                    -NT(.\motor.lst) TABS(2) OBJECT(motor.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        if(motor2 >= 0)
    56   1        {
    57   2          MOTOR_BIN1 = 0; //Forward motor2(电机2正转)
-C251 COMPILER V5.60.0,  motor                                                              04/08/23  20:04:28  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              04/08/23  23:43:56  PAGE 2   
 
    58   2          MOTOR_BIN2 = 1;
    59   2        }

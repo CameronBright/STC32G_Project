@@ -1,20 +1,19 @@
-C251 COMPILER V5.60.0,  main                                                               04/08/23  21:31:29  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               05/08/23  00:08:27  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
 OBJECT MODULE PLACED IN main.OBJ
-COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE main.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE IN
-                    -CDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) 
-                    -DEBUG TABS(2) 
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE main.c XSMALL INTR2 BROWSE INCDIR(.\OLED;.\ti
+                    -mer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG TABS(2) 
 
 stmt  level    source
 
     1          /*
-    2          program versions : 2.3.1
+    2          program versions : 3.1
     3          
-    4          修正了部分代码 此时已能正常识别循迹mo
+    4          修正了部分代码 此时已能正常识别循迹模块 
     5          
-    6          modification: 2023/8/4 19:20
+    6          modification: 2023/8/4 21:46
     7          
     8          modifier: Cameron Bright
     9          
@@ -56,342 +55,331 @@ stmt  level    source
    45          extern int Forwar_dmoto1  ;//前
    46          extern int Backward_moto2 ;//后
    47          
-   48          
-   49          //======================================================================
-   50          uchar motor_sw = 1;//电机开关
-   51          
-   52          struct pid_parameter positionPID; //PID参数
-   53          int err_kp, err_ki, err_kd;   //误差值
-   54          char line_inaccuracy; //循迹模块偏移量
-   55          char old_line_inaccuracy;//上一次循迹模块的便宜量
-   56          char old_position;    //上一次的数据
-   57          
-C251 COMPILER V5.60.0,  main                                                               04/08/23  21:31:29  PAGE 2   
+   48          //======================================================================
+   49          uchar motor_sw = 1;//电机开关
+   50          
+   51          struct pid_parameter positionPID; //PID参数
+   52          int err_kp, err_ki, err_kd;   //误差值
+   53          char line_inaccuracy; //循迹模块偏移量
+   54          char old_line_inaccuracy;//上一次循迹模块的便宜量
+   55          char old_position;    //上一次的数据
+   56          
+   57          //------------------MPU6050-----------------------------------------------
+   58          //===================获取数据========================================================
+C251 COMPILER V5.60.0,  main                                                               05/08/23  00:08:27  PAGE 2   
 
-   58          //------------------MPU6050-----------------------------------------------
-   59          //===================获取数据========================================================
+   59          
    60          
-   61          
-   62          extern float Angle_gx=0,Angle_gy=0,Angle_gz=0;    //由角速度计算的角速率(角度制)
-   63          extern float Angle_ax=0,Angle_ay=0,Angle_az=0;    //由加速度计算的加速度(弧度制)
-   64          float edata  Last_Angle_gx=0;         //外环PI输出量  上一次陀螺仪数据
-   65          float edata Last_Angle_gy=0;
-   66          
-   67          int   edata g_x=0,g_y=0,g_z=0;          //陀螺仪矫正参数
-   68          float edata a_x=0,a_y=0,a_z=0;              //角度矫正参数
-   69          
-   70          extern int X_Result=0,Y_Result=0,Z_Result=0;            //加入偏差值 
-   71          
-   72          unsigned char tp[16];   //读MP6050缓冲
-   73          //-----------------other--------------------------------------------------
-   74          uchar txbuf[20]; //串口发送缓存
-   75          
-   76          uchar oled_showtext[25]; //oled显示字符串
-   77          
-   78          void Disp_refresh(void);  //数码管显示函数
-   79          void Motor_control(void); //电机控制函数
-   80          void MPU6050_Read(void);  //陀螺仪数据采集
-   81          void Key_Proc(void);
-   82          
-   83          //*****************按键***********//
-   84          
-   85          unsigned char key_old = 0;
-   86          unsigned char key_value = 0;
-   87          unsigned char key_Down = 0;
-   88          unsigned char key_up = 0;
-   89          
-   90          extern unsigned int PWMB_CCR5;
-   91          extern unsigned int PWMB_CCR6;
-   92          extern unsigned int PWMB_CCR7;
-   93          extern unsigned int PWMB_CCR8;
-   94          
-   95          extern unsigned int PWMB_CCA;
-   96          
-   97          //*******超声波*****//
-   98          unsigned char Wave = 0;
-   99          unsigned char Wave_Buff[20];
-  100          extern unsigned long TF_Count;
-  101          
-  102          //循迹启动按键
-  103          unsigned char T_S_B = 0;  //启动循迹按键
-  104          unsigned char flag = 0;
-  105          unsigned char flag_count = 0;
-  106          unsigned char Tracking_value = 0;  //循迹值
-  107          extern int dutyL; //左轮
-  108          extern int dutyR; //右轮
-  109          
-  110          void main()
-  111          {
-  112   1        GPIO_init();//GPIO初始化
-  113   1        OLED_Init();//oled初始化
-  114   1        OLED_ColorTurn(0);//0正常显示，1 反色显示
-  115   1        OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
-  116   1        OLED_Clear();//oled清屏
-  117   1        
-  118   1        Timer0Init();//定时器 0 初始化
-  119   1        Timer1_Init(); //定时器 1 初始化
-  120   1        Timer3_Init();//定时器 3 初始化
+   61          extern float Angle_gx=0,Angle_gy=0,Angle_gz=0;    //由角速度计算的角速率(角度制)
+   62          extern float Angle_ax=0,Angle_ay=0,Angle_az=0;    //由加速度计算的加速度(弧度制)
+   63          float edata  Last_Angle_gx=0;         //外环PI输出量  上一次陀螺仪数据
+   64          float edata Last_Angle_gy=0;
+   65          
+   66          int   edata g_x=0,g_y=0,g_z=0;          //陀螺仪矫正参数
+   67          float edata a_x=0,a_y=0,a_z=0;              //角度矫正参数
+   68          
+   69          extern int X_Result=0,Y_Result=0,Z_Result=0;            //加入偏差值 
+   70          
+   71          unsigned char tp[16];   //读MP6050缓冲
+   72          //-----------------other--------------------------------------------------
+   73          uchar txbuf[20]; //串口发送缓存
+   74          
+   75          uchar oled_showtext[25]; //oled显示字符串
+   76          
+   77          void Disp_refresh(void);  //数码管显示函数
+   78          void Motor_control(void); //电机控制函数
+   79          void MPU6050_Read(void);  //陀螺仪数据采集
+   80          void Key_Proc(void);
+   81          
+   82          //*****************按键***********//
+   83          
+   84          unsigned char key_old = 0;
+   85          unsigned char key_value = 0;
+   86          unsigned char key_Down = 0;
+   87          unsigned char key_up = 0;
+   88          
+   89          extern unsigned int PWMB_CCR00;
+   90          extern unsigned int PWMB_CCR01;
+   91          extern unsigned int PWMB_CCR02;
+   92          extern unsigned int PWMB_CCR03;
+   93          
+   94          extern unsigned int PWMB_CCA;
+   95          
+   96          //*******超声波*****//
+   97          unsigned char Wave = 0;
+   98          unsigned char Wave_Buff[20];
+   99          extern unsigned long TF_Count;
+  100          
+  101          //循迹启动按键
+  102          unsigned char T_S_B = 0;  //启动循迹按键
+  103          unsigned char flag = 0;
+  104          unsigned char flag_count = 0;
+  105          unsigned char Tracking_value = 0;  //循迹值
+  106          
+  107          void main()
+  108          {
+  109   1        GPIO_init();//GPIO初始化
+  110   1        OLED_Init();//oled初始化
+  111   1        OLED_ColorTurn(0);//0正常显示，1 反色显示
+  112   1        OLED_DisplayTurn(0);//0正常显示 1 屏幕翻转显示
+  113   1        OLED_Clear();//oled清屏
+  114   1        
+  115   1        Timer0Init();//定时器 0 初始化
+  116   1        Timer1_Init(); //定时器 1 初始化
+  117   1        Timer3_Init();//定时器 3 初始化
+  118   1        
+  119   1        Uart1_Init();// 串口1初始化
+  120   1        S1_S0=0; S1_S1=0;//串口1 选择P30 P31  
   121   1        
-  122   1        Uart1_Init();// 串口1初始化
-  123   1        S1_S0=0; S1_S1=0;//串口1 选择P30 P31  
-C251 COMPILER V5.60.0,  main                                                               04/08/23  21:31:29  PAGE 3   
+  122   1        P54RST=1;//复位初始化
+  123   1        
+  124   1        InitMPU6050(); //mpu6050初始化
+C251 COMPILER V5.60.0,  main                                                               05/08/23  00:08:27  PAGE 3   
 
-  124   1        
-  125   1        P54RST=1;//复位初始化
-  126   1        
-  127   1        InitMPU6050(); //mpu6050初始化
-  128   1        
-  129   1        Motor_Init(); //电机初始化
-  130   1        
-  131   1        //PID参数
-  132   1        positionPID.basicSpeed = 600;//基础运动速度
-  133   1        positionPID.kp = 400;
-  134   1        positionPID.ki = 0;
-  135   1        positionPID.kd = 20;
-  136   1        
-  137   1        while(1)
-  138   1        {
-  139   2          Disp_refresh(); //数码管刷新函数
-  140   2          MPU6050_Read(); //MPU6050控制函数
-  141   2          Motor_control(); //电机控制函数
-  142   2          Key_Proc();   //按键处理函数
-  143   2        }
-  144   1      }
-  145          
-  146          
-  147          
-  148          
-  149          //定时器0中断函数
-  150          void Timer0() interrupt 1
-  151          {
-  152   1        TF_Count += 1;
-  153   1      }
-  154          
-  155          
-  156          //-----------------定时器1中断-----------------------------------
-  157          void timer1() interrupt 3       //100us中断一次
-  158          {
-  159   1        if(++disp_delay == 100) disp_delay = 0;       //显示屏刷新时间
-  160   1        if(++motor_delay == 10) motor_delay = 0;      //电机控制刷新时间
-  161   1        if(++mpu6050_delay == 50) mpu6050_delay = 0;  //mpu6050执行刷新时间
-  162   1        if(++key_delay == 10) key_delay = 0;        //按键扫描刷新时间
-  163   1        
-  164   1        if(++sys_led >= 5000)                         
-  165   1        {
-  166   2          LED ^= 1;
-  167   2          sys_led = 0;
-  168   2        }
-  169   1      } 
-  170          
-  171          void Timer3_Isr(void) interrupt 19   //等待测试 1ms
-  172          {
-  173   1        if(flag == 1)         
-  174   1        {
-  175   2          flag_count++;
-  176   2          if(flag_count > 100)
-  177   2          {
-  178   3            Tracking_value ++;   //循迹次数
-  179   3            flag_count = 0;
-  180   3            flag = 0;
-  181   3          }
-  182   2        }
-  183   1      }
-  184          
-  185          
-  186          
-  187          //-----------------按键处理-----------------------------------
-  188          
-  189          void Key_Proc(void)
-C251 COMPILER V5.60.0,  main                                                               04/08/23  21:31:29  PAGE 4   
+  125   1        
+  126   1        Motor_Init(); //电机初始化
+  127   1        
+  128   1        //PID参数
+  129   1        positionPID.basicSpeed = 600;//基础运动速度
+  130   1        positionPID.kp = 400;
+  131   1        positionPID.ki = 0;
+  132   1        positionPID.kd = 20;
+  133   1        
+  134   1        PWMB_CCA = 1000; //浮空pwm
+  135   1        
+  136   1        while(1)
+  137   1        {
+  138   2          Disp_refresh(); //数码管刷新函数
+  139   2          MPU6050_Read(); //MPU6050控制函数
+  140   2          Motor_control(); //电机控制函数
+  141   2          Key_Proc();   //按键处理函数
+  142   2        }
+  143   1      }
+  144          
+  145          //定时器0中断函数
+  146          void Timer0() interrupt 1
+  147          {
+  148   1        TF_Count += 1;
+  149   1      }
+  150          
+  151          //-----------------定时器1中断-----------------------------------
+  152          void timer1() interrupt 3       //100us中断一次
+  153          {
+  154   1        if(++disp_delay == 100) disp_delay = 0;       //显示屏刷新时间
+  155   1        if(++motor_delay == 10) motor_delay = 0;      //电机控制刷新时间
+  156   1        if(++mpu6050_delay == 50) mpu6050_delay = 0;  //mpu6050执行刷新时间
+  157   1        if(++key_delay == 10) key_delay = 0;        //按键扫描刷新时间
+  158   1        
+  159   1        if(++sys_led >= 5000)                         
+  160   1        {
+  161   2          LED ^= 1;
+  162   2          sys_led = 0;
+  163   2        }
+  164   1      } 
+  165          
+  166          void Timer3_Isr(void) interrupt 19   //等待测试 1ms
+  167          {
+  168   1        if(flag == 1)         
+  169   1        {
+  170   2          flag_count++;
+  171   2          if(flag_count > 100)
+  172   2          {
+  173   3            Tracking_value ++;   //循迹次数
+  174   3            flag_count = 0;
+  175   3            flag = 0;
+  176   3          }
+  177   2        }
+  178   1      }
+  179          
+  180          
+  181          //-----------------按键处理-----------------------------------
+  182          
+  183          void Key_Proc(void)
+  184          {
+  185   1        if(key_delay) return; //100ms扫描一次按键
+  186   1          key_delay = 1;
+  187   1        
+  188   1        key_value = Key_Rvalue();//读取按键按下的编号
+  189   1        key_Down = key_value & (key_old ^ key_value); 
+  190   1        key_up = ~key_value & (key_old ^ key_value);    
+C251 COMPILER V5.60.0,  main                                                               05/08/23  00:08:27  PAGE 4   
 
-  190          {
-  191   1        if(key_delay) return; //100ms扫描一次按键
-  192   1          key_delay = 1;
-  193   1        
-  194   1        key_value = Key_Rvalue();//读取按键按下的编号
-  195   1        key_Down = key_value & (key_old ^ key_value); 
-  196   1        key_up = ~key_value & (key_old ^ key_value);    
-  197   1        key_old = key_value;  
-  198   1        
-  199   1        switch(key_Down)
-  200   1        {
-  201   2          case 1:
-  202   2          PWMB_CCR5 += 50;
-  203   2          Update_5(PWMB_CCR5);
-  204   2          if(PWMB_CCR5 > 1000)
-  205   2            PWMB_CCR5 = 300;
+  191   1        key_old = key_value;  
+  192   1        
+  193   1        switch(key_Down)
+  194   1        {
+  195   2          case 1:
+  196   2          PWMB_CCR00 += 50;
+  197   2          Update_Pwm0(PWMB_CCR00);
+  198   2          if(PWMB_CCR00 > 1000)
+  199   2            PWMB_CCR00 = 300;
+  200   2          break;
+  201   2          case 2:
+  202   2          PWMB_CCR01 += 50; 
+  203   2          Update_Pwm1(PWMB_CCR01);
+  204   2          if(PWMB_CCR01 > 1000)
+  205   2            PWMB_CCR01 = 300;
   206   2          break;
-  207   2          case 2:
-  208   2          PWMB_CCR6 += 50;  
-  209   2          Update_6(PWMB_CCR6);
-  210   2          if(PWMB_CCR6 > 1000)
-  211   2            PWMB_CCR6 = 300;
+  207   2          case 3:
+  208   2          PWMB_CCR02 += 50;
+  209   2          Update_Pwm2(PWMB_CCR02);
+  210   2          if(PWMB_CCR02 > 1000)
+  211   2            PWMB_CCR02 = 300;
   212   2          break;
-  213   2          case 3:
-  214   2          PWMB_CCR7 += 50;
-  215   2          Update_7(PWMB_CCR7);
-  216   2          if(PWMB_CCR7 > 1000)
-  217   2            PWMB_CCR7 = 300;
+  213   2          case 4:
+  214   2          PWMB_CCR03 += 50;
+  215   2          Update_Pwm3(PWMB_CCR03);
+  216   2          if(PWMB_CCR03 > 1000)
+  217   2            PWMB_CCR03 = 300;
   218   2          break;
-  219   2          case 4:
-  220   2          PWMB_CCR8 += 50;
-  221   2          Update_8(PWMB_CCR8);
-  222   2          if(PWMB_CCR8 > 1000)
-  223   2            PWMB_CCR8 = 300;
-  224   2          break;
-  225   2        }
-  226   1      }
-  227          
-  228          //-----------------显示屏函数-----------------------------------
-  229          void Disp_refresh(void)
-  230          {
-  231   1        if(disp_delay) return; //10ms刷新一次屏幕
-  232   1        disp_delay = 1;
+  219   2        }
+  220   1      }
+  221          
+  222          //-----------------显示屏函数-----------------------------------
+  223          void Disp_refresh(void)
+  224          {
+  225   1        if(disp_delay) return; //10ms刷新一次屏幕
+  226   1        disp_delay = 1;
+  227   1        
+  228   1        sprintf(oled_showtext,"Line:%d",line_inaccuracy); //循迹函数返回值
+  229   1        OLED_Display_string_5x7(0,0,oled_showtext);
+  230   1        
+  231   1        sprintf(oled_showtext,"0:%03d 1:%03d",PWMB_CCR00,PWMB_CCR01);
+  232   1        OLED_Display_string_5x7(0,2,oled_showtext);
   233   1        
-  234   1        sprintf(oled_showtext,"Line:%d",line_inaccuracy); //循迹函数返回值
-  235   1        OLED_Display_string_5x7(0,0,oled_showtext);
-  236   1        
-  237   1        sprintf(oled_showtext,"0:%03d 1:%03d",PWMB_CCR5,PWMB_CCR6);
-  238   1        OLED_Display_string_5x7(0,2,oled_showtext);
+  234   1        sprintf(oled_showtext,"2:%03d 3:%03d",PWMB_CCR02,PWMB_CCR03);
+  235   1        OLED_Display_string_5x7(0,3,oled_showtext);
+  236   1      
+  237   1        sprintf(oled_showtext,"speed:%d",PWMB_CCA);
+  238   1        OLED_Display_string_5x7(0,4,oled_showtext);
   239   1        
-  240   1        sprintf(oled_showtext,"2:%03d 3:%03d",PWMB_CCR7,PWMB_CCR8);
-  241   1        OLED_Display_string_5x7(0,3,oled_showtext);
-  242   1      
-  243   1        sprintf(oled_showtext,"speed:%d",PWMB_CCA);
-  244   1        OLED_Display_string_5x7(0,4,oled_showtext);
-  245   1        
-  246   1        
-  247   1      //    sprintf(oled_showtext,"basic:%3d ",positionPID.basicSpeed);
-  248   1      //  OLED_Display_string_5x7(0,4,oled_showtext);
-  249   1      //  
-  250   1      //    sprintf(oled_showtext,"Z:%5d  ",(int)Z_Result);
-  251   1      //  OLED_Display_string_5x7(0,6,oled_showtext);
-  252   1      //  
+  240   1        
+  241   1      //    sprintf(oled_showtext,"basic:%3d ",positionPID.basicSpeed);
+  242   1      //  OLED_Display_string_5x7(0,4,oled_showtext);
+  243   1      //  
+  244   1      //    sprintf(oled_showtext,"Z:%5d  ",(int)Z_Result);
+  245   1      //  OLED_Display_string_5x7(0,6,oled_showtext);
+  246   1      //  
+  247   1      //  
+  248   1      //    sprintf(oled_showtext,"p:%4d,d:%4d",(int)positionPID.kp,(int)positionPID.kd);
+  249   1      //  OLED_Display_string_5x7(64,0,oled_showtext);
+  250   1      //  
+  251   1      //    sprintf(oled_showtext,"R: %5d ",(int)X_Result);
+  252   1      //  OLED_Display_string_5x7(64,2,oled_showtext);
   253   1      //  
-  254   1      //    sprintf(oled_showtext,"p:%4d,d:%4d",(int)positionPID.kp,(int)positionPID.kd);
-  255   1      //  OLED_Display_string_5x7(64,0,oled_showtext);
-C251 COMPILER V5.60.0,  main                                                               04/08/23  21:31:29  PAGE 5   
-
+  254   1      //    sprintf(oled_showtext,"Y: %5d ",(int)Y_Result);
+  255   1      //  OLED_Display_string_5x7(64,4,oled_showtext);
   256   1      //  
-  257   1      //    sprintf(oled_showtext,"R: %5d ",(int)X_Result);
-  258   1      //  OLED_Display_string_5x7(64,2,oled_showtext);
-  259   1      //  
-  260   1      //    sprintf(oled_showtext,"Y: %5d ",(int)Y_Result);
-  261   1      //  OLED_Display_string_5x7(64,4,oled_showtext);
-  262   1      //  
-  263   1      //    sprintf(oled_showtext,"Y: %5d ",(int)flag_count);
-  264   1      //  OLED_Display_string_5x7(64,7,oled_showtext);
-  265   1      
-  266   1      //    sprintf(oled_showtext,"P42 5: %5d ",PWMB_CCR5);
-  267   1      //    OLED_Display_string_5x7(0,0,oled_showtext);
-  268   1      //    sprintf(oled_showtext,"P41 6: %5d ",PWMB_CCR6);
-  269   1      //    OLED_Display_string_5x7(0,2,oled_showtext);
-  270   1      //    sprintf(oled_showtext,"P73 7: %5d ",PWMB_CCR7);
-  271   1      //    OLED_Display_string_5x7(0,4,oled_showtext);
-  272   1      //    sprintf(oled_showtext,"P70 8: %5d ",PWMB_CCR8);
-  273   1      //    OLED_Display_string_5x7(0,6,oled_showtext);
-  274   1      }
-  275          
-  276          
-  277          //-------------陀螺仪控制函数----------------------------------------
-  278          //相关变量
-  279          
-  280          //------------
-  281          void MPU6050_Read(void)
-  282          {
-  283   1        if(mpu6050_delay) return; 
-  284   1        mpu6050_delay = 1;
-  285   1        
-  286   1          //********************************************************************************************
-  287   1          Read_MPU6050(tp); // 720us @24MHz
-  288   1      
-  289   1          Angle_ax = ((float)(((int *)&tp)[0])) / 8192.0; //加速度处理  结果单位是 +- g
-  290   1          Angle_ay = ((float)(((int *)&tp)[1])) / 8192.0; //转换关系  8192 LSB/g, 1g对应读数8192
-  291   1          Angle_az = ((float)(((int *)&tp)[2])) / 8192.0; //加速度量程 +-4g/S
-  292   1          Last_Angle_gx = Angle_gx;   //储存上一次角速度数据
-  293   1          Last_Angle_gy = Angle_gy;
-  294   1          Angle_gx = ((float)(((int *)&tp)[4] - g_x)) / 65.5; //陀螺仪处理  结果单位是 +-度
-  295   1          Angle_gy = ((float)(((int *)&tp)[5] - g_y)) / 65.5; //陀螺仪量程 +-500度/S, 1度/秒 对应读数 65.536
-  296   1          Angle_gz = ((float)(((int *)&tp)[6] - g_z)) / 65.5; //转换关系65.5 LSB/度
-  297   1      
-  298   1      
-  299   1          //**********************************X轴指向************************************************
-  300   1          X_Result  = Angle_ax * 100 ;    //处理过的数值减去偏差值
-  301   1          //**************Y轴指向**************************************************
-  302   1          Y_Result  = Angle_ay * 100;   //处理过的数值减去偏差值
-  303   1          //**************Z轴指向*****************************  
-  304   1          Z_Result = Angle_az * 100;
-  305   1      
-  306   1      
-  307   1          //==============================================================
-  308   1              
-  309   1      //    Uart1_sendbyte(0x03);
-  310   1      //    Uart1_sendbyte(~0x03);
-  311   1      //    
-  312   1      //    Uart1_sendbyte((int)(X_Result*100));
-  313   1      //    Uart1_sendbyte((int)(X_Result*100)>>8);
-  314   1      //    Uart1_sendbyte((int)(Y_Result*100));
-  315   1      //    Uart1_sendbyte((int)(Y_Result*100)>>8);
-  316   1      //    Uart1_sendbyte((int)(Z_Result*100));
-  317   1      //    Uart1_sendbyte((int)(Z_Result*100)>>8);
-  318   1      //    
-  319   1      //    Uart1_sendbyte(~0x03);
-  320   1      //    Uart1_sendbyte(0x03);
-  321   1             
-C251 COMPILER V5.60.0,  main                                                               04/08/23  21:31:29  PAGE 6   
+C251 COMPILER V5.60.0,  main                                                               05/08/23  00:08:27  PAGE 5   
 
-  322   1          //========================= 
-  323   1      }
-  324          
-  325          
-  326          
-  327          
-  328          
-  329          //-----------------电机控制函数-------------------------------------
-  330          void Motor_control(void)
-  331          {
-  332   1        if(motor_delay) return; //延时
-  333   1        motor_delay = 1;
-  334   1        
-  335   1        line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
-  336   1      
-  337   1        if(line_inaccuracy > 2 || line_inaccuracy < -2)
-  338   1        {
-  339   2          if(line_inaccuracy == -3)//传感器远离地面时
-  340   2            motor_sw = 0;           //电机正转
-  341   2          else if(line_inaccuracy == 3) //所有传感器都在地面但没识别到线时
-  342   2            line_inaccuracy = old_position;
-  343   2        }
-  344   1        else 
-  345   1        {
-  346   2          motor_sw = 1;//电机正常工作
-  347   2          old_position = line_inaccuracy;//记录上一次的位置
-  348   2        }
-  349   1        
-  350   1        err_kp = positionPID.kp * line_inaccuracy;     //循迹模块数据
-  351   1        err_ki = positionPID.ki * line_inaccuracy;     //积分
-  352   1        err_kd = positionPID.kd * old_line_inaccuracy; //微分
-  353   1        
-  354   1        if(line_inaccuracy)
-  355   1        {
-  356   2          dutyR = positionPID.basicSpeed + err_kp + err_kd; 
-  357   2          dutyL = positionPID.basicSpeed - err_kp - err_kd;
-  358   2        }
-  359   1        else 
-  360   1        {
-  361   2          dutyR = positionPID.basicSpeed;
-  362   2          dutyL = positionPID.basicSpeed;
-  363   2        }
-  364   1      
-  365   1        Update_duty(motor_sw,dutyR,dutyL);//更新PWM输出
-  366   1        old_line_inaccuracy = line_inaccuracy;
-  367   1      }
-  368          
+  257   1      //    sprintf(oled_showtext,"Y: %5d ",(int)flag_count);
+  258   1      //  OLED_Display_string_5x7(64,7,oled_showtext);
+  259   1      
+  260   1      //    sprintf(oled_showtext,"P42 5: %5d ",PWMB_CCR00);
+  261   1      //    OLED_Display_string_5x7(0,0,oled_showtext);
+  262   1      //    sprintf(oled_showtext,"P41 6: %5d ",PWMB_CCR01);
+  263   1      //    OLED_Display_string_5x7(0,2,oled_showtext);
+  264   1      //    sprintf(oled_showtext,"P73 7: %5d ",PWMB_CCR02);
+  265   1      //    OLED_Display_string_5x7(0,4,oled_showtext);
+  266   1      //    sprintf(oled_showtext,"P70 8: %5d ",PWMB_CCR03);
+  267   1      //    OLED_Display_string_5x7(0,6,oled_showtext);
+  268   1      }
+  269          
+  270          //-------------陀螺仪控制函数----------------------------------------
+  271          //相关变量
+  272          
+  273          //------------
+  274          void MPU6050_Read(void)
+  275          {
+  276   1        if(mpu6050_delay) return; 
+  277   1        mpu6050_delay = 1;
+  278   1        
+  279   1          //********************************************************************************************
+  280   1          Read_MPU6050(tp); // 720us @24MHz
+  281   1      
+  282   1          Angle_ax = ((float)(((int *)&tp)[0])) / 8192.0; //加速度处理  结果单位是 +- g
+  283   1          Angle_ay = ((float)(((int *)&tp)[1])) / 8192.0; //转换关系  8192 LSB/g, 1g对应读数8192
+  284   1          Angle_az = ((float)(((int *)&tp)[2])) / 8192.0; //加速度量程 +-4g/S
+  285   1          Last_Angle_gx = Angle_gx;   //储存上一次角速度数据
+  286   1          Last_Angle_gy = Angle_gy;
+  287   1          Angle_gx = ((float)(((int *)&tp)[4] - g_x)) / 65.5; //陀螺仪处理  结果单位是 +-度
+  288   1          Angle_gy = ((float)(((int *)&tp)[5] - g_y)) / 65.5; //陀螺仪量程 +-500度/S, 1度/秒 对应读数 65.536
+  289   1          Angle_gz = ((float)(((int *)&tp)[6] - g_z)) / 65.5; //转换关系65.5 LSB/度
+  290   1      
+  291   1      
+  292   1          //**********************************X轴指向************************************************
+  293   1          X_Result  = Angle_ax * 100 ;    //处理过的数值减去偏差值
+  294   1          //**************Y轴指向**************************************************
+  295   1          Y_Result  = Angle_ay * 100;   //处理过的数值减去偏差值
+  296   1          //**************Z轴指向*****************************  
+  297   1          Z_Result = Angle_az * 100;
+  298   1      
+  299   1      
+  300   1          //==============================================================
+  301   1              
+  302   1      //    Uart1_sendbyte(0x03);
+  303   1      //    Uart1_sendbyte(~0x03);
+  304   1      //    
+  305   1      //    Uart1_sendbyte((int)(X_Result*100));
+  306   1      //    Uart1_sendbyte((int)(X_Result*100)>>8);
+  307   1      //    Uart1_sendbyte((int)(Y_Result*100));
+  308   1      //    Uart1_sendbyte((int)(Y_Result*100)>>8);
+  309   1      //    Uart1_sendbyte((int)(Z_Result*100));
+  310   1      //    Uart1_sendbyte((int)(Z_Result*100)>>8);
+  311   1      //    
+  312   1      //    Uart1_sendbyte(~0x03);
+  313   1      //    Uart1_sendbyte(0x03);
+  314   1             
+  315   1          //========================= 
+  316   1      }
+  317          
+  318          //-----------------电机控制函数-------------------------------------
+  319          void Motor_control(void)
+  320          {
+  321   1        if(motor_delay) return; //延时
+  322   1        motor_delay = 1;
+C251 COMPILER V5.60.0,  main                                                               05/08/23  00:08:27  PAGE 6   
+
+  323   1        
+  324   1        line_inaccuracy = ReadLine();//读取循线状态 1、-1、0
+  325   1        
+  326   1        if(!line_inaccuracy)
+  327   1        {
+  328   2          PWMB_CCR00 = 0;
+  329   2          PWMB_CCR01 = 0;
+  330   2          
+  331   2          PWMB_CCR02 = 0;
+  332   2        }
+  333   1        if(line_inaccuracy == 1 || line_inaccuracy == 2)
+  334   1        {
+  335   2          PWMB_CCR00 = 1000;
+  336   2          PWMB_CCR01 = 0;
+  337   2          
+  338   2          PWMB_CCR02 = 0;
+  339   2        }
+  340   1        else if(line_inaccuracy == -1 || line_inaccuracy == -2)
+  341   1        {
+  342   2          PWMB_CCR01 = 1000;
+  343   2          PWMB_CCR00 = 0;
+  344   2          
+  345   2          PWMB_CCR02 = 0;
+  346   2        }
+  347   1        
+  348   1      //  Update_Pwm0(PWMB_CCR00);
+  349   1      //  Update_Pwm1(PWMB_CCR01);
+  350   1      //  
+  351   1      //  Update_Pwm2(PWMB_CCR02);
+  352   1      //  
+  353   1      //  Update_Pwm4(PWMB_CCA);
+  354   1        
+  355   1        Update_PWM(PWMB_CCR00,PWMB_CCR01,PWMB_CCR02,PWMB_CCR03,PWMB_CCA);
+  356   1      }
+  357          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      1178     ------
+  code size            =      1098     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
@@ -407,8 +395,6 @@ Module Information          Static   Overlayable
   huge data size       =    ------     ------
   const size           =    ------     ------
   hconst size          =       225     ------
-C251 COMPILER V5.60.0,  main                                                               04/08/23  21:31:29  PAGE 7   
-
 End of Module Information.
 
 

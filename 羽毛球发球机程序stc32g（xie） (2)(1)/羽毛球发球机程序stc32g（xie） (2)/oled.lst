@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  20:04:27  PAGE 1   
+C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE oled
 OBJECT MODULE PLACED IN oled.obj
-COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE OLED\oled.c XSMALL INTR2 WARNINGLEVEL(1) BROW
-                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6
-                    -288) DEBUG PRINT(.\oled.lst) TABS(2) OBJECT(oled.obj) 
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE OLED\oled.c XSMALL INTR2 BROWSE INCDIR(.\OLED
+                    -;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG PRINT
+                    -(.\oled.lst) TABS(2) OBJECT(oled.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    55   1        OLED_WR_Byte(0x10,OLED_CMD);//关闭电荷泵
    56   1        OLED_WR_Byte(0xAE,OLED_CMD);//关闭屏幕
    57   1      }
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  20:04:27  PAGE 2   
+C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 2   
 
    58          
    59          
@@ -109,6 +109,7 @@ stmt  level    source
    96   1        for(i=0;i<8;i++)
    97   1        {
    98   2           OLED_WR_Byte(0xb0+i,OLED_CMD);//设置页地址
+*** WARNING C188 IN LINE 98 OF OLED\oled.c: 'parameter 1': value truncated
    99   2           OLED_WR_Byte(0x10,OLED_CMD);  //设置列地址的高4位
   100   2           OLED_WR_Byte(0x02,OLED_CMD);  //设置列地址的低4位
   101   2           for(n=0;n<128;n++)
@@ -123,6 +124,7 @@ stmt  level    source
   110   1        uchar i=0,n=0;
   111   1        for(i=0;i<8;i++){
   112   2           OLED_WR_Byte(0xb0+i,OLED_CMD);//设置页地址
+*** WARNING C188 IN LINE 112 OF OLED\oled.c: 'parameter 1': value truncated
   113   2           OLED_WR_Byte(0x10,OLED_CMD);  //设置列地址的高4位
   114   2           OLED_WR_Byte(0x02,OLED_CMD);  //设置列地址的低4位
   115   2           for(n=0;n<16;n++){
@@ -132,11 +134,12 @@ stmt  level    source
   119   1      }
   120          //设置起始地址
   121          void OLED_address(uchar x,uchar y)
+C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 3   
+
   122          {
   123   1        x+=2;
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  20:04:27  PAGE 3   
-
   124   1        OLED_WR_Byte(0xb0+y,OLED_CMD);              //设置页地址
+*** WARNING C188 IN LINE 124 OF OLED\oled.c: 'parameter 1': value truncated
   125   1        OLED_WR_Byte(((x&0xf0)>>4)|0x10,OLED_CMD);  //设置列地址的高4位
   126   1        OLED_WR_Byte((x&0x0f),OLED_CMD);            //设置列地址的低4位
   127   1      }
@@ -199,11 +202,11 @@ stmt  level    source
   184   2          dp++;
   185   2        }
   186   1      }
+C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 4   
+
   187          
   188          //送指令到晶联讯字库IC
   189          void Send_Command_to_ROM(uchar dat)
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  20:04:27  PAGE 4   
-
   190          {
   191   1        uchar i;
   192   1        for(i=0;i<8;i++)
@@ -267,11 +270,11 @@ stmt  level    source
   249   1        uchar addrHigh,addrMid,addrLow;
   250   1        uchar fontbuf[32];
   251   1        while(text[i]>0x00)
+C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 5   
+
   252   1        {
   253   2          if((text[i]>=0xb0)&&(text[i]<=0xf7)&&(text[i+1]>=0xa1))
   254   2          {
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  20:04:27  PAGE 5   
-
   255   3            //国标简体（GB2312）汉字在晶联讯字库IC中的地址由以下公式来计算：
   256   3            //Address = ((MSB - 0xB0) * 94 + (LSB - 0xA1)+ 846)*32+ BaseAdd;BaseAdd=0
   257   3            //由于担心8位单片机有乘法溢出问题，所以分三部取地址
@@ -335,11 +338,11 @@ stmt  level    source
   315   1        {
   316   2          if((text[i]>=0x20)&&(text[i]<=0x7e))
   317   2          {
+C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 6   
+
   318   3            uchar fontbuf[8];
   319   3            fontaddr=(text[i]-0x20);
   320   3            fontaddr=(unsigned long)(fontaddr*8);
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  20:04:27  PAGE 6   
-
   321   3            fontaddr=(unsigned long)(fontaddr+0x3bfc0);
   322   3            
   323   3            addrHigh=(fontaddr&0xff0000)>>16;
@@ -367,6 +370,7 @@ stmt  level    source
   345   1        x=x+len*8+8;//要显示的小数最低位的横坐标
   346   1        num=num1*100;//将小数左移两位并转化为整数
   347   1        OLED_16x16(x-24,y,".");//显示小数点
+*** WARNING C188 IN LINE 347 OF OLED\oled.c: 'parameter 1': value truncated
   348   1        for(i=0;i<len;i++)
   349   1        {
   350   2          t=num%10;//取个位数的数值
@@ -402,12 +406,12 @@ stmt  level    source
   380   1        OLED_WR_Byte(0x40,OLED_CMD); /*set display start line*/ 
   381   1        OLED_WR_Byte(0xB0,OLED_CMD); /*set page address*/
   382   1        OLED_WR_Byte(0x81,OLED_CMD); /*contract control*/ 
+C251 COMPILER V5.60.0,  oled                                                               04/08/23  23:43:56  PAGE 7   
+
   383   1        OLED_WR_Byte(0xcf,OLED_CMD); /*128*/ 
   384   1        OLED_WR_Byte(0xA1,OLED_CMD); /*set segment remap*/ 
   385   1        OLED_WR_Byte(0xA6,OLED_CMD); /*normal / reverse*/ 
   386   1        OLED_WR_Byte(0xA8,OLED_CMD); /*multiplex ratio*/ 
-C251 COMPILER V5.60.0,  oled                                                               04/08/23  20:04:27  PAGE 7   
-
   387   1        OLED_WR_Byte(0x3F,OLED_CMD); /*duty = 1/64*/ 
   388   1        OLED_WR_Byte(0xad,OLED_CMD); /*set charge pump enable*/ 
   389   1        OLED_WR_Byte(0x8b,OLED_CMD); /* 0x8B 内供 VCC */ 
@@ -451,4 +455,4 @@ Module Information          Static   Overlayable
 End of Module Information.
 
 
-C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C251 COMPILATION COMPLETE.  4 WARNING(S),  0 ERROR(S)

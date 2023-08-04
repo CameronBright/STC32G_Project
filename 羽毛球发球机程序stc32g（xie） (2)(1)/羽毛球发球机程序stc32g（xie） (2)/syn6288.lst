@@ -1,11 +1,11 @@
-C251 COMPILER V5.60.0,  syn6288                                                            04/08/23  20:04:28  PAGE 1   
+C251 COMPILER V5.60.0,  syn6288                                                            04/08/23  23:43:57  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE syn6288
 OBJECT MODULE PLACED IN syn6288.obj
-COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE SYN6288\syn6288.c XSMALL INTR2 WARNINGLEVEL(1
-                    -) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;
-                    -.\SYN6288) DEBUG PRINT(.\syn6288.lst) TABS(2) OBJECT(syn6288.obj) 
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE SYN6288\syn6288.c XSMALL INTR2 BROWSE INCDIR(
+                    -.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6288) DEBUG
+                    - PRINT(.\syn6288.lst) TABS(2) OBJECT(syn6288.obj) 
 
 stmt  level    source
 
@@ -53,6 +53,7 @@ stmt  level    source
    42   1        memcpy(&Frame_Info[5], HZdata, HZ_Length);   
    43   1        Frame_Info[5 + HZ_Length] = ecc;
    44   1        UART2_SendString(Frame_Info, 5 + HZ_Length + 1);
+*** WARNING C188 IN LINE 44 OF SYN6288\syn6288.c: 'parameter 2': value truncated
    45   1        
    46   1      }
    47          
@@ -65,9 +66,9 @@ stmt  level    source
    54          * 说    明：本函数用于配置，停止合成、暂停合成等设置 ，默认波特率9600bps。
    55          * 调用方法：通过调用已经定义的相关数组进行配置。
    56          **********************************************************/
-   57          void YS_SYN_Set(uchar *Info_data)
-C251 COMPILER V5.60.0,  syn6288                                                            04/08/23  20:04:28  PAGE 2   
+C251 COMPILER V5.60.0,  syn6288                                                            04/08/23  23:43:57  PAGE 2   
 
+   57          void YS_SYN_Set(uchar *Info_data)
    58          {
    59   1        uchar Com_Len;
    60   1        Com_Len = strlen((char*)Info_data);
@@ -108,4 +109,4 @@ Module Information          Static   Overlayable
 End of Module Information.
 
 
-C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C251 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
