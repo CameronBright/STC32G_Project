@@ -1,1 +1,0 @@
-"LineFollower\LineFollwer.c" XSMALL INTR2 WARNINGLEVEL (1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower) DEBUG PRINT(.\LineFollwer.lst) TABS (2) OBJECT(LineFollwer.obj)
