@@ -1,0 +1,151 @@
+C251 COMPILER V5.60.0,  Uart                                                               04/08/23  20:04:27  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Uart
+OBJECT MODULE PLACED IN Uart.obj
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE Uart\Uart.c XSMALL INTR2 WARNINGLEVEL(1) BROW
+                    -SE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wave;.\Uart;.\SYN6
+                    -288) DEBUG PRINT(.\Uart.lst) TABS(2) OBJECT(Uart.obj) 
+
+stmt  level    source
+
+    1          #include "Uart.h"
+    2          
+    3          
+    4          void Uart1_Init(void)   //115200bps@24.000MHz
+    5          {
+    6   1        SCON = 0x50;    //8位数据,可变波特率
+    7   1        AUXR |= 0x01;   //串口1选择定时器2为波特率发生器
+    8   1        AUXR |= 0x04;   //定时器时钟1T模式
+    9   1        T2L = 0x8F;     //设置定时初始值
+   10   1        T2H = 0xFD;     //设置定时初始值
+   11   1        AUXR |= 0x10;   //定时器2开始计时
+   12   1        ES = 1;
+   13   1        EA = 1;
+   14   1      }
+   15          
+   16          void Uart1_sendbyte(uchar byte)  //串口发送单个字节
+   17          {
+   18   1        SBUF=byte;
+   19   1        while(!TI);
+   20   1        TI = 0;
+   21   1      }
+   22          
+   23          void Uart1_String(uchar *p)    //串口发送字符串
+   24          {
+   25   1        while(*p)
+   26   1        {
+   27   2          Uart1_sendbyte(*p++);
+   28   2        }
+   29   1      }
+   30          
+   31          void Uart1_Isr() interrupt 4
+   32          {
+   33   1        if(RI)
+   34   1        {
+   35   2          RI=0; 
+   36   2        }
+   37   1          
+   38   1      }
+   39          
+   40          
+   41          //*********串口2**********//
+   42          void Uart2_Init(void)   //9600bps@24.000MHz
+   43          {
+   44   1        S2CON = 0x50;   //8位数据,可变波特率
+   45   1        AUXR |= 0x04;   //定时器时钟1T模式
+   46   1        T2L = 0x8F;     //设置定时初始值
+   47   1        T2H = 0xFD;     //设置定时初始值
+   48   1        AUXR |= 0x10;   //定时器2开始计时
+   49   1        ES2 = 1;
+   50   1      }
+   51          
+   52          void Uart2_sendbyte(uchar byte)  //串口发送单个字节
+   53          {
+   54   1        S2BUF=byte;
+   55   1        while(!S2TI);
+   56   1        S2TI = 0;
+   57   1      }
+C251 COMPILER V5.60.0,  Uart                                                               04/08/23  20:04:27  PAGE 2   
+
+   58          
+   59          void Uart2_String(uchar *p)    //串口发送字符串
+   60          {
+   61   1        while(*p)
+   62   1        {
+   63   2          Uart2_sendbyte(*p++);
+   64   2        }
+   65   1      }
+   66          
+   67          //串口2发送字符串数据
+   68          void UART2_SendString(uchar *DAT, uchar len)
+   69          {
+   70   1        uchar i;
+   71   1        for(i = 0; i < len; i++)
+   72   1        {
+   73   2          Uart2_sendbyte(*DAT++);
+   74   2        }
+   75   1      }
+   76          
+   77          
+   78          void Uart2_Isr() interrupt 8
+   79          {
+   80   1        if(S2RI)
+   81   1        {
+   82   2          S2RI=0; 
+   83   2        }
+   84   1      }
+   85          
+   86          //**********串口3**********//
+   87          void Uart3_Init(void)   //115200bps@24.000MHz
+   88          {
+   89   1        S3CON = 0x10;   //8位数据,可变波特率
+   90   1        S3CON &= 0xBF;    //串口3选择定时器2为波特率发生器
+   91   1        AUXR |= 0x04;   //定时器时钟1T模式
+   92   1        T2L = 0xCC;     //设置定时初始值
+   93   1        T2H = 0xFF;     //设置定时初始值
+   94   1        AUXR |= 0x10;   //定时器2开始计时
+   95   1        ES3 = 1;
+   96   1      }
+   97          
+   98          void Uart3_sendbyte(uchar byte)  //串口发送单个字节
+   99          {
+  100   1        S2BUF=byte;
+  101   1        while(!S2TI);
+  102   1        S2TI = 0;
+  103   1      }
+  104          
+  105          void Uart3_String(uchar *p)    //串口发送字符串
+  106          {
+  107   1        while(*p)
+  108   1        {
+  109   2          Uart3_sendbyte(*p++);
+  110   2        }
+  111   1      }
+  112          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       230     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------          2
+C251 COMPILER V5.60.0,  Uart                                                               04/08/23  20:04:27  PAGE 3   
+
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

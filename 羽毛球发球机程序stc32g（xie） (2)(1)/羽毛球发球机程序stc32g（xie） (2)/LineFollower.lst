@@ -1,0 +1,226 @@
+C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  21:23:38  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE LineFollower
+OBJECT MODULE PLACED IN LineFollower.obj
+COMPILER INVOKED BY: D:\Software\Worksoftware\Keil5_C251\C251\BIN\C251.EXE LineFollower\LineFollower.c XSMALL INTR2 WARN
+                    -INGLEVEL(1) BROWSE INCDIR(.\OLED;.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key;.\Wa
+                    -ve;.\Uart;.\SYN6288) DEBUG PRINT(.\LineFollower.lst) TABS(2) OBJECT(LineFollower.obj) 
+
+stmt  level    source
+
+    1          #include "LineFollower.h"
+    2          #include "Wave.h"
+    3          
+    4          //循迹线标志位
+    5          unsigned char count = 0;  
+    6          extern unsigned char Wave_flag;
+    7          extern unsigned char T_S_B;
+    8          extern unsigned char flag;
+    9          extern unsigned char flag_count;
+   10          extern unsigned char Tracking_value;
+   11          
+   12          //extern char line_inaccuracy;
+   13          
+   14          extern void Motor_control();
+   15          
+   16          
+   17          char ReadLine(void) //往左边偏的时候输出1 右边偏输出-1 踩在线上输出0
+   18          { 
+   19   1        uchar read_value = 0;
+   20   1        char return_value = 0;
+   21   1        
+   22   1          if(det_L == 1)
+   23   1            read_value |= 0x10; //置1
+   24   1          else 
+   25   1            read_value &= ~0x10;
+   26   1      
+   27   1          if(det_CL == 1)
+   28   1            read_value |= 0x08;
+   29   1          else 
+   30   1            read_value &= ~0x08;
+   31   1          
+   32   1          if(det_C == 1)
+   33   1            read_value |= 0x04;
+   34   1          else 
+   35   1            read_value &= ~0x04;
+   36   1          
+   37   1          if(det_CR == 1)
+   38   1            read_value |= 0x02;
+   39   1          else 
+   40   1            read_value &= ~0x02;
+   41   1          
+   42   1          if(det_R == 1)
+   43   1            read_value |= 0x01;
+   44   1          else 
+   45   1            read_value &= ~0x01;
+   46   1          
+   47   1          
+   48   1          switch(read_value)
+   49   1          {
+   50   2            case 0x04:            //正常行驶
+   51   2              return_value = 0;
+   52   2              break;
+   53   2            case 0x08:           //往右边偏一点点
+   54   2              return_value = 1;
+   55   2              break;
+   56   2            case 0x02:           //往左边偏一点点
+   57   2              return_value = -1;
+C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  21:23:38  PAGE 2   
+
+   58   2              break;
+   59   2            case 0x0C:           //往右边偏一点点
+   60   2              return_value = 1;
+   61   2              break;
+   62   2            case 0x06:           //往左边偏一点点
+   63   2              return_value = -1;
+   64   2              break;
+   65   2            case 0x10:
+   66   2              return_value = 2; //往右偏较大角度
+   67   2              break;
+   68   2            case 0x01:
+   69   2              return_value = -2;//往坐偏较大角度
+   70   2              break;
+   71   2            case 0x18:
+   72   2              return_value = 2; //往右偏较大角度
+   73   2              break;
+   74   2            case 0x03:
+   75   2              return_value = -2;//往坐偏较大角度
+   76   2              break;  
+   77   2            case 0x1F:
+   78   2              return_value = -3;//宝马离开地面返回  ‘-3‘
+   79   2            break;
+   80   2            
+   81   2            default:
+   82   2              return_value = 3;//没识别到黑线返回 ‘3‘
+   83   2            break;
+   84   2          } 
+   85   1            
+   86   1        return return_value;
+   87   1      }
+   88          
+   89          ////巡线处理函数
+   90          //void ReadLine_proc(void)
+   91          //{
+   92          //  if(T_S_B == 1)
+   93          //  {
+   94          //    T_S_B_1_ReadLine();
+   95          //  }
+   96          //  if(T_S_B == 2)
+   97          //  {
+   98          //    T_S_B_2_ReadLine();
+   99          //  }
+  100          //}
+  101          
+  102          ////基础部分
+  103          
+  104          ////功能2
+  105          //void T_S_B_1_ReadLine()
+  106          //{
+  107          //  Motor_control();
+  108          //  if(line_inaccuracy == -3 ||line_inaccuracy == -2)   //判断5路都在黑线上
+  109          //  {
+  110          //    flag = 1;
+  111          //  }
+  112          //  if(Tracking_value == 4)  //循迹1圈 循迹次数标志位+4  
+  113          //  {
+  114          //    Tracking_value = 0;   //循迹完1圈 标志位置0
+  115          //    flag = 0;             
+  116          //    T_S_B = 0;            //状态恢复
+  117          //  }   
+  118          //}
+  119          
+  120          
+  121          
+  122          ////功能3
+  123          //void T_S_B_2_ReadLine(void)
+C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  21:23:38  PAGE 3   
+
+  124          //{
+  125          
+  126          //    Motor_control();
+  127          //    if(line_inaccuracy == -3 || line_inaccuracy == -2)   //判断5路都在黑线上
+  128          //    {
+  129          //      flag = 1;
+  130          //      if(Tracking_value == 6)  //循迹1圈 标志位+4
+  131          //      {
+  132          //        Tracking_value = 0;   //循迹完1圈 标志位置0
+  133          //        flag = 0;             
+  134          //        T_S_B = 0;            //状态恢复
+  135          //      }  
+  136          //    } 
+  137          //    if(Tracking_value == 4)  
+  138          //    {
+  139          ////      moter_wheel();
+  140          //    }
+  141          //}
+  142          
+  143          //  //左拐函数  输入左右PWM
+  144          //void moter_wheel(int left_moto,int right_moto)//用与循迹a、b点转弯  左右风速
+  145          //{
+  146          //    bit Turn_left_flage = 0;
+  147          //  
+  148          //    Turn_left_flage = 1;
+  149          
+  150          //    //重新开启左边电机和右边电机
+  151          //    Set_LRPwm(left_moto,right_moto);    //问题一 如何左转不会被循迹控制  左转完成后如何恢复循迹控制
+  152          //  
+  153          //    
+  154          //    
+  155          //    if(line_inaccuracy == 2)//左边的红外碰到碰到最近的循迹
+  156          //    {
+  157          //      Turn_left_flage = 0;
+  158          ////      Motor_control(）//恢复循迹 直到碰到下个AB
+  159          //    }
+  160          //    
+  161          //    
+  162          //    
+  163          //}
+  164          
+  165          
+  166          
+  167          
+  168          //////发挥部分
+  169          //////功能1
+  170          
+  171          //void obstacle_avoidance()
+  172          //{
+  173          //  Motor_control();
+  174          //  if(Wave_ultrasonic() > 40)
+  175          //  {
+  176          //    
+  177          //  }
+  178          //}
+  179          
+  180          
+  181          //////功能2
+  182          
+  183          
+  184          
+  185          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       218     ------
+C251 COMPILER V5.60.0,  LineFollower                                                       04/08/23  21:23:38  PAGE 4   
+
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =         1     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =         5     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

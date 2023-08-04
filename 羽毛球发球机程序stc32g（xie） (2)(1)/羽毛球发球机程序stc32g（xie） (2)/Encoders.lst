@@ -1,0 +1,215 @@
+C251 COMPILER V5.60.0,  Encoders                                                           02/08/23  17:58:06  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Encoders
+OBJECT MODULE PLACED IN Encoders.obj
+COMPILER INVOKED BY: C:\Keil_v5\C251\BIN\C251.EXE Encoders\Encoders.c XSMALL INTR2 WARNINGLEVEL(1) BROWSE INCDIR(.\OLED;
+                    -.\timer;.\GPIO;.\PWM;.\Encoders;.\iic;.\Uart;.\Menu;.\motor;.\ADC;.\LineFollower;.\MPU6050;.\Key) DEBUG PRINT(.\Encoders
+                    -.lst) TABS(2) OBJECT(Encoders.obj) 
+
+stmt  level    source
+
+    1          #include "Encoders.h"
+    2          #include "oled.h"
+    3          bit long_short=0,add_lose=0;  //long_short¼ÆÊ± ¶Ì°´½øÈë add_lose=0¼Ó add_lose=1¼õ
+    4          bit arrow_Value=0;         //¼ýÍ·»òÖµ   0ÊÇ¼ýÍ· 1ÊÇÖµ
+    5          bit rising_edge=0;         //ÉÏÉýÑØ¼ì²â
+    6          bit falling_Down=0;       //ÏÂ½µÑØ¼ì²â 
+    7          uint s_count=0;         //¼ÆÊý¼Ó¼Ó
+    8          uchar part_count=0;      //Ò»¼¶½çÃæÇø±ðµÚ¼¸Ò³
+    9          uchar part2_count=0;     //¶þ¼¶½çÃæÇø±ðµÚ¼¸Ò³
+   10          uchar Confirm_exit=0;   //È·ÈÏºÍÍË³ö
+   11          struct encoder spin;
+   12          struct value adjust;
+   13          /******************************************************************************
+   14                º¯ÊýËµÃ÷£º//ÉÏÉýÑØ¼ì²â
+   15                Èë¿Ú²ÎÊý£ºÎÞ
+   16                ·µ»ØÖµ£º  ÎÞ
+   17          ******************************************************************************/
+   18          void up_key_detection() 
+   19          {
+   20   1        if(EC11_A==0&&EC11_B==0)  rising_edge=1;                                    
+   21   1        if(rising_edge==1)
+   22   1        {                                  
+   23   2          if(EC11_A!=EC11_B) 
+   24   2            spin.Turn=EC11_A;
+   25   2          if(EC11_A==1&&EC11_B==1)
+   26   2          {                                 
+   27   3            rising_edge=0;
+   28   3            if(spin.Turn==1)      add();       //Ò³¼Ó                                
+   29   3            else if(spin.Turn==0) lose();      //Ò³¼õ                                  
+   30   3          }
+   31   2        }
+   32   1      }
+   33          /******************************************************************************
+   34                º¯ÊýËµÃ÷£º//Ðý×ª±àÂëÆ÷¼ì²âº¯Êý ÉÏÉýÑØºÍÏÂ½µÑØ¼ì²âº¯Êý
+   35                Èë¿Ú²ÎÊý£ºÎÞ
+   36                ·µ»ØÖµ£º  ÎÞ
+   37          ******************************************************************************/
+   38          void rotary_encoder()  
+   39          {
+   40   1        if(EC11_A==1&&EC11_B==1)  falling_Down=1;//ÏÂ½µÑØ¼ì²â                     
+   41   1        if(falling_Down==1)
+   42   1        {
+   43   2          if(EC11_A!=EC11_B)
+   44   2            spin.Turn=EC11_B;
+   45   2          if(EC11_A==0&&EC11_B==0)
+   46   2          {
+   47   3            falling_Down=0;// falling_Down=0 ÊÇ½ûÖ¹½øÈë¼ì²â
+   48   3            if(spin.Turn==1)  add();//spin.Turn=1 ÊÇÓÒ×ª   Ò³¼Ó                                      
+   49   3            if(spin.Turn==0) lose();//spin.Turn=0 ÊÇ×ó×ª    Ò³¼õ 
+   50   3          }
+   51   2        }
+   52   1          up_key_detection(); //°´¼üÉÏÉýÑØ¼ì²âº¯Êý
+   53   1      }
+   54          /******************************************************************************
+   55                º¯ÊýËµÃ÷£ºarrow_Value==0//Ò³¼Ó
+   56                          arrow_Value==1ÊýÖµ¼Ó
+   57                Èë¿Ú²ÎÊý£ºÎÞ
+C251 COMPILER V5.60.0,  Encoders                                                           02/08/23  17:58:06  PAGE 2   
+
+   58                ·µ»ØÖµ£º  ÎÞ
+   59          ******************************************************************************/
+   60          void add()
+   61          {
+   62   1        if(arrow_Value==0)
+   63   1        {
+   64   2          if(spin.menu_mode==0)//Ò»¼¶²Ëµ¥
+   65   2          {
+   66   3            if(spin.Page>=0&&spin.Page<=4) spin.Page=spin.Page+2;   
+   67   3          }
+   68   2          else if(spin.menu_mode==1)//¶þ¼¶²Ëµ¥
+   69   2          {
+   70   3            if(spin.Page2>=0&&spin.Page2<2) spin.Page2=spin.Page2+2;
+   71   3          }
+   72   2          if(spin.menu_mode!=1&&part_count>=0&&part_count<=6) part_count++;   //Ò»¼¶½çÃæÇø±ðµÚ¼¸Ò³
+   73   2          if(spin.menu_mode==1&&part2_count>=0&&part2_count<=1) part2_count++;  //¶þ¼¶½çÃæÇø±ðµÚ¼¸Ò³
+   74   2          OLED_Clear_0_2();//Çå>º¯Êý      
+   75   2        }
+   76   1        else
+   77   1        {
+   78   2            add_lose=0; 
+   79   2            Second_menu_value();//¶þ¼¶²Ëµ¥ÊýÖµ¼Ó¼õº¯Êý         
+   80   2        }
+   81   1      }
+   82          /******************************************************************************    
+   83                 º¯ÊýËµÃ÷:arrow_Value==0//Ò³¼õ  
+   84                          arrow_Value==1ÊýÖµ¼õ
+   85                Èë¿Ú²ÎÊý£ºÎÞ
+   86                ·µ»ØÖµ£º  ÎÞ
+   87          ******************************************************************************/
+   88          void lose()    
+   89          { 
+   90   1        if(arrow_Value==0)
+   91   1        {   
+   92   2          if(spin.menu_mode==0)//Ò»¼¶²Ëµ¥
+   93   2          {
+   94   3            if(spin.Page<=6&&spin.Page>=2) spin.Page=spin.Page-2;   
+   95   3          }
+   96   2          else if(spin.menu_mode==1)//¶þ¼¶²Ëµ¥
+   97   2          {
+   98   3            if(spin.Page2<4&&spin.Page2>=2) spin.Page2=spin.Page2-2;
+   99   3          }
+  100   2          if(spin.menu_mode!=1&&part_count>0&&part_count<=7) part_count--;
+  101   2          if(spin.menu_mode==1&&part2_count>=0&&part2_count<=1) part2_count--;  //¶þ¼¶½çÃæÇø±ðµÚ¼¸Ò³    
+  102   2          OLED_Clear_0_2();   
+  103   2        }
+  104   1        else
+  105   1        {
+  106   2            add_lose=1;   
+  107   2            Second_menu_value();             
+  108   2        }
+  109   1      }
+  110          /******************************************************************************
+  111                º¯ÊýËµÃ÷£º//¶þ¼¶²Ëµ¥ÊýÖµ¼Ó¼õº¯Êý
+  112                Èë¿Ú²ÎÊý£ºÎÞ
+  113                ·µ»ØÖµ£º  ÎÞ
+  114          ******************************************************************************/
+  115          void Second_menu_value()   
+  116          {
+  117   1        if(part_count==0&&part2_count==0&&add_lose==0){adjust.speed_value+=1; }  //Pwm_value+=1;
+  118   1        else if(part_count==0&&part2_count==0&&add_lose==1) {adjust.speed_value-=1; }   //Pwm_value-=1;
+  119   1        else if(part_count==0&part2_count==1&&add_lose==0) adjust.qi_value+=1; 
+  120   1        else if(part_count==0&&part2_count==1&&add_lose==1) adjust.qi_value-=1;
+  121   1      
+  122   1        else if(part_count==1&&part2_count==0&&add_lose==0) adjust.angle_value+=1;   //part_countÅÐ¶ÏÒ»¼¶²Ëµ¥µÄÎ
+             -»ÖÃ  part2_countÅÐ¶Ï¶þ¼¶²Ëµ¥µÄÎ»ÖÃ  add_loseÅÐ¶Ï¼Ó»ò¼õ
+C251 COMPILER V5.60.0,  Encoders                                                           02/08/23  17:58:06  PAGE 3   
+
+  123   1        else if(part_count==1&&part2_count==0&&add_lose==1) adjust.angle_value-=1;
+  124   1        else if(part_count==1&&part2_count==1&&add_lose==0) adjust.qi_value+=1; 
+  125   1        else if(part_count==1&&part2_count==1&&add_lose==1) adjust.qi_value-=1; 
+  126   1        
+  127   1        else if(part_count==2&&part2_count==0&&add_lose==0) adjust.Pitching_value+=1;
+  128   1        else if(part_count==2&&part2_count==0&&add_lose==1) adjust.Pitching_value-=1;
+  129   1        else if(part_count==2&&part2_count==1&&add_lose==0) adjust.qi_value+=1; 
+  130   1        else if(part_count==2&&part2_count==1&&add_lose==1) adjust.qi_value-=1; 
+  131   1      
+  132   1        else if(part_count==3&&part2_count==0&&add_lose==0) adjust.control_value+=1;
+  133   1        else if(part_count==3&&part2_count==0&&add_lose==1) adjust.control_value-=1;
+  134   1        else if(part_count==3&&part2_count==1&&add_lose==0) adjust.qi_value+=1; 
+  135   1        else if(part_count==3&&part2_count==1&&add_lose==1) adjust.qi_value-=1; 
+  136   1      }
+  137          
+  138          /******************************************************************************
+  139                º¯ÊýËµÃ÷£º//°´¼üÈ¡ÏûºÍÈ·¶¨¼ì²âº¯Êý  ¼ÆÊ±·½Ê½
+  140                Èë¿Ú²ÎÊý£ºÎÞ
+  141                ·µ»ØÖµ£º  ÎÞ
+  142          ******************************************************************************/
+  143          void Cancel_determine()        
+  144          {
+  145   1        extern uint s_count;
+  146   1        if(long_short==1)
+  147   1        {
+  148   2          if(EC11_K==1&&s_count<2000)//È·¶¨ 200ms
+  149   2          {           
+  150   3            s_count=0; //¼ÆÊýÇåÁã
+  151   3            OLED_Clear();
+  152   3            long_short=0; 
+  153   3            if(Confirm_exit<2) Confirm_exit++;else Confirm_exit=1;//¶þ¼¶²Ëµ¥È·ÈÏ»òÍË³ö  
+  154   3            if(Confirm_exit==2) arrow_Value=1;else arrow_Value=0; //arrow_Value=1½øÈëÖµ¼Ó¼õ£¬arrow_Value=0Ò³¼Ó¼õ
+  155   3            spin.menu_mode=1;
+  156   3          }
+  157   2          else if(EC11_K==1&&s_count>4000)     //È¡Ïû  400ms
+  158   2          {   
+  159   3            s_count=0;//¼ÆÊýÇåÁã      
+  160   3            OLED_Clear();
+  161   3            long_short=0;     
+  162   3            arrow_Value=0;// 0Îª>
+  163   3            Confirm_exit=0;//È·ÈÏ»òÍË³ö       
+  164   3            spin.menu_mode=0;//·µ»ØÒ»¼¶²Ëµ¥
+  165   3            spin.Page2=0; 
+  166   3            part2_count=0;
+  167   3          }
+  168   2          else if(EC11_K==1&&s_count>2000)    //Çø±ð³¤¶Ì°´  
+  169   2          {
+  170   3            s_count=0;
+  171   3          }
+  172   2        }
+  173   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       925     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =        14     ------
+  bit size             =         5     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+C251 COMPILER V5.60.0,  Encoders                                                           02/08/23  17:58:06  PAGE 4   
+
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        21     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
